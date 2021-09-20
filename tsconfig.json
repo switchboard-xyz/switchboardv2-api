@@ -1,0 +1,22 @@
+{
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "es2019",
+      "lib": ["ES2019"],
+      "noImplicitReturns": true,
+      "noImplicitAny": true
+    }
+  },
+  "compilerOptions": {
+    "declaration": true,
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "target": "es2017",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "checkJs": false,
+  },
+  "include": ["lib/*"],
+  "exclude": ["node_modules"]
+}
