@@ -10,7 +10,9 @@
   "author": "",
   "license": "MIT",
   "testnetDefaultChannel": "v1.4.8",
-  "scripts": {},
+  "scripts": {
+    "docgen": "npx typedoc lib/sbv2.ts"
+  },
   "devDependencies": {
     "typedoc": "^0.20.37"
   },
