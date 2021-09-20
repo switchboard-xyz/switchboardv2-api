@@ -262,27 +262,45 @@ export class ProgramStateAccount {
  * Parameters to initialize an aggregator account.
  */
 export interface AggregatorInitParams {
-  // ID of the aggregator to store on-chain.
+  /**
+   *  ID of the aggregator to store on-chain.
+   */
   id: Buffer;
-  // Number of oracles to request on aggregator update.
+  /**
+   *  Number of oracles to request on aggregator update.
+   */
   batchSize: number;
-  // Minimum number of oracle responses required before a round is validated.
+  /**
+   *  Minimum number of oracle responses required before a round is validated.
+   */
   minRequiredOracleResults: number;
-  // Minimum number of feed jobs suggested to be successful before an oracle
-  // sends a response.
+  /**
+   *  Minimum number of feed jobs suggested to be successful before an oracle
+   *  sends a response.
+   */
   minRequiredJobResults: number;
-  // Minimum number of seconds required between aggregator rounds.
+  /**
+   *  Minimum number of seconds required between aggregator rounds.
+   */
   minUpdateDelaySeconds: number;
-  // unix_timestamp for which no feed update will occur before.
+  /**
+   *  unix_timestamp for which no feed update will occur before.
+   */
   startAfter?: number;
-  // Change percentage required between a previous round and the current round.
-  // If variance percentage is not met, reject new oracle responses.
+  /**
+   *  Change percentage required between a previous round and the current round.
+   *  If variance percentage is not met, reject new oracle responses.
+   */
   varianceThreshold?: number;
-  // Number of seconds for which, even if the variance threshold is not passed,
-  // accept new responses from oracles.
+  /**
+   *  Number of seconds for which, even if the variance threshold is not passed,
+   *  accept new responses from oracles.
+   */
   forceReportPeriod?: anchor.BN;
-  // unix_timestamp after which funds may be withdrawn from the aggregator.
-  // null/undefined/0 means the feed has no expiration.
+  /**
+   *  unix_timestamp after which funds may be withdrawn from the aggregator.
+   *  null/undefined/0 means the feed has no expiration.
+   */
   expiration?: anchor.BN;
 }
 
@@ -290,15 +308,23 @@ export interface AggregatorInitParams {
  * Parameters for which oracles must submit for responding to update requests.
  */
 export interface AggregatorSaveResultParams {
-  // Index in the list of oracles in the aggregator assigned to this round update.
+  /**
+   *  Index in the list of oracles in the aggregator assigned to this round update.
+   */
   oracleIdx: number;
-  // Value the oracle is responding with for this update.
+  /**
+   *  Value the oracle is responding with for this update.
+   */
   value: number;
-  // The minimum value this oracle has seen this round for the jobs listed in the
-  // aggregator.
+  /**
+   *  The minimum value this oracle has seen this round for the jobs listed in the
+   *  aggregator.
+   */
   minResponse: number;
-  // The maximum value this oracle has seen this round for the jobs listed in the
-  // aggregator.
+  /**
+   *  The maximum value this oracle has seen this round for the jobs listed in the
+   *  aggregator.
+   */
   maxResponse: number;
 }
 
@@ -306,12 +332,18 @@ export interface AggregatorSaveResultParams {
  * Parameters required to open an aggregator round
  */
 export interface AggregatorOpenRoundParams {
-  // The account validating that this aggregator has permission to use the given
-  // oracle queue.
+  /**
+   *  The account validating that this aggregator has permission to use the given
+   *  oracle queue.
+   */
   permissionAccount: PermissionAccount;
-  // The oracle queue from which oracles are assigned this update.
+  /**
+   *  The oracle queue from which oracles are assigned this update.
+   */
   oracleQueueAccount: OracleQueueAccount;
-  // The token wallet which will receive rewards for calling update on this feed.
+  /**
+   *  The token wallet which will receive rewards for calling update on this feed.
+   */
   payoutWallet: PublicKey;
 }
 
@@ -319,13 +351,21 @@ export interface AggregatorOpenRoundParams {
  * Switchboard wrapper for anchor program errors.
  */
 export class SwitchboardError {
-  // The program containing the Switchboard IDL specifying error codes.
+  /**
+   *  The program containing the Switchboard IDL specifying error codes.
+   */
   program: anchor.Program;
-  // Stringified name of the error type.
+  /**
+   *  Stringified name of the error type.
+   */
   name: string;
-  // Numerical SwitchboardError reporesentation.
+  /**
+   *  Numerical SwitchboardError reporesentation.
+   */
   code: number;
-  // Message describing this error in detail.
+  /**
+   *  Message describing this error in detail.
+   */
   msg?: string;
 
   /**
@@ -607,11 +647,17 @@ export class AggregatorAccount {
  * Parameters for initializing JobAccount
  */
 export interface JobInitParams {
-  // An optional ID to apply to the job account.
+  /**
+   *  An optional ID to apply to the job account.
+   */
   id?: Buffer;
-  // unix_timestamp of when funds can be withdrawn from this account.
+  /**
+   *  unix_timestamp of when funds can be withdrawn from this account.
+   */
   expiration?: anchor.BN;
-  // A serialized protocol buffer holding the schema of the job.
+  /**
+   *  A serialized protocol buffer holding the schema of the job.
+   */
   data: Buffer;
 }
 
@@ -720,11 +766,17 @@ export class JobAccount {
  * Parameters for initializing PermissionAccount
  */
 export interface PermissionInitParams {
-  // The permssion to set
+  /**
+   *  The permssion to set
+   */
   permission: string;
-  // Keypair of the account granting the permission.
+  /**
+   *  Keypair of the account granting the permission.
+   */
   granter: Keypair;
-  // The receiving account of a permission.
+  /**
+   *  The receiving account of a permission.
+   */
   grantee: PublicKey;
 }
 
@@ -732,11 +784,17 @@ export interface PermissionInitParams {
  * Parameters for setting a permission in a PermissionAccount
  */
 export interface PermissionSetParams {
-  // The permssion to set
+  /**
+   *  The permssion to set
+   */
   permission: string;
-  // Keypair of the account granting the permission.
+  /**
+   *  Keypair of the account granting the permission.
+   */
   granter: Keypair;
-  // The receiving account of a permission.
+  /**
+   *  The receiving account of a permission.
+   */
   grantee: PublicKey;
 }
 
@@ -861,15 +919,25 @@ export class PermissionAccount {
  * Parameters for initializing OracleQueueAccount
  */
 export interface OracleQueueInitParams {
-  // A name to assign to this OracleQueue
+  /**
+   *  A name to assign to this OracleQueue
+   */
   id: Buffer;
-  // Buffer for queue metadata
+  /**
+   *  Buffer for queue metadata
+   */
   metadata: Buffer;
-  // Slashing mechanisms for oracles on this queue.
+  /**
+   *  Slashing mechanisms for oracles on this queue.
+   */
   slashingCurve: Buffer;
-  // Rewards to provide oracles and round openers on this queue.
+  /**
+   *  Rewards to provide oracles and round openers on this queue.
+   */
   reward: anchor.BN;
-  // The minimum amount of stake oracles must present to remain on the queue.
+  /**
+   *  The minimum amount of stake oracles must present to remain on the queue.
+   */
   minStake: anchor.BN;
 }
 
@@ -990,17 +1058,27 @@ export class OracleQueueAccount {
  * Parameters for initializing a LeaseAccount
  */
 export interface LeaseInitParams {
-  // Token amount to load into the lease escrow
+  /**
+   *  Token amount to load into the lease escrow
+   */
   loadAmount: anchor.BN;
-  // The funding wallet of the lease.
+  /**
+   *  The funding wallet of the lease.
+   */
   funder: PublicKey;
-  // The authority of the funding wallet
+  /**
+   *  The authority of the funding wallet
+   */
   funderAuthority: Keypair;
-  // TODO: replace the 2 arguments below with a locked permission account?
-  // TODO: this shouldnt be signer, this should be some authority or some permission.
-  // The target to which this lease is applied.
+  /**
+   *  TODO: replace the 2 arguments below with a locked permission account?
+   *  TODO: this shouldnt be signer, this should be some authority or some permission.
+   *  The target to which this lease is applied.
+   */
   target: Keypair;
-  // The leaser which the lease grants permission.
+  /**
+   *  The leaser which the lease grants permission.
+   */
   leaser: PublicKey;
 }
 
@@ -1126,11 +1204,17 @@ export class LeaseAccount {
  * Parameters for initializing a CrankAccount
  */
 export interface CrankInitParams {
-  // Buffer specifying crank id
+  /**
+   *  Buffer specifying crank id
+   */
   id: Buffer;
-  // Buffer specifying crank metadata
+  /**
+   *  Buffer specifying crank metadata
+   */
   metadata: Buffer;
-  // OracleQueueAccount for which this crank is associated
+  /**
+   *  OracleQueueAccount for which this crank is associated
+   */
   queueAccount: OracleQueueAccount;
 }
 
@@ -1148,9 +1232,13 @@ export interface CrankPopParams {
  * Row structure of elements in the crank.
  */
 export class CrankRow {
-  // Aggregator account pubkey
+  /**
+   *  Aggregator account pubkey
+   */
   pubkey: PublicKey;
-  // Next aggregator update timestamp to order the crank by
+  /**
+   *  Next aggregator update timestamp to order the crank by
+   */
   nextTimestamp: anchor.BN;
 }
 
@@ -1340,7 +1428,9 @@ export class CrankAccount {
  * Parameters for an OracleInit request.
  */
 export interface OracleInitParams {
-  // Specifies the oracle queue to associate with this OracleAccount.
+  /**
+   * Specifies the oracle queue to associate with this OracleAccount.
+   */
   queueAccount: OracleQueueAccount;
 }
 
