@@ -1135,10 +1135,12 @@ export interface CrankInitParams {
 }
 
 /**
- * Parameters for initializing a CrankAccount
+ * Parameters for popping an element from a CrankAccount.
  */
 export interface CrankPopParams {
-  // Specifies the wallet to reward for turning the crank.
+  /**
+   * Specifies the wallet to reward for turning the crank.
+   */
   payoutWallet: PublicKey;
 }
 
