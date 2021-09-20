@@ -1321,7 +1321,7 @@ export class CrankAccount {
     let items = crank.pqData
       .slice(0, crank.pqSize)
       .filter((item: CrankRow) => {
-        return item.nextTimestamp <= Math.floor(now / 1000);
+        return item.nextTimestamp <= new anchor.BN(Math.floor(now / 1000));
       })
       .sort((a: CrankRow, b: CrankRow) => a.nextTimestamp < b.nextTimestamp)
       .slice(0, n)
