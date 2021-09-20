@@ -15,8 +15,7 @@
     "target": "es2017",
     "esModuleInterop": true,
     "allowJs": true,
-    "checkJs": false,
-    "normalTypeScriptOptions": "here"
+    "checkJs": false
   },
   "typedocOptions": {
     "entryPoints": ["docs/index.ts"],
