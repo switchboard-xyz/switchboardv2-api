@@ -16,7 +16,12 @@
     "esModuleInterop": true,
     "allowJs": true,
     "checkJs": false,
+    "normalTypeScriptOptions": "here"
   },
+  "typedocOptions": {
+    "entryPoints": ["docs/index.ts"],
+    "out": "docs"
+  }
   "include": ["lib/*"],
   "exclude": ["node_modules"]
 }
