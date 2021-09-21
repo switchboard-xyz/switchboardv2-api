@@ -7,17 +7,17 @@
     "url": "https://github.com/switchboard-xyz/switchboardv2-api"
   },
   "directories": {
-    "lib": "lib"
+    "dist": "dist"
   },
   "files": [
-    "lib/"
+    "dist/"
   ],
-  "keywords": [],
-  "author": "",
+  "keywords": ["oracle", "solana", "Defi"],
+  "author": "mitch@switchboard.xyz",
   "license": "MIT",
   "testnetDefaultChannel": "v1.4.8",
   "scripts": {
-    "docgen": "npx typedoc lib/sbv2.ts"
+    "docgen": "npx typedoc src/sbv2.ts"
   },
   "devDependencies": {
     "typedoc": "^0.20.37"
