@@ -12,12 +12,14 @@
   "files": [
     "dist/"
   ],
+  "main": "dist/sbv2.js",
+  "types": "dist/sbv2.d.ts",
   "keywords": ["oracle", "solana", "Defi"],
   "author": "mitch@switchboard.xyz",
   "license": "MIT",
   "testnetDefaultChannel": "v1.4.8",
   "scripts": {
-    "docgen": "npx typedoc src/sbv2.ts"
+    "docgen": "npx tsc && npx typedoc src/sbv2.ts"
   },
   "devDependencies": {
     "typedoc": "^0.20.37"
