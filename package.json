@@ -6,6 +6,12 @@
     "type": "git",
     "url": "https://github.com/switchboard-xyz/switchboardv2-api"
   },
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib/"
+  ],
   "keywords": [],
   "author": "",
   "license": "MIT",
