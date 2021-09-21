@@ -1,10 +1,10 @@
 {
-  "name": "Switchboard",
-  "version": "0.0.1",
-  "description": "",
+  "name": "switchboard-v2",
+  "version": "0.0.2",
+  "description": "API wrapper for intergating with the Switchboardv2 program",
   "repository": {
     "type": "git",
-    "url": "https://github.com/switchboard-xyz/switchboard-core"
+    "url": "https://github.com/switchboard-xyz/switchboardv2-api"
   },
   "keywords": [],
   "author": "",
