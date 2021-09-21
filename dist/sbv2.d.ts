@@ -254,6 +254,7 @@ export declare class AggregatorAccount {
      * @return hash of all the feed jobs.
      */
     produceJobsHash(): Promise<crypto.Hash>;
+    loadJobs(): Promise<Array<OracleJob>>;
     /**
      * Get the size of an AggregatorAccount on chain.
      * @return size.
@@ -340,7 +341,7 @@ export declare class JobAccount {
      * @return JobAccount data parsed in accordance with the
      * Switchboard IDL.
      */
-    decode(buf: Buffer): any;
+    static decode(program: anchor.Program, buf: Buffer): any;
     /**
      * Create and initialize the JobAccount.
      * @param program Switchboard program representation holding connection and IDL.

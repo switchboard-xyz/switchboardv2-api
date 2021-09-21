@@ -274,18 +274,23 @@ class AggregatorAccount {
         if (jobAccountDatas === null) {
             throw new Error("Failed to fetch aggregator job hashes.");
         }
+        // TODO: this might include the descriptor
         // Remember, dont trust the hash listed. Hash exactly the job you will be performing.
-        let datas = jobAccountDatas.map((item) => {
-            return new JobAccount({
-                program: this.program,
-                publicKey: item.publicKey,
-            }).decode(item.account.data).data;
-        });
-        let hash = crypto.createHash("sha256");
-        for (let data of datas) {
-            hash.update(data);
+        const jobs = await this.loadJobs();
+        const hash = crypto.createHash("sha256");
+        for (const job of jobs) {
+            hash.update(switchboard_api_1.OracleJob.encodeDelimited(job).finish());
         }
         return hash;
+    }
+    async loadJobs() {
+        const aggregator = await this.loadData();
+        const jobAccountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, aggregator.jobPubkeysData.slice(0, aggregator.jobPubkeysSize));
+        if (jobAccountDatas === null) {
+            throw new Error("Failed to load feed jobs.");
+        }
+        // Remember, dont trust the hash listed. Hash exactly the job you will be performing.
+        return jobAccountDatas.map((item) => switchboard_api_1.OracleJob.decodeDelimited(JobAccount.decode(this.program, item.account.data).data.slice(8)));
     }
     /**
      * Get the size of an AggregatorAccount on chain.
@@ -455,8 +460,8 @@ class JobAccount {
      * @return JobAccount data parsed in accordance with the
      * Switchboard IDL.
      */
-    decode(buf) {
-        const typesCoder = new anchor.TypesCoder(this.program.idl);
+    static decode(program, buf) {
+        const typesCoder = new anchor.TypesCoder(program.idl);
         return typesCoder.decode("JobAccountData", buf);
     }
     /**
