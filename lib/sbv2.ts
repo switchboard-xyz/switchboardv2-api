@@ -14,6 +14,7 @@ import * as anchor from "@project-serum/anchor";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import * as crypto from "crypto";
 import * as spl from "@solana/spl-token";
+import Big from "big.js";
 
 // Add toBig https://mikemcl.github.io/big.js/
 /**
@@ -44,6 +45,15 @@ export class SwitchboardDecimal {
    */
   public eq(other: SwitchboardDecimal): boolean {
     return this.mantissa.eq(other.mantissa) && this.scale === other.scale;
+  }
+
+  /**
+   * Convert SwitchboardDecimal to big.js Big type.
+   * @return Big representation
+   */
+  public toBig(): Big {
+    const scale = new Big(`1e-${this.scale}`);
+    return new Big(this.mantissa.toString()).times(scale);
   }
 }
 
