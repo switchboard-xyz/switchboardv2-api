@@ -16,7 +16,6 @@ import * as crypto from "crypto";
 import * as spl from "@solana/spl-token";
 import Big from "big.js";
 
-// Add toBig https://mikemcl.github.io/big.js/
 /**
  * Switchboard precisioned representation of numbers.
  * @param connection Solana network connection object.
@@ -428,6 +427,14 @@ export class AggregatorAccount {
     this.program = params.program;
     this.keypair = params.keypair;
     this.publicKey = params.publicKey ?? this.keypair.publicKey;
+  }
+
+  /**
+   * Returns the aggregator's ID buffer in a stringified format.
+   * @return The name of the aggregator.
+   */
+  name(): string {
+    return this.id.toString("utf8");
   }
 
   /**
