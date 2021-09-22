@@ -50,7 +50,7 @@ export class SwitchboardDecimal {
 	  });
 	  c *= big.s;
 	  let scale = big.c.length - big.e - 1;
-	  return new SwitchboardDecimal(c, scale);
+	  return new SwitchboardDecimal(new anchor.BN(c, 10), scale);
   }
 
   /**
