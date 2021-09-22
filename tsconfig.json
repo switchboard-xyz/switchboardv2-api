@@ -12,10 +12,14 @@
     "declaration": true,
     "moduleResolution": "node",
     "module": "commonjs",
-    "target": "es2017",
+    "target": "es2019",
     "esModuleInterop": true,
     "allowJs": true,
     "checkJs": false,
+	"types": [
+		"mocha",
+		"node"
+	],
     "sourceMap": true,
     "outDir": "dist"
   },
@@ -23,6 +27,6 @@
     "entryPoints": ["docs/index.ts"],
     "out": "docs"
   },
-  "include": ["src/*"],
+  "include": ["src/*", "tests/*"],
   "exclude": ["node_modules"]
 }
