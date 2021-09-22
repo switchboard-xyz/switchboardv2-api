@@ -254,6 +254,10 @@ export declare class AggregatorAccount {
      * @return hash of all the feed jobs.
      */
     produceJobsHash(): Promise<crypto.Hash>;
+    /**
+     * Load and deserialize all jobs stored in this aggregator
+     * @return Array<OracleJob>
+     */
     loadJobs(): Promise<Array<OracleJob>>;
     /**
      * Get the size of an AggregatorAccount on chain.

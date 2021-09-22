@@ -283,6 +283,10 @@ class AggregatorAccount {
         }
         return hash;
     }
+    /**
+     * Load and deserialize all jobs stored in this aggregator
+     * @return Array<OracleJob>
+     */
     async loadJobs() {
         const aggregator = await this.loadData();
         const jobAccountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, aggregator.jobPubkeysData.slice(0, aggregator.jobPubkeysSize));
