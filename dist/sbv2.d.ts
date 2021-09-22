@@ -243,7 +243,7 @@ export declare class AggregatorAccount {
      * @param aggregator A preloaded aggregator object.
      * @return The name of the aggregator.
      */
-    name(aggregator: any): string;
+    static getName(aggregator: any): string;
     /**
      * Load and parse AggregatorAccount state based on the program IDL.
      * @return AggregatorAccount data parsed in accordance with the

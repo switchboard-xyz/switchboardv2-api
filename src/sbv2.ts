@@ -434,7 +434,7 @@ export class AggregatorAccount {
    * @param aggregator A preloaded aggregator object.
    * @return The name of the aggregator.
    */
-  static name(aggregator: any): string {
+  static getName(aggregator: any): string {
     return aggregator.id.toString("utf8");
   }
 

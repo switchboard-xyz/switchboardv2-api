@@ -239,7 +239,7 @@ class AggregatorAccount {
      * @param aggregator A preloaded aggregator object.
      * @return The name of the aggregator.
      */
-    name(aggregator) {
+    static getName(aggregator) {
         return aggregator.id.toString("utf8");
     }
     /**
