@@ -239,6 +239,12 @@ export declare class AggregatorAccount {
      */
     constructor(params: AccountParams);
     /**
+     * Returns the aggregator's ID buffer in a stringified format.
+     * @param aggregator A preloaded aggregator object.
+     * @return The name of the aggregator.
+     */
+    name(aggregator: any): string;
+    /**
      * Load and parse AggregatorAccount state based on the program IDL.
      * @return AggregatorAccount data parsed in accordance with the
      * Switchboard IDL.
@@ -246,9 +252,11 @@ export declare class AggregatorAccount {
     loadData(): Promise<any>;
     /**
      * Get the latest confirmed value stored in the aggregator account.
+     * @param aggregator Optional parameter representing the already loaded
+     * aggregator info.
      * @return latest feed value
      */
-    getLatestValue(): Promise<number>;
+    getLatestValue(aggregator?: any): Promise<number>;
     /**
      * Produces a hash of all the jobs currently in the aggregator
      * @return hash of all the feed jobs.

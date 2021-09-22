@@ -29,7 +29,6 @@ const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const crypto = __importStar(require("crypto"));
 const spl = __importStar(require("@solana/spl-token"));
 const big_js_1 = __importDefault(require("big.js"));
-// Add toBig https://mikemcl.github.io/big.js/
 /**
  * Switchboard precisioned representation of numbers.
  * @param connection Solana network connection object.
@@ -236,6 +235,14 @@ class AggregatorAccount {
         this.publicKey = (_a = params.publicKey) !== null && _a !== void 0 ? _a : this.keypair.publicKey;
     }
     /**
+     * Returns the aggregator's ID buffer in a stringified format.
+     * @param aggregator A preloaded aggregator object.
+     * @return The name of the aggregator.
+     */
+    name(aggregator) {
+        return aggregator.id.toString("utf8");
+    }
+    /**
      * Load and parse AggregatorAccount state based on the program IDL.
      * @return AggregatorAccount data parsed in accordance with the
      * Switchboard IDL.
@@ -247,16 +254,18 @@ class AggregatorAccount {
     }
     /**
      * Get the latest confirmed value stored in the aggregator account.
+     * @param aggregator Optional parameter representing the already loaded
+     * aggregator info.
      * @return latest feed value
      */
-    async getLatestValue() {
+    async getLatestValue(aggregator) {
         var _a, _b;
-        let aggregator = await this.loadData();
+        aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
         if (((_b = (_a = aggregator.latestConfirmedRound) === null || _a === void 0 ? void 0 : _a.numSuccess) !== null && _b !== void 0 ? _b : 0) === 0) {
             throw new Error("Aggregator currently holds no value.");
         }
-        let mantissa = aggregator.latestConfirmedRound.result.mantissa.toNumber();
-        let scale = aggregator.latestConfirmedRound.result.scale.toNumber();
+        const mantissa = aggregator.latestConfirmedRound.result.mantissa.toNumber();
+        const scale = aggregator.latestConfirmedRound.result.scale.toNumber();
         return mantissa / Math.pow(10, scale);
     }
     // TODO: allow passing cache

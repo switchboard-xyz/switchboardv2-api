@@ -431,10 +431,11 @@ export class AggregatorAccount {
 
   /**
    * Returns the aggregator's ID buffer in a stringified format.
+   * @param aggregator A preloaded aggregator object.
    * @return The name of the aggregator.
    */
-  name(): string {
-    return this.id.toString("utf8");
+  name(aggregator: any): string {
+    return aggregator.id.toString("utf8");
   }
 
   /**
@@ -451,15 +452,17 @@ export class AggregatorAccount {
 
   /**
    * Get the latest confirmed value stored in the aggregator account.
+   * @param aggregator Optional parameter representing the already loaded
+   * aggregator info.
    * @return latest feed value
    */
-  async getLatestValue(): Promise<number> {
-    let aggregator = await this.loadData();
+  async getLatestValue(aggregator?: any): Promise<number> {
+    aggregator = aggregator ?? (await this.loadData());
     if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
       throw new Error("Aggregator currently holds no value.");
     }
-    let mantissa = aggregator.latestConfirmedRound.result.mantissa.toNumber();
-    let scale = aggregator.latestConfirmedRound.result.scale.toNumber();
+    const mantissa = aggregator.latestConfirmedRound.result.mantissa.toNumber();
+    const scale = aggregator.latestConfirmedRound.result.scale.toNumber();
     return mantissa / Math.pow(10, scale);
   }
 
