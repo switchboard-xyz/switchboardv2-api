@@ -42,7 +42,7 @@ export class SwitchboardDecimal {
    * @param big a Big.js decimal
    * @return a SwitchboardDecimal
    */
-  public static fromBig(big: Big) {
+  public static fromBig(big: Big): SwitchboardDecimal {
 	  let c: anchor.BN = big.c
 	  .map(n => new anchor.BN(n, 10))
 	  .reduce((res: anchor.BN, n) => {
