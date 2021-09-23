@@ -23,7 +23,7 @@
   "license": "MIT",
   "testnetDefaultChannel": "v1.4.8",
   "scripts": {
-	"test": "mocha --extension ts --require ts-node/register -t 1000000 tests/",
+    "test": "mocha --extension ts --require ts-node/register -t 1000000 tests/",
     "docgen": "npx tsc && npx typedoc src/sbv2.ts"
   },
   "devDependencies": {
