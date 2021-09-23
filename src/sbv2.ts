@@ -43,14 +43,19 @@ export class SwitchboardDecimal {
    * @return a SwitchboardDecimal
    */
   public static fromBig(big: Big) {
-	  let c = big.c.reduce((res, n) => {
-		res *= 10;
-		res += n;
-		return res;
+	  let c: anchor.BN = big.c
+	  .map(n => new anchor.BN(n, 10))
+	  .reduce((res: anchor.BN, n) => {
+		  res = res.mul(new anchor.BN(10,10));
+		  res = res.add(new anchor.BN(n,10));
+		  return res;
 	  });
-	  c *= big.s;
+
 	  let scale = big.c.length - big.e - 1;
-	  return new SwitchboardDecimal(new anchor.BN(c, 10), scale);
+
+	  c = c.mul(new anchor.BN(big.s, 10));
+
+	  return new SwitchboardDecimal(c, scale);
   }
 
   /**
