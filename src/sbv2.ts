@@ -38,6 +38,27 @@ export class SwitchboardDecimal {
   }
 
   /**
+   * Convert a Big.js decimal to a Switchboard decimal.
+   * @param big a Big.js decimal
+   * @return a SwitchboardDecimal
+   */
+  public static fromBig(big: Big): SwitchboardDecimal {
+	  let c: anchor.BN = big.c
+	  .map(n => new anchor.BN(n, 10))
+	  .reduce((res: anchor.BN, n) => {
+		  res = res.mul(new anchor.BN(10,10));
+		  res = res.add(new anchor.BN(n,10));
+		  return res;
+	  });
+
+	  let scale = big.c.length - big.e - 1;
+
+	  c = c.mul(new anchor.BN(big.s, 10));
+
+	  return new SwitchboardDecimal(c, scale);
+  }
+
+  /**
    * SwitchboardDecimal equality comparator.
    * @param other object to compare to.
    * @return true iff equal
