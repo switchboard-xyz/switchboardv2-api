@@ -686,7 +686,7 @@ export class AggregatorAccount {
       {
         oracleIdx: params.oracleIdx,
         value: params.value.toString(),
-        jobsHash: this.produceJobsHash(),
+        jobsHash: Buffer.from(""),
         minResponse: params.minResponse.toString(),
         maxResponse: params.maxResponse.toString(),
       },
