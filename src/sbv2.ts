@@ -43,19 +43,19 @@ export class SwitchboardDecimal {
    * @return a SwitchboardDecimal
    */
   public static fromBig(big: Big): SwitchboardDecimal {
-	  let c: anchor.BN = big.c
-	  .map(n => new anchor.BN(n, 10))
-	  .reduce((res: anchor.BN, n) => {
-		  res = res.mul(new anchor.BN(10,10));
-		  res = res.add(new anchor.BN(n,10));
-		  return res;
-	  });
+    let c: anchor.BN = big.c
+      .map((n) => new anchor.BN(n, 10))
+      .reduce((res: anchor.BN, n) => {
+        res = res.mul(new anchor.BN(10, 10));
+        res = res.add(new anchor.BN(n, 10));
+        return res;
+      });
 
-	  let scale = big.c.length - big.e - 1;
+    let scale = big.c.length - big.e - 1;
 
-	  c = c.mul(new anchor.BN(big.s, 10));
+    c = c.mul(new anchor.BN(big.s, 10));
 
-	  return new SwitchboardDecimal(c, scale);
+    return new SwitchboardDecimal(c, scale);
   }
 
   /**
@@ -777,6 +777,7 @@ export class JobAccount {
    */
   static decode(program: anchor.Program, buf: Buffer): any {
     const typesCoder = new anchor.TypesCoder(program.idl);
+    console.log(typesCoder);
     return typesCoder.decode("JobAccountData", buf);
   }
 
