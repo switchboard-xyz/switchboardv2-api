@@ -55,7 +55,7 @@ class SwitchboardDecimal {
      */
     static fromBig(big) {
         let c = big.c
-            .map(n => new anchor.BN(n, 10))
+            .map((n) => new anchor.BN(n, 10))
             .reduce((res, n) => {
             res = res.mul(new anchor.BN(10, 10));
             res = res.add(new anchor.BN(n, 10));
@@ -492,6 +492,7 @@ class JobAccount {
      */
     static decode(program, buf) {
         const typesCoder = new anchor.TypesCoder(program.idl);
+        console.log(typesCoder);
         return typesCoder.decode("JobAccountData", buf);
     }
     /**
