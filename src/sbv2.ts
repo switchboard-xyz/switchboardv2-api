@@ -493,19 +493,6 @@ export class AggregatorAccount {
    * @return hash of all the feed jobs.
    */
   async produceJobsHash(): Promise<crypto.Hash> {
-    const aggregator = await this.loadData();
-    let jobPubkeys = [];
-    for (let i = 0; i < aggregator.jobPubkeysSize; ++i) {
-      jobPubkeys.push(aggregator.jobPubkeysData[i]);
-    }
-    const jobAccountDatas = await anchor.utils.rpc.getMultipleAccounts(
-      this.program.provider.connection,
-      jobPubkeys
-    );
-    if (jobAccountDatas === null) {
-      throw new Error("Failed to fetch aggregator job hashes.");
-    }
-    // TODO: this might include the descriptor
     // Remember, dont trust the hash listed. Hash exactly the job you will be performing.
     const jobs = await this.loadJobs();
 
@@ -520,8 +507,10 @@ export class AggregatorAccount {
    * Load and deserialize all jobs stored in this aggregator
    * @return Array<OracleJob>
    */
-  async loadJobs(): Promise<Array<OracleJob>> {
-    const aggregator = await this.loadData();
+  async loadJobs(aggregator?: any): Promise<Array<OracleJob>> {
+    const coder = new anchor.AccountsCoder(this.program.idl);
+
+    aggregator = aggregator ?? (await this.loadData());
 
     const jobAccountDatas = await anchor.utils.rpc.getMultipleAccounts(
       this.program.provider.connection,
@@ -530,12 +519,11 @@ export class AggregatorAccount {
     if (jobAccountDatas === null) {
       throw new Error("Failed to load feed jobs.");
     }
-    // Remember, dont trust the hash listed. Hash exactly the job you will be performing.
-    return jobAccountDatas.map((item) =>
-      OracleJob.decodeDelimited(
-        JobAccount.decode(this.program, item.account.data).data.slice(8)
-      )
-    );
+    const jobs = jobAccountDatas.map((item) => {
+      let decoded = coder.decode("JobAccountData", item.account.data);
+      return OracleJob.decodeDelimited(decoded.data);
+    });
+    return jobs;
   }
 
   /**

@@ -271,7 +271,7 @@ export declare class AggregatorAccount {
      * Load and deserialize all jobs stored in this aggregator
      * @return Array<OracleJob>
      */
-    loadJobs(): Promise<Array<OracleJob>>;
+    loadJobs(aggregator?: any): Promise<Array<OracleJob>>;
     /**
      * Get the size of an AggregatorAccount on chain.
      * @return size.
