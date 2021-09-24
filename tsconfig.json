@@ -16,10 +16,11 @@
     "esModuleInterop": true,
     "allowJs": true,
     "checkJs": false,
-	"types": [
-		"mocha",
-		"node"
-	],
+    "types": [
+      "mocha",
+      "node",
+      "long",
+    ],
     "sourceMap": true,
     "outDir": "dist"
   },

@@ -1,4 +1,3 @@
-/// <reference types="bn.js" />
 /// <reference types="node" />
 import { PublicKey, Keypair, TransactionSignature } from "@solana/web3.js";
 import * as anchor from "@project-serum/anchor";
@@ -22,6 +21,12 @@ export declare class SwitchboardDecimal {
      * @return SwitchboardDecimal
      */
     static from(obj: any): SwitchboardDecimal;
+    /**
+     * Convert a Big.js decimal to a Switchboard decimal.
+     * @param big a Big.js decimal
+     * @return a SwitchboardDecimal
+     */
+    static fromBig(big: Big): SwitchboardDecimal;
     /**
      * SwitchboardDecimal equality comparator.
      * @param other object to compare to.

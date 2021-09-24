@@ -39,6 +39,7 @@
     "@solana/web3.js": "^1.29.0",
     "@switchboard-xyz/switchboard-api": "^0.2.150",
     "@types/big.js": "^6.0.2",
+    "@types/long": "^4.0.1",
     "big.js": "^6.1.1",
     "bs58": "^4.0.1",
     "buffer-layout": "^1.2.0",
@@ -47,6 +48,7 @@
     "dotenv": "^8.6.0",
     "events": "^3.3.0",
     "fs": "0.0.1-security",
+    "long": "^4.0.0",
     "microseconds": "^0.2.0",
     "mz": "^2.7.0",
     "node-fetch": "^2.6.1",
@@ -56,7 +58,7 @@
     "resolve-dir": "^1.0.1",
     "set-interval-async": "1.0.34",
     "ts-proto": "^1.79.0",
-    "typescript": "^4.4.3",
+    "typescript": "4.2",
     "wait-for-event": "^2.0.1",
     "ws": "^7.4.6"
   }
