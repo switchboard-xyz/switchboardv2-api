@@ -1411,7 +1411,7 @@ export class CrankAccount {
    */
   async pop(params: CrankPopParams): Promise<TransactionSignature> {
     let crank = await this.loadData();
-    const peakAggKeys = await this.peakReady(10);
+    const peakAggKeys = await this.peakReady(7);
     let remainingAccounts: Array<PublicKey> = peakAggKeys.slice();
     for (const feedKey of peakAggKeys) {
       const aggregatorAccount = new AggregatorAccount({
