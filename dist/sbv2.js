@@ -501,7 +501,7 @@ class JobAccount {
         const size = 84 + params.data.length;
         await program.rpc.jobInit({
             id: (_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from(""),
-            expiration: (_b = params.expiration) !== null && _b !== void 0 ? _b : 0,
+            expiration: (_b = params.expiration) !== null && _b !== void 0 ? _b : new anchor.BN(0),
             data: params.data,
         }, {
             accounts: {

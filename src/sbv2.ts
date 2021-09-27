@@ -788,7 +788,7 @@ export class JobAccount {
     await program.rpc.jobInit(
       {
         id: params.id ?? Buffer.from(""),
-        expiration: params.expiration ?? 0,
+        expiration: params.expiration ?? new anchor.BN(0),
         data: params.data,
       },
       {
