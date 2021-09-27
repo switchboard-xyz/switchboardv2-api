@@ -332,6 +332,10 @@ export interface JobInitParams {
      *  A serialized protocol buffer holding the schema of the job.
      */
     data: Buffer;
+    /**
+     *  A pre-generated keypair to use.
+     */
+    keypair?: Keypair;
 }
 /**
  * A Switchboard account representing a job for an oracle to perform, stored as

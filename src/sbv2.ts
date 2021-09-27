@@ -707,6 +707,10 @@ export interface JobInitParams {
    *  A serialized protocol buffer holding the schema of the job.
    */
   data: Buffer;
+  /**
+   *  A pre-generated keypair to use.
+   */
+  keypair?: Keypair;
 }
 
 /**
@@ -780,7 +784,7 @@ export class JobAccount {
     program: anchor.Program,
     params: JobInitParams
   ): Promise<JobAccount> {
-    const jobAccount = anchor.web3.Keypair.generate();
+    const jobAccount = params.keypair ?? anchor.web3.Keypair.generate();
     const size = 84 + params.data.length;
     await program.rpc.jobInit(
       {
