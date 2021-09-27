@@ -885,7 +885,7 @@ class CrankAccount {
      */
     async pop(params) {
         let crank = await this.loadData();
-        const peakAggKeys = await this.peakReady(8);
+        const peakAggKeys = await this.peakNext(8);
         let remainingAccounts = peakAggKeys.slice();
         for (const feedKey of peakAggKeys) {
             const aggregatorAccount = new AggregatorAccount({
@@ -916,24 +916,17 @@ class CrankAccount {
         });
     }
     /**
-     * Get an array of all the aggregator pubkeys ready to be popped from the crank, limited by n
-     * @param n The limit of ready pubkeys to return.
-     * @return Pubkey list of Aggregators ready to be popped.
+     * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
+     * @param n The limit of pubkeys to return.
+     * @return Pubkey list of Aggregators next up to be popped.
      */
-    async peakReady(n) {
+    async peakNext(n) {
         let crank = await this.loadData();
-        const now = Date.now();
         let items = crank.pqData
             .slice(0, crank.pqSize)
-            .filter((item) => {
-            return item.nextTimestamp <= new anchor.BN(Math.floor(now / 1000));
-        })
             .sort((a, b) => a.nextTimestamp < b.nextTimestamp)
-            .slice(0, n)
-            .sort((a, b) => {
-            return a.pubkey.toBytes() < b.pubkey.toBytes();
-        })
-            .map((item) => item.pubkey);
+            .map((item) => item.pubkey)
+            .slice(0, n);
         return items;
     }
 }

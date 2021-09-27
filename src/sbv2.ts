@@ -1411,7 +1411,7 @@ export class CrankAccount {
    */
   async pop(params: CrankPopParams): Promise<TransactionSignature> {
     let crank = await this.loadData();
-    const peakAggKeys = await this.peakReady(8);
+    const peakAggKeys = await this.peakNext(8);
     let remainingAccounts: Array<PublicKey> = peakAggKeys.slice();
     for (const feedKey of peakAggKeys) {
       const aggregatorAccount = new AggregatorAccount({
@@ -1454,25 +1454,17 @@ export class CrankAccount {
   }
 
   /**
-   * Get an array of all the aggregator pubkeys ready to be popped from the crank, limited by n
-   * @param n The limit of ready pubkeys to return.
-   * @return Pubkey list of Aggregators ready to be popped.
+   * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
+   * @param n The limit of pubkeys to return.
+   * @return Pubkey list of Aggregators next up to be popped.
    */
-  async peakReady(n: number): Promise<Array<PublicKey>> {
+  async peakNext(n: number): Promise<Array<PublicKey>> {
     let crank = await this.loadData();
-    const now = Date.now();
     let items = crank.pqData
       .slice(0, crank.pqSize)
-      .filter((item: CrankRow) => {
-        return item.nextTimestamp <= new anchor.BN(Math.floor(now / 1000));
-      })
       .sort((a: CrankRow, b: CrankRow) => a.nextTimestamp < b.nextTimestamp)
-      .slice(0, n)
-      .sort((a: CrankRow, b: CrankRow) => {
-        return a.pubkey.toBytes() < b.pubkey.toBytes();
-      })
-      .map((item: CrankRow) => item.pubkey);
-
+      .map((item: CrankRow) => item.pubkey)
+      .slice(0, n);
     return items;
   }
 }

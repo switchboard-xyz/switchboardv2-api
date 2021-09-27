@@ -658,11 +658,11 @@ export declare class CrankAccount {
      */
     pop(params: CrankPopParams): Promise<TransactionSignature>;
     /**
-     * Get an array of all the aggregator pubkeys ready to be popped from the crank, limited by n
-     * @param n The limit of ready pubkeys to return.
-     * @return Pubkey list of Aggregators ready to be popped.
+     * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
+     * @param n The limit of pubkeys to return.
+     * @return Pubkey list of Aggregators next up to be popped.
      */
-    peakReady(n: number): Promise<Array<PublicKey>>;
+    peakNext(n: number): Promise<Array<PublicKey>>;
 }
 /**
  * Parameters for an OracleInit request.
