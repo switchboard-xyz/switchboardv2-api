@@ -885,7 +885,7 @@ class CrankAccount {
      */
     async pop(params) {
         let crank = await this.loadData();
-        const peakAggKeys = await this.peakReady(9);
+        const peakAggKeys = await this.peakReady(8);
         let remainingAccounts = peakAggKeys.slice();
         for (const feedKey of peakAggKeys) {
             const aggregatorAccount = new AggregatorAccount({
