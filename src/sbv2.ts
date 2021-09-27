@@ -332,6 +332,10 @@ export interface AggregatorInitParams {
    *  null/undefined/0 means the feed has no expiration.
    */
   expiration?: anchor.BN;
+  /**
+   *  Optional pre-existing keypair to use for aggregator initialization.
+   */
+  keypair?: Keypair;
 }
 
 /**
@@ -544,7 +548,7 @@ export class AggregatorAccount {
     program: anchor.Program,
     params: AggregatorInitParams
   ): Promise<AggregatorAccount> {
-    const aggregatorAccount = anchor.web3.Keypair.generate();
+    const aggregatorAccount = params.keypair ?? anchor.web3.Keypair.generate();
     const size = program.account.aggregatorAccountData.size;
     await program.rpc.aggregatorInit(
       {

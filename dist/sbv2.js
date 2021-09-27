@@ -330,8 +330,8 @@ class AggregatorAccount {
      * @return newly generated AggregatorAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c;
-        const aggregatorAccount = anchor.web3.Keypair.generate();
+        var _a, _b, _c, _d;
+        const aggregatorAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
         const size = program.account.aggregatorAccountData.size;
         await program.rpc.aggregatorInit({
             id: params.id,
@@ -339,9 +339,9 @@ class AggregatorAccount {
             minOracleResults: params.minRequiredOracleResults,
             minJobResults: params.minRequiredJobResults,
             minUpdateDelaySeconds: params.minUpdateDelaySeconds,
-            varianceThreshold: ((_a = params.varianceThreshold) !== null && _a !== void 0 ? _a : 0).toString(),
-            forceReportPeriod: (_b = params.forceReportPeriod) !== null && _b !== void 0 ? _b : new anchor.BN(0),
-            expiration: (_c = params.expiration) !== null && _c !== void 0 ? _c : new anchor.BN(0),
+            varianceThreshold: ((_b = params.varianceThreshold) !== null && _b !== void 0 ? _b : 0).toString(),
+            forceReportPeriod: (_c = params.forceReportPeriod) !== null && _c !== void 0 ? _c : new anchor.BN(0),
+            expiration: (_d = params.expiration) !== null && _d !== void 0 ? _d : new anchor.BN(0),
         }, {
             accounts: {
                 aggregator: aggregatorAccount.publicKey,

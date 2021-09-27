@@ -160,6 +160,10 @@ export interface AggregatorInitParams {
      *  null/undefined/0 means the feed has no expiration.
      */
     expiration?: anchor.BN;
+    /**
+     *  Optional pre-existing keypair to use for aggregator initialization.
+     */
+    keypair?: Keypair;
 }
 /**
  * Parameters for which oracles must submit for responding to update requests.
