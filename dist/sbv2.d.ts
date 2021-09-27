@@ -293,7 +293,7 @@ export declare class AggregatorAccount {
      * @param job JobAccount specifying another job for this aggregator to fulfill on update
      * @return TransactionSignature
      */
-    addJob(program: anchor.Program, job: JobAccount): Promise<TransactionSignature>;
+    addJob(job: JobAccount): Promise<TransactionSignature>;
     /**
      * RPC to remove a job from an aggregtor.
      * @param job JobAccount to be removed from the aggregator

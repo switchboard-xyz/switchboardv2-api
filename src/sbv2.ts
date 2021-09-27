@@ -588,10 +588,7 @@ export class AggregatorAccount {
    * @param job JobAccount specifying another job for this aggregator to fulfill on update
    * @return TransactionSignature
    */
-  async addJob(
-    program: anchor.Program,
-    job: JobAccount
-  ): Promise<TransactionSignature> {
+  async addJob(job: JobAccount): Promise<TransactionSignature> {
     return await this.program.rpc.aggregatorAddJob(
       {},
       {

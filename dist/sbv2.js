@@ -364,7 +364,7 @@ class AggregatorAccount {
      * @param job JobAccount specifying another job for this aggregator to fulfill on update
      * @return TransactionSignature
      */
-    async addJob(program, job) {
+    async addJob(job) {
         return await this.program.rpc.aggregatorAddJob({}, {
             accounts: {
                 aggregator: this.publicKey,
