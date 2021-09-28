@@ -832,9 +832,9 @@ export class JobAccount {
  */
 export interface PermissionInitParams {
   /**
-   *  Keypair of the account granting the permission.
+   *  Pubkey of the account granting the permission.
    */
-  granter: Keypair;
+  granter: PublicKey;
   /**
    *  The receiving account of a permission.
    */
@@ -842,7 +842,7 @@ export interface PermissionInitParams {
   /**
    *  The authority that is allowed to set permissions for this account.
    */
-  authority: PublicKey;
+  authority: Keypair;
 }
 
 /**
@@ -856,11 +856,15 @@ export interface PermissionSetParams {
   /**
    *  Keypair of the account granting the permission.
    */
-  granter: Keypair;
+  granter: PulicKey;
   /**
    *  The receiving account of a permission.
    */
   grantee: PublicKey;
+  /**
+   *  The authority controlling this permission.
+   */
+  authority: Keypair;
   /**
    *  Specifies whether to enable or disable the permission.
    */
@@ -937,29 +941,25 @@ export class PermissionAccount {
     program: anchor.Program,
     params: PermissionInitParams
   ): Promise<PermissionAccount> {
-    const permissionAccount = anchor.web3.Keypair.generate();
-    const size = program.account.permissionAccountData.size;
+    const [permissionAccount, permissionBump] =
+      await PermissionAccount.fromSeed(
+        this.program,
+        params.authority,
+        params.granter,
+        params.granteee
+      );
     await program.rpc.permissionInit(
-      {},
+      {
+        permissionBump,
+      },
       {
         accounts: {
           permission: permissionAccount.publicKey,
-          granter: params.granter.publicKey,
+          authority: params.authority.publicKey,
+          granter: params.granter,
           grantee: params.grantee,
         },
-        signers: [permissionAccount, params.granter],
-        instructions: [
-          anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
-            newAccountPubkey: permissionAccount.publicKey,
-            space: size,
-            lamports:
-              await program.provider.connection.getMinimumBalanceForRentExemption(
-                size
-              ),
-            programId: program.programId,
-          }),
-        ],
+        signers: [permissionAccount, params.authority],
       }
     );
     return new PermissionAccount({ program, keypair: permissionAccount });
@@ -1006,10 +1006,11 @@ export class PermissionAccount {
       {
         accounts: {
           permission: this.publicKey,
+          authority: params.authority.publicKey,
           granter: params.granter.publicKey,
           grantee: params.grantee,
         },
-        signers: [params.granter],
+        signers: [params.granter, params.authority],
       }
     );
   }
