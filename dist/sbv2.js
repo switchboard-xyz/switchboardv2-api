@@ -532,10 +532,8 @@ exports.JobAccount = JobAccount;
  */
 var SwitchboardPermission;
 (function (SwitchboardPermission) {
-    SwitchboardPermission["PERMISSION_UNSPECIFIED"] = "permissionUnspecified";
-    SwitchboardPermission["PERMIT_ORACLE_QUEUE_ENQUEUE"] = "permitOracleQueueEnqueue";
+    SwitchboardPermission["PERMIT_ORACLE_HEARTBEAT"] = "permitOracleHeartbeat";
     SwitchboardPermission["PERMIT_ORACLE_QUEUE_USAGE"] = "permitOracleQueueUsage";
-    SwitchboardPermission["PERMIT_CRANK_PUSH"] = "permitCrankPush";
 })(SwitchboardPermission = exports.SwitchboardPermission || (exports.SwitchboardPermission = {}));
 /**
  * A Switchboard account representing a permission or privilege granted by one
@@ -1047,11 +1045,15 @@ class OracleAccount {
         if (queue.size !== 0) {
             lastPubkey = queue.queue[queue.size - 1];
         }
-        return await this.program.rpc.oracleHeartbeat({}, {
+        const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queue.authority, queueAccount.publicKey, this.publicKey);
+        return await this.program.rpc.oracleHeartbeat({
+            permissionBump,
+        }, {
             accounts: {
                 oracle: this.publicKey,
                 gcOracle: lastPubkey,
                 oracleQueue: queueAccount.publicKey,
+                permission: permissionAccount.publicKey,
             },
             signers: [this.keypair],
         });

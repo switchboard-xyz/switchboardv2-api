@@ -875,10 +875,8 @@ export interface PermissionSetParams {
  * An enum representing all known permission types for Switchboard.
  */
 export enum SwitchboardPermission {
-  PERMISSION_UNSPECIFIED = "permissionUnspecified",
-  PERMIT_ORACLE_QUEUE_ENQUEUE = "permitOracleQueueEnqueue",
+  PERMIT_ORACLE_HEARTBEAT = "permitOracleHeartbeat",
   PERMIT_ORACLE_QUEUE_USAGE = "permitOracleQueueUsage",
-  PERMIT_CRANK_PUSH = "permitCrankPush",
 }
 /**
  * A Switchboard account representing a permission or privilege granted by one
@@ -1646,13 +1644,24 @@ export class OracleAccount {
     if (queue.size !== 0) {
       lastPubkey = queue.queue[queue.size - 1];
     }
+    const [permissionAccount, permissionBump] =
+      await PermissionAccount.fromSeed(
+        this.program,
+        queue.authority,
+        queueAccount.publicKey,
+        this.publicKey
+      );
+
     return await this.program.rpc.oracleHeartbeat(
-      {},
+      {
+        permissionBump,
+      },
       {
         accounts: {
           oracle: this.publicKey,
           gcOracle: lastPubkey,
           oracleQueue: queueAccount.publicKey,
+          permission: permissionAccount.publicKey,
         },
         signers: [this.keypair],
       }
