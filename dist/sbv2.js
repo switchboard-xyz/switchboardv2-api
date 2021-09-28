@@ -398,7 +398,7 @@ class AggregatorAccount {
         const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, this.publicKey, params.oracleQueueAccount.publicKey);
         const escrowPubkey = (await leaseAccount.loadData()).escrow;
         const queue = await params.oracleQueueAccount.loadData();
-        const queueAuthority = queu.authority;
+        const queueAuthority = queue.authority;
         const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queueAuthority, params.oracleQueueAccount.publicKey, this.publicKey);
         return await this.program.rpc.aggregatorOpenRound({
             stateBump,
@@ -918,7 +918,7 @@ class CrankAccount {
             program: this.program,
             publicKey: crank.queuePubkey,
         });
-        const queueAuthority = queueAccount.loadData().authority;
+        const queueAuthority = (await queueAccount.loadData()).authority;
         const peakAggKeys = await this.peakNext(8);
         let remainingAccounts = peakAggKeys.slice();
         const leaseBumpsMap = new Map();
@@ -942,7 +942,7 @@ class CrankAccount {
         const leaseBumps = [];
         const permissionBumps = [];
         // Map bumps to the index of their corresponding feeds.
-        for (key of remainingAccounts) {
+        for (const key of remainingAccounts) {
             leaseBumps.push((_a = leaseBumpsMap.get(key.toBase58())) !== null && _a !== void 0 ? _a : 0);
             permissionBumps.push((_b = permissionBumpsMap.get(key.toBase58())) !== null && _b !== void 0 ? _b : 0);
         }

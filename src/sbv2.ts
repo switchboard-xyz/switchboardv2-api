@@ -640,7 +640,7 @@ export class AggregatorAccount {
 
     const escrowPubkey = (await leaseAccount.loadData()).escrow;
     const queue = await params.oracleQueueAccount.loadData();
-    const queueAuthority = queu.authority;
+    const queueAuthority = queue.authority;
 
     const [permissionAccount, permissionBump] =
       await PermissionAccount.fromSeed(
@@ -1462,7 +1462,7 @@ export class CrankAccount {
       program: this.program,
       publicKey: crank.queuePubkey,
     });
-    const queueAuthority = queueAccount.loadData().authority;
+    const queueAuthority = (await queueAccount.loadData()).authority;
     const peakAggKeys = await this.peakNext(8);
     let remainingAccounts: Array<PublicKey> = peakAggKeys.slice();
     const leaseBumpsMap: Map<string, number> = new Map();
@@ -1498,7 +1498,7 @@ export class CrankAccount {
     const leaseBumps: Array<number> = [];
     const permissionBumps: Array<number> = [];
     // Map bumps to the index of their corresponding feeds.
-    for (key of remainingAccounts) {
+    for (const key of remainingAccounts) {
       leaseBumps.push(leaseBumpsMap.get(key.toBase58()) ?? 0);
       permissionBumps.push(permissionBumpsMap.get(key.toBase58()) ?? 0);
     }
