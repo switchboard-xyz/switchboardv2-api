@@ -793,7 +793,7 @@ class LeaseAccount {
                 escrow,
                 owner: params.funderAuthority.publicKey,
             },
-            signers: [params.target],
+            signers: [params.funderAuthority],
         });
         return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
     }
