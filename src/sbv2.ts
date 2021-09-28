@@ -1279,7 +1279,7 @@ export class LeaseAccount {
           escrow,
           owner: params.funderAuthority.publicKey,
         },
-        signers: [params.target, params.funderAuthority],
+        signers: [params.target],
       }
     );
     return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
