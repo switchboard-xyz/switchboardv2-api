@@ -1010,7 +1010,7 @@ export class PermissionAccount {
         accounts: {
           permission: this.publicKey,
           authority: params.authority.publicKey,
-          granter: params.granter.publicKey,
+          granter: params.granter,
           grantee: params.grantee,
         },
         signers: [params.granter, params.authority],
