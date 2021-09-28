@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.JobAccount = exports.AggregatorAccount = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = void 0;
+exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = void 0;
 const web3_js_1 = require("@solana/web3.js");
 const anchor = __importStar(require("@project-serum/anchor"));
 const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
@@ -523,6 +523,16 @@ class JobAccount {
 }
 exports.JobAccount = JobAccount;
 /**
+ * An enum representing all known permission types for Switchboard.
+ */
+var SwitchboardPermission;
+(function (SwitchboardPermission) {
+    SwitchboardPermission["PERMISSION_UNSPECIFIED"] = "permissionUnspecified";
+    SwitchboardPermission["PERMIT_ORACLE_QUEUE_ENQUEUE"] = "permitOracleQueueEnqueue";
+    SwitchboardPermission["PERMIT_ORACLE_QUEUE_USAGE"] = "permitOracleQueueUsage";
+    SwitchboardPermission["PERMIT_CRANK_PUSH"] = "permitCrankPush";
+})(SwitchboardPermission = exports.SwitchboardPermission || (exports.SwitchboardPermission = {}));
+/**
  * A Switchboard account representing a permission or privilege granted by one
  * account signer to another account.
  */
@@ -572,7 +582,7 @@ class PermissionAccount {
         const permissionAccount = anchor.web3.Keypair.generate();
         const size = program.account.permissionAccountData.size;
         const permission = new Map();
-        permission.set(params.permission, null);
+        permission.set(params.permission.toString(), null);
         await program.rpc.permissionInit({
             permission: Object.fromEntries(permission),
         }, {
@@ -601,7 +611,7 @@ class PermissionAccount {
      */
     async set(params) {
         const permission = new Map();
-        permission.set(params.permission, null);
+        permission.set(params.permission.toString(), null);
         return await this.program.rpc.permissionSet({
             permission: Object.fromEntries(permission),
             enable: params.permission,

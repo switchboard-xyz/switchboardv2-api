@@ -822,7 +822,7 @@ export interface PermissionInitParams {
   /**
    *  The permssion to set
    */
-  permission: string;
+  permission: SwitchboardPermission;
   /**
    *  Keypair of the account granting the permission.
    */
@@ -840,7 +840,7 @@ export interface PermissionSetParams {
   /**
    *  The permssion to set
    */
-  permission: string;
+  permission: SwitchboardPermission;
   /**
    *  Keypair of the account granting the permission.
    */
@@ -855,6 +855,15 @@ export interface PermissionSetParams {
   enable: boolean;
 }
 
+/**
+ * An enum representing all known permission types for Switchboard.
+ */
+export enum SwitchboardPermission {
+  PERMISSION_UNSPECIFIED = "permissionUnspecified",
+  PERMIT_ORACLE_QUEUE_ENQUEUE = "permitOracleQueueEnqueue",
+  PERMIT_ORACLE_QUEUE_USAGE = "permitOracleQueueUsage",
+  PERMIT_CRANK_PUSH = "permitCrankPush",
+}
 /**
  * A Switchboard account representing a permission or privilege granted by one
  * account signer to another account.
@@ -919,7 +928,7 @@ export class PermissionAccount {
     const permissionAccount = anchor.web3.Keypair.generate();
     const size = program.account.permissionAccountData.size;
     const permission = new Map<string, null>();
-    permission.set(params.permission, null);
+    permission.set(params.permission.toString(), null);
     await program.rpc.permissionInit(
       {
         permission: Object.fromEntries(permission),
@@ -955,7 +964,7 @@ export class PermissionAccount {
    */
   async set(params: PermissionSetParams): Promise<TransactionSignature> {
     const permission = new Map<string, null>();
-    permission.set(params.permission, null);
+    permission.set(params.permission.toString(), null);
     return await this.program.rpc.permissionSet(
       {
         permission: Object.fromEntries(permission),

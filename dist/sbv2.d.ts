@@ -382,7 +382,7 @@ export interface PermissionInitParams {
     /**
      *  The permssion to set
      */
-    permission: string;
+    permission: SwitchboardPermission;
     /**
      *  Keypair of the account granting the permission.
      */
@@ -399,7 +399,7 @@ export interface PermissionSetParams {
     /**
      *  The permssion to set
      */
-    permission: string;
+    permission: SwitchboardPermission;
     /**
      *  Keypair of the account granting the permission.
      */
@@ -412,6 +412,15 @@ export interface PermissionSetParams {
      *  Specifies whether to enable or disable the permission.
      */
     enable: boolean;
+}
+/**
+ * An enum representing all known permission types for Switchboard.
+ */
+export declare enum SwitchboardPermission {
+    PERMISSION_UNSPECIFIED = "permissionUnspecified",
+    PERMIT_ORACLE_QUEUE_ENQUEUE = "permitOracleQueueEnqueue",
+    PERMIT_ORACLE_QUEUE_USAGE = "permitOracleQueueUsage",
+    PERMIT_CRANK_PUSH = "permitCrankPush"
 }
 /**
  * A Switchboard account representing a permission or privilege granted by one
