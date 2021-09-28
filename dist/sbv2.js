@@ -503,7 +503,6 @@ class JobAccount {
      */
     static decode(program, buf) {
         const typesCoder = new anchor.TypesCoder(program.idl);
-        console.log(typesCoder);
         return typesCoder.decode("JobAccountData", buf);
     }
     /**
@@ -1059,7 +1058,7 @@ class OracleAccount {
             lastPubkey = queue.queue[queue.size - 1];
         }
         const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queue.authority, queueAccount.publicKey, this.publicKey);
-        console.log(permissionAccount.publicKey);
+        console.log(permissionAccount.publicKey.toBase58());
         try {
             await permissionAccount.loadData();
         }

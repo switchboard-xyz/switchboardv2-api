@@ -792,7 +792,6 @@ export class JobAccount {
    */
   static decode(program: anchor.Program, buf: Buffer): any {
     const typesCoder = new anchor.TypesCoder(program.idl);
-    console.log(typesCoder);
     return typesCoder.decode("JobAccountData", buf);
   }
 
@@ -1667,7 +1666,7 @@ export class OracleAccount {
         queueAccount.publicKey,
         this.publicKey
       );
-    console.log(permissionAccount.publicKey);
+    console.log(permissionAccount.publicKey.toBase58());
     try {
       await permissionAccount.loadData();
     } catch (_) {
