@@ -590,13 +590,13 @@ class PermissionAccount {
         }, {
             accounts: {
                 permission: permissionAccount.publicKey,
-                authority: params.authority.publicKey,
+                authority: params.authority,
                 granter: params.granter,
                 grantee: params.grantee,
                 systemProgram: web3_js_1.SystemProgram.programId,
                 payer: program.provider.wallet.publicKey,
             },
-            signers: [permissionAccount, params.authority],
+            signers: [permissionAccount],
         });
         return new PermissionAccount({
             program,

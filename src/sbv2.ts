@@ -842,7 +842,7 @@ export interface PermissionInitParams {
   /**
    *  The authority that is allowed to set permissions for this account.
    */
-  authority: Keypair;
+  authority: PublicKey;
 }
 
 /**
@@ -955,13 +955,13 @@ export class PermissionAccount {
       {
         accounts: {
           permission: permissionAccount.publicKey,
-          authority: params.authority.publicKey,
+          authority: params.authority,
           granter: params.granter,
           grantee: params.grantee,
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
         },
-        signers: [permissionAccount, params.authority],
+        signers: [permissionAccount],
       }
     );
     return new PermissionAccount({
