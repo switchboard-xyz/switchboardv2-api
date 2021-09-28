@@ -1053,6 +1053,11 @@ export interface OracleQueueInitParams {
    *  The minimum amount of stake oracles must present to remain on the queue.
    */
   minStake: anchor.BN;
+  /**
+   *  The account to delegate authority to for creating permissions targeted
+   *  at the queue.
+   */
+  authority: PublicKey;
 }
 
 /**
@@ -1126,6 +1131,7 @@ export class OracleQueueAccount {
         slashingCurve: params.slashingCurve ?? null,
         reward: params.reward ?? new anchor.BN(0),
         minStake: params.minStake ?? new anchor.BN(0),
+        authority,
       },
       {
         accounts: {

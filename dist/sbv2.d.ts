@@ -494,6 +494,11 @@ export interface OracleQueueInitParams {
      *  The minimum amount of stake oracles must present to remain on the queue.
      */
     minStake: anchor.BN;
+    /**
+     *  The account to delegate authority to for creating permissions targeted
+     *  at the queue.
+     */
+    authority: PublicKey;
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to
