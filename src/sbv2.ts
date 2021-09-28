@@ -958,6 +958,8 @@ export class PermissionAccount {
           authority: params.authority.publicKey,
           granter: params.granter,
           grantee: params.grantee,
+          systemProgram: SystemProgram.programId,
+          payer: program.provider.wallet.publicKey,
         },
         signers: [permissionAccount, params.authority],
       }

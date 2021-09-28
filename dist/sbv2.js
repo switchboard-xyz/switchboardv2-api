@@ -593,6 +593,8 @@ class PermissionAccount {
                 authority: params.authority.publicKey,
                 granter: params.granter,
                 grantee: params.grantee,
+                systemProgram: web3_js_1.SystemProgram.programId,
+                payer: program.provider.wallet.publicKey,
             },
             signers: [permissionAccount, params.authority],
         });
