@@ -1131,7 +1131,7 @@ export class OracleQueueAccount {
         slashingCurve: params.slashingCurve ?? null,
         reward: params.reward ?? new anchor.BN(0),
         minStake: params.minStake ?? new anchor.BN(0),
-        authority,
+        authority: params.authority,
       },
       {
         accounts: {

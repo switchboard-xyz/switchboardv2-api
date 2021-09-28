@@ -708,7 +708,7 @@ class OracleQueueAccount {
             slashingCurve: (_c = params.slashingCurve) !== null && _c !== void 0 ? _c : null,
             reward: (_d = params.reward) !== null && _d !== void 0 ? _d : new anchor.BN(0),
             minStake: (_e = params.minStake) !== null && _e !== void 0 ? _e : new anchor.BN(0),
-            authority,
+            authority: params.authority,
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
