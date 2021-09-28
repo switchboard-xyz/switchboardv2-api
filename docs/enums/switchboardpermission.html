@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>AggregatorSaveResultParams | switchboard-v2</title>
+	<title>SwitchboardPermission | switchboard-v2</title>
 	<meta name="description" content="Documentation for switchboard-v2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules.html">switchboard-v2</a>
 				</li>
 				<li>
-					<a href="aggregatorsaveresultparams.html">AggregatorSaveResultParams</a>
+					<a href="switchboardpermission.html">SwitchboardPermission</a>
 				</li>
 			</ul>
-			<h1>Interface AggregatorSaveResultParams</h1>
+			<h1>Enumeration SwitchboardPermission</h1>
 		</div>
 	</div>
 </header>
@@ -68,97 +68,67 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Parameters for which oracles must submit for responding to update requests.</p>
+						<p>An enum representing all known permission types for Switchboard.</p>
 					</div>
 				</div>
-			</section>
-			<section class="tsd-panel tsd-hierarchy">
-				<h3>Hierarchy</h3>
-				<ul class="tsd-hierarchy">
-					<li>
-						<span class="target">AggregatorSaveResultParams</span>
-					</li>
-				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Properties</h3>
+							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aggregatorsaveresultparams.html#maxresponse" class="tsd-kind-icon">max<wbr>Response</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aggregatorsaveresultparams.html#minresponse" class="tsd-kind-icon">min<wbr>Response</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aggregatorsaveresultparams.html#oracleidx" class="tsd-kind-icon">oracle<wbr>Idx</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aggregatorsaveresultparams.html#value" class="tsd-kind-icon">value</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="switchboardpermission.html#permission_unspecified" class="tsd-kind-icon">PERMISSION_<wbr>UNSPECIFIED</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="switchboardpermission.html#permit_crank_push" class="tsd-kind-icon">PERMIT_<wbr>CRANK_<wbr>PUSH</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="switchboardpermission.html#permit_oracle_queue_enqueue" class="tsd-kind-icon">PERMIT_<wbr>ORACLE_<wbr>QUEUE_<wbr>ENQUEUE</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="switchboardpermission.html#permit_oracle_queue_usage" class="tsd-kind-icon">PERMIT_<wbr>ORACLE_<wbr>QUEUE_<wbr>USAGE</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="maxresponse" class="tsd-anchor"></a>
-					<h3>max<wbr>Response</h3>
-					<div class="tsd-signature tsd-kind-icon">max<wbr>Response<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+				<h2>Enumeration members</h2>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="permission_unspecified" class="tsd-anchor"></a>
+					<h3>PERMISSION_<wbr>UNSPECIFIED</h3>
+					<div class="tsd-signature tsd-kind-icon">PERMISSION_<wbr>UNSPECIFIED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;permissionUnspecified&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/461fe9b/src/sbv2.ts#L362">sbv2.ts:362</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/461fe9b/src/sbv2.ts#L862">sbv2.ts:862</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p> The maximum value this oracle has seen this round for the jobs listed in the
-							aggregator.</p>
-						</div>
-					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="minresponse" class="tsd-anchor"></a>
-					<h3>min<wbr>Response</h3>
-					<div class="tsd-signature tsd-kind-icon">min<wbr>Response<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="permit_crank_push" class="tsd-anchor"></a>
+					<h3>PERMIT_<wbr>CRANK_<wbr>PUSH</h3>
+					<div class="tsd-signature tsd-kind-icon">PERMIT_<wbr>CRANK_<wbr>PUSH<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;permitCrankPush&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/461fe9b/src/sbv2.ts#L357">sbv2.ts:357</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/461fe9b/src/sbv2.ts#L865">sbv2.ts:865</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p> The minimum value this oracle has seen this round for the jobs listed in the
-							aggregator.</p>
-						</div>
-					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="oracleidx" class="tsd-anchor"></a>
-					<h3>oracle<wbr>Idx</h3>
-					<div class="tsd-signature tsd-kind-icon">oracle<wbr>Idx<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="permit_oracle_queue_enqueue" class="tsd-anchor"></a>
+					<h3>PERMIT_<wbr>ORACLE_<wbr>QUEUE_<wbr>ENQUEUE</h3>
+					<div class="tsd-signature tsd-kind-icon">PERMIT_<wbr>ORACLE_<wbr>QUEUE_<wbr>ENQUEUE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;permitOracleQueueEnqueue&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/461fe9b/src/sbv2.ts#L348">sbv2.ts:348</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/461fe9b/src/sbv2.ts#L863">sbv2.ts:863</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p> Index in the list of oracles in the aggregator assigned to this round update.</p>
-						</div>
-					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="value" class="tsd-anchor"></a>
-					<h3>value</h3>
-					<div class="tsd-signature tsd-kind-icon">value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="permit_oracle_queue_usage" class="tsd-anchor"></a>
+					<h3>PERMIT_<wbr>ORACLE_<wbr>QUEUE_<wbr>USAGE</h3>
+					<div class="tsd-signature tsd-kind-icon">PERMIT_<wbr>ORACLE_<wbr>QUEUE_<wbr>USAGE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;permitOracleQueueUsage&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/461fe9b/src/sbv2.ts#L352">sbv2.ts:352</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/461fe9b/src/sbv2.ts#L864">sbv2.ts:864</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p> Value the oracle is responding with for this update.</p>
-						</div>
-					</div>
 				</section>
 			</section>
 		</div>
@@ -172,9 +142,27 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-enum">
-						<a href="../enums/switchboardpermission.html" class="tsd-kind-icon">Switchboard<wbr>Permission</a>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-enum">
+						<a href="switchboardpermission.html" class="tsd-kind-icon">Switchboard<wbr>Permission</a>
+						<ul>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="switchboardpermission.html#permission_unspecified" class="tsd-kind-icon">PERMISSION_<wbr>UNSPECIFIED</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="switchboardpermission.html#permit_crank_push" class="tsd-kind-icon">PERMIT_<wbr>CRANK_<wbr>PUSH</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="switchboardpermission.html#permit_oracle_queue_enqueue" class="tsd-kind-icon">PERMIT_<wbr>ORACLE_<wbr>QUEUE_<wbr>ENQUEUE</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="switchboardpermission.html#permit_oracle_queue_usage" class="tsd-kind-icon">PERMIT_<wbr>ORACLE_<wbr>QUEUE_<wbr>USAGE</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-class">
 						<a href="../classes/aggregatoraccount.html" class="tsd-kind-icon">Aggregator<wbr>Account</a>
 					</li>
@@ -209,64 +197,46 @@
 						<a href="../classes/switchboarderror.html" class="tsd-kind-icon">Switchboard<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="accountparams.html" class="tsd-kind-icon">Account<wbr>Params</a>
+						<a href="../interfaces/accountparams.html" class="tsd-kind-icon">Account<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="aggregatorinitparams.html" class="tsd-kind-icon">Aggregator<wbr>Init<wbr>Params</a>
+						<a href="../interfaces/aggregatorinitparams.html" class="tsd-kind-icon">Aggregator<wbr>Init<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="aggregatoropenroundparams.html" class="tsd-kind-icon">Aggregator<wbr>Open<wbr>Round<wbr>Params</a>
-					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface">
-						<a href="aggregatorsaveresultparams.html" class="tsd-kind-icon">Aggregator<wbr>Save<wbr>Result<wbr>Params</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aggregatorsaveresultparams.html#maxresponse" class="tsd-kind-icon">max<wbr>Response</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aggregatorsaveresultparams.html#minresponse" class="tsd-kind-icon">min<wbr>Response</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aggregatorsaveresultparams.html#oracleidx" class="tsd-kind-icon">oracle<wbr>Idx</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aggregatorsaveresultparams.html#value" class="tsd-kind-icon">value</a>
-							</li>
-						</ul>
-					</li>
-				</ul>
-				<ul class="after-current">
-					<li class=" tsd-kind-interface">
-						<a href="crankinitparams.html" class="tsd-kind-icon">Crank<wbr>Init<wbr>Params</a>
+						<a href="../interfaces/aggregatoropenroundparams.html" class="tsd-kind-icon">Aggregator<wbr>Open<wbr>Round<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="crankpopparams.html" class="tsd-kind-icon">Crank<wbr>Pop<wbr>Params</a>
+						<a href="../interfaces/aggregatorsaveresultparams.html" class="tsd-kind-icon">Aggregator<wbr>Save<wbr>Result<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="jobinitparams.html" class="tsd-kind-icon">Job<wbr>Init<wbr>Params</a>
+						<a href="../interfaces/crankinitparams.html" class="tsd-kind-icon">Crank<wbr>Init<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="leaseinitparams.html" class="tsd-kind-icon">Lease<wbr>Init<wbr>Params</a>
+						<a href="../interfaces/crankpopparams.html" class="tsd-kind-icon">Crank<wbr>Pop<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="oracleinitparams.html" class="tsd-kind-icon">Oracle<wbr>Init<wbr>Params</a>
+						<a href="../interfaces/jobinitparams.html" class="tsd-kind-icon">Job<wbr>Init<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="oraclequeueinitparams.html" class="tsd-kind-icon">Oracle<wbr>Queue<wbr>Init<wbr>Params</a>
+						<a href="../interfaces/leaseinitparams.html" class="tsd-kind-icon">Lease<wbr>Init<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="permissioninitparams.html" class="tsd-kind-icon">Permission<wbr>Init<wbr>Params</a>
+						<a href="../interfaces/oracleinitparams.html" class="tsd-kind-icon">Oracle<wbr>Init<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="permissionsetparams.html" class="tsd-kind-icon">Permission<wbr>Set<wbr>Params</a>
+						<a href="../interfaces/oraclequeueinitparams.html" class="tsd-kind-icon">Oracle<wbr>Queue<wbr>Init<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="programinitparams.html" class="tsd-kind-icon">Program<wbr>Init<wbr>Params</a>
+						<a href="../interfaces/permissioninitparams.html" class="tsd-kind-icon">Permission<wbr>Init<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="vaulttransferparams.html" class="tsd-kind-icon">Vault<wbr>Transfer<wbr>Params</a>
+						<a href="../interfaces/permissionsetparams.html" class="tsd-kind-icon">Permission<wbr>Set<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/programinitparams.html" class="tsd-kind-icon">Program<wbr>Init<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/vaulttransferparams.html" class="tsd-kind-icon">Vault<wbr>Transfer<wbr>Params</a>
 					</li>
 				</ul>
 			</nav>
