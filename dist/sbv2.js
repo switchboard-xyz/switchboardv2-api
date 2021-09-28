@@ -596,7 +596,7 @@ class PermissionAccount {
                 systemProgram: web3_js_1.SystemProgram.programId,
                 payer: program.provider.wallet.publicKey,
             },
-            signers: [permissionAccount],
+            signers: [permissionAccount.keypair],
         });
         return new PermissionAccount({
             program,

@@ -961,7 +961,7 @@ export class PermissionAccount {
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
         },
-        signers: [permissionAccount],
+        signers: [permissionAccount.keypair],
       }
     );
     return new PermissionAccount({
