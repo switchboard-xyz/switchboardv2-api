@@ -584,7 +584,7 @@ class PermissionAccount {
      * @return newly generated PermissionAccount.
      */
     static async create(program, params) {
-        const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(program, params.authority.publicKey, params.granter, params.grantee);
+        const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(program, params.authority, params.granter, params.grantee);
         await program.rpc.permissionInit({
             permissionBump,
         }, {

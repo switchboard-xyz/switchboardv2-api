@@ -944,7 +944,7 @@ export class PermissionAccount {
     const [permissionAccount, permissionBump] =
       await PermissionAccount.fromSeed(
         program,
-        params.authority.publicKey,
+        params.authority,
         params.granter,
         params.grantee
       );
