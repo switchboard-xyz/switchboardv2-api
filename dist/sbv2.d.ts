@@ -380,10 +380,6 @@ export declare class JobAccount {
  */
 export interface PermissionInitParams {
     /**
-     *  The permssion to set
-     */
-    permission: SwitchboardPermission;
-    /**
      *  Keypair of the account granting the permission.
      */
     granter: Keypair;
@@ -391,6 +387,10 @@ export interface PermissionInitParams {
      *  The receiving account of a permission.
      */
     grantee: PublicKey;
+    /**
+     *  The authority that is allowed to set permissions for this account.
+     */
+    authority: PublicKey;
 }
 /**
  * Parameters for setting a permission in a PermissionAccount
@@ -455,11 +455,12 @@ export declare class PermissionAccount {
     static create(program: anchor.Program, params: PermissionInitParams): Promise<PermissionAccount>;
     /**
      * Loads a PermissionAccount from the expected PDA seed format.
+     * @param authority The authority pubkey to be incorporated into the account seed.
      * @param granter The granter pubkey to be incorporated into the account seed.
      * @param grantee The grantee pubkey to be incorporated into the account seed.
      * @return PermissionAccount and PDA bump.
      */
-    static fromSeed(program: anchor.Program, granter: PublicKey, grantee: PublicKey): Promise<[PermissionAccount, number]>;
+    static fromSeed(program: anchor.Program, authority: PublicKey, granter: PublicKey, grantee: PublicKey): Promise<[PermissionAccount, number]>;
     /**
      * Sets the permission in the PermissionAccount
      * @param params.

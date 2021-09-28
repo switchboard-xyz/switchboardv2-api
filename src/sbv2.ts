@@ -639,19 +639,31 @@ export class AggregatorAccount {
     );
 
     const escrowPubkey = (await leaseAccount.loadData()).escrow;
+    const queue = await params.oracleQueueAccount.loadData();
+    const queueAuthority = queu.authority;
+
+    const [permissionAccount, permissionBump] =
+      await PermissionAccount.fromSeed(
+        this.program,
+        queueAuthority,
+        params.oracleQueueAccount.publicKey,
+        this.publicKey
+      );
 
     return await this.program.rpc.aggregatorOpenRound(
       {
         stateBump,
         leaseBump,
+        permissionBump,
       },
       {
         accounts: {
           aggregator: this.publicKey,
-          oracleQueue: params.oracleQueueAccount.publicKey,
           lease: leaseAccount.publicKey,
+          oracleQueue: params.oracleQueueAccount.publicKey,
+          queueAuthority,
+          permission: permissionAccount.publicKey,
           escrow: escrowPubkey,
-          program: this.program.programId,
           programState: stateAccount.publicKey,
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
@@ -820,10 +832,6 @@ export class JobAccount {
  */
 export interface PermissionInitParams {
   /**
-   *  The permssion to set
-   */
-  permission: SwitchboardPermission;
-  /**
    *  Keypair of the account granting the permission.
    */
   granter: Keypair;
@@ -831,6 +839,10 @@ export interface PermissionInitParams {
    *  The receiving account of a permission.
    */
   grantee: PublicKey;
+  /**
+   *  The authority that is allowed to set permissions for this account.
+   */
+  authority: PublicKey;
 }
 
 /**
@@ -927,12 +939,8 @@ export class PermissionAccount {
   ): Promise<PermissionAccount> {
     const permissionAccount = anchor.web3.Keypair.generate();
     const size = program.account.permissionAccountData.size;
-    const permission = new Map<string, null>();
-    permission.set(params.permission.toString(), null);
     await program.rpc.permissionInit(
-      {
-        permission: Object.fromEntries(permission),
-      },
+      {},
       {
         accounts: {
           permission: permissionAccount.publicKey,
@@ -959,17 +967,24 @@ export class PermissionAccount {
 
   /**
    * Loads a PermissionAccount from the expected PDA seed format.
+   * @param authority The authority pubkey to be incorporated into the account seed.
    * @param granter The granter pubkey to be incorporated into the account seed.
    * @param grantee The grantee pubkey to be incorporated into the account seed.
    * @return PermissionAccount and PDA bump.
    */
   static async fromSeed(
     program: anchor.Program,
+    authority: PublicKey,
     granter: PublicKey,
     grantee: PublicKey
   ): Promise<[PermissionAccount, number]> {
     const [pubkey, bump] = await anchor.utils.publicKey.findProgramAddressSync(
-      [Buffer.from("permission"), granter.toBytes(), grantee.toBytes()],
+      [
+        Buffer.from("permission"),
+        authority.toBytes(),
+        granter.toBytes(),
+        grantee.toBytes(),
+      ],
       program.programId
     );
     return [new PermissionAccount({ program, publicKey: pubkey }), bump];
@@ -1443,37 +1458,64 @@ export class CrankAccount {
    */
   async pop(params: CrankPopParams): Promise<TransactionSignature> {
     let crank = await this.loadData();
+    const queueAccount = new OracleQueueAccount({
+      program: this.program,
+      publicKey: crank.queuePubkey,
+    });
+    const queueAuthority = queueAccount.loadData().authority;
     const peakAggKeys = await this.peakNext(8);
     let remainingAccounts: Array<PublicKey> = peakAggKeys.slice();
+    const leaseBumpsMap: Map<string, number> = new Map();
+    const permissionBumpsMap: Map<string, number> = new Map();
     for (const feedKey of peakAggKeys) {
       const aggregatorAccount = new AggregatorAccount({
         program: this.program,
         publicKey: feedKey,
       });
-      const [leaseAccount, _leaseBump] = await LeaseAccount.fromSeed(
+      const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(
         this.program,
         feedKey,
         crank.queuePubkey
       );
       const escrow = (await leaseAccount.loadData()).escrow;
+      const [permissionAccount, permissionBump] =
+        await PermissionAccount.fromSeed(
+          this.program,
+          queueAuthority,
+          queueAccount.publicKey,
+          feedKey
+        );
       remainingAccounts.push(leaseAccount.publicKey);
       remainingAccounts.push(escrow);
+      remainingAccounts.push(permissionAccount.publicKey);
+      leaseBumpsMap.set(feedKey.toBase58(), leaseBump);
+      permissionBumpsMap.set(feedKey.toBase58(), permissionBump);
     }
     // TODO: this sort might need fixing to align
     remainingAccounts.sort((a: PublicKey, b: PublicKey) =>
       a.toBuffer().compare(b.toBuffer())
     );
+    const leaseBumps: Array<number> = [];
+    const permissionBumps: Array<number> = [];
+    // Map bumps to the index of their corresponding feeds.
+    for (key of remainingAccounts) {
+      leaseBumps.push(leaseBumpsMap.get(key.toBase58()) ?? 0);
+      permissionBumps.push(permissionBumpsMap.get(key.toBase58()) ?? 0);
+    }
     const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(
       this.program
     );
     return await this.program.rpc.crankPop(
       {
         stateBump,
+        leaseBumps,
+        permissionBumps,
       },
       {
         accounts: {
           crank: this.publicKey,
           oracleQueue: crank.queuePubkey,
+          queueAuthority,
           programState: programStateAccount.publicKey,
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
