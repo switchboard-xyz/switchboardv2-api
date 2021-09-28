@@ -1659,6 +1659,9 @@ export class OracleAccount {
     if (queue.size !== 0) {
       lastPubkey = queue.queue[queue.size - 1];
     }
+    console.log(
+      `${queue.authority.toBase58()} ${queueAccount.publicKey.toBase58()} ${this.publicKey.toBase58()}`
+    );
     const [permissionAccount, permissionBump] =
       await PermissionAccount.fromSeed(
         this.program,
