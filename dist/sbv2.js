@@ -498,7 +498,7 @@ class JobAccount {
     static async create(program, params) {
         var _a, _b, _c;
         const jobAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
-        const size = 84 + params.data.length;
+        const size = 212 + params.data.length;
         await program.rpc.jobInit({
             id: (_b = params.id) !== null && _b !== void 0 ? _b : Buffer.from(""),
             expiration: (_c = params.expiration) !== null && _c !== void 0 ? _c : new anchor.BN(0),
@@ -603,6 +603,16 @@ class PermissionAccount {
             ],
         });
         return new PermissionAccount({ program, keypair: permissionAccount });
+    }
+    /**
+     * Loads a PermissionAccount from the expected PDA seed format.
+     * @param granter The granter pubkey to be incorporated into the account seed.
+     * @param grantee The grantee pubkey to be incorporated into the account seed.
+     * @return PermissionAccount and PDA bump.
+     */
+    static async fromSeed(program, granter, grantee) {
+        const [pubkey, bump] = await anchor.utils.publicKey.findProgramAddressSync([Buffer.from("permission"), granter.toBytes(), grantee.toBytes()], program.programId);
+        return [new PermissionAccount({ program, publicKey: pubkey }), bump];
     }
     /**
      * Sets the permission in the PermissionAccount
@@ -739,7 +749,7 @@ class LeaseAccount {
         this.publicKey = (_a = params.publicKey) !== null && _a !== void 0 ? _a : this.keypair.publicKey;
     }
     /**
-     * Loads a LeaseAccount from the espected PDA seed format.
+     * Loads a LeaseAccount from the expected PDA seed format.
      * @param leaser The leaser pubkey to be incorporated into the account seed.
      * @param target The target pubkey to be incorporated into the account seed.
      * @return LeaseAccount and PDA bump.

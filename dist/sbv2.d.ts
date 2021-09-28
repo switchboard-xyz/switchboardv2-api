@@ -454,6 +454,13 @@ export declare class PermissionAccount {
      */
     static create(program: anchor.Program, params: PermissionInitParams): Promise<PermissionAccount>;
     /**
+     * Loads a PermissionAccount from the expected PDA seed format.
+     * @param granter The granter pubkey to be incorporated into the account seed.
+     * @param grantee The grantee pubkey to be incorporated into the account seed.
+     * @return PermissionAccount and PDA bump.
+     */
+    static fromSeed(program: anchor.Program, granter: PublicKey, grantee: PublicKey): Promise<[PermissionAccount, number]>;
+    /**
      * Sets the permission in the PermissionAccount
      * @param params.
      * @return TransactionSignature.
@@ -564,7 +571,7 @@ export declare class LeaseAccount {
      */
     constructor(params: AccountParams);
     /**
-     * Loads a LeaseAccount from the espected PDA seed format.
+     * Loads a LeaseAccount from the expected PDA seed format.
      * @param leaser The leaser pubkey to be incorporated into the account seed.
      * @param target The target pubkey to be incorporated into the account seed.
      * @return LeaseAccount and PDA bump.
