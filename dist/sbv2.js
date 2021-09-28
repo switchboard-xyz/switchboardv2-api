@@ -584,7 +584,7 @@ class PermissionAccount {
      * @return newly generated PermissionAccount.
      */
     static async create(program, params) {
-        const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, params.authority, params.granter, params.granteee);
+        const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(program, params.authority.publicKey, params.granter, params.grantee);
         await program.rpc.permissionInit({
             permissionBump,
         }, {
@@ -596,7 +596,10 @@ class PermissionAccount {
             },
             signers: [permissionAccount, params.authority],
         });
-        return new PermissionAccount({ program, keypair: permissionAccount });
+        return new PermissionAccount({
+            program,
+            publicKey: permissionAccount.publicKey,
+        });
     }
     /**
      * Loads a PermissionAccount from the expected PDA seed format.

@@ -856,7 +856,7 @@ export interface PermissionSetParams {
   /**
    *  Keypair of the account granting the permission.
    */
-  granter: PulicKey;
+  granter: PublicKey;
   /**
    *  The receiving account of a permission.
    */
@@ -943,10 +943,10 @@ export class PermissionAccount {
   ): Promise<PermissionAccount> {
     const [permissionAccount, permissionBump] =
       await PermissionAccount.fromSeed(
-        this.program,
-        params.authority,
+        program,
+        params.authority.publicKey,
         params.granter,
-        params.granteee
+        params.grantee
       );
     await program.rpc.permissionInit(
       {
@@ -962,7 +962,10 @@ export class PermissionAccount {
         signers: [permissionAccount, params.authority],
       }
     );
-    return new PermissionAccount({ program, keypair: permissionAccount });
+    return new PermissionAccount({
+      program,
+      publicKey: permissionAccount.publicKey,
+    });
   }
 
   /**
