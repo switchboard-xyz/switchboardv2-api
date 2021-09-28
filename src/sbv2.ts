@@ -637,7 +637,9 @@ export class AggregatorAccount {
       this.publicKey,
       params.oracleQueueAccount.publicKey
     );
-    if ((await leaseAccount.loadData()) === undefined) {
+    try {
+      await leaseAccount.loadData();
+    } catch (_) {
       throw new Error("A requested pda account has not been initialized.");
     }
 
@@ -652,7 +654,9 @@ export class AggregatorAccount {
         params.oracleQueueAccount.publicKey,
         this.publicKey
       );
-    if ((await permissionAccount.loadData()) === undefined) {
+    try {
+      await permissionAccount.loadData();
+    } catch (_) {
       throw new Error("A requested pda account has not been initialized.");
     }
 
@@ -1657,7 +1661,9 @@ export class OracleAccount {
         queueAccount.publicKey,
         this.publicKey
       );
-    if ((await permissionAccount.loadData()) === undefined) {
+    try {
+      await permissionAccount.loadData();
+    } catch (_) {
       throw new Error("A requested pda account has not been initialized.");
     }
 
