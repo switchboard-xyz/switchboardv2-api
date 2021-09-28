@@ -715,20 +715,6 @@ class OracleQueueAccount {
         });
         return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
     }
-    /**
-     * Pushes a new oracle onto the queue.
-     * @oracleAccount The oracle to push onto the queue.
-     * @return TransactionSignature
-     */
-    async push(oracleAccount) {
-        return await this.program.rpc.oracleQueuePush({}, {
-            accounts: {
-                oracle: oracleAccount.publicKey,
-                oracleQueue: this.publicKey,
-            },
-            signers: [oracleAccount.keypair],
-        });
-    }
 }
 exports.OracleQueueAccount = OracleQueueAccount;
 /**

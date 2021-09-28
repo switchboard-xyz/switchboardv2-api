@@ -528,12 +528,6 @@ export declare class OracleQueueAccount {
      * @return newly generated OracleQueueAccount.
      */
     static create(program: anchor.Program, params: OracleQueueInitParams): Promise<OracleQueueAccount>;
-    /**
-     * Pushes a new oracle onto the queue.
-     * @oracleAccount The oracle to push onto the queue.
-     * @return TransactionSignature
-     */
-    push(oracleAccount: OracleAccount): Promise<TransactionSignature>;
 }
 /**
  * Parameters for initializing a LeaseAccount
