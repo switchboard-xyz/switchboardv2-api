@@ -396,10 +396,16 @@ class AggregatorAccount {
     async openRound(params) {
         const [stateAccount, stateBump] = await ProgramStateAccount.fromSeed(this.program);
         const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, this.publicKey, params.oracleQueueAccount.publicKey);
+        if ((await leaseAccount.loadData()) === undefined) {
+            throw new Error("A requested pda account has not been initialized.");
+        }
         const escrowPubkey = (await leaseAccount.loadData()).escrow;
         const queue = await params.oracleQueueAccount.loadData();
         const queueAuthority = queue.authority;
         const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queueAuthority, params.oracleQueueAccount.publicKey, this.publicKey);
+        if ((await permissionAccount.loadData()) === undefined) {
+            throw new Error("A requested pda account has not been initialized.");
+        }
         return await this.program.rpc.aggregatorOpenRound({
             stateBump,
             leaseBump,
@@ -1046,6 +1052,9 @@ class OracleAccount {
             lastPubkey = queue.queue[queue.size - 1];
         }
         const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queue.authority, queueAccount.publicKey, this.publicKey);
+        if ((await permissionAccount.loadData()) === undefined) {
+            throw new Error("A requested pda account has not been initialized.");
+        }
         return await this.program.rpc.oracleHeartbeat({
             permissionBump,
         }, {

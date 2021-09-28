@@ -637,6 +637,9 @@ export class AggregatorAccount {
       this.publicKey,
       params.oracleQueueAccount.publicKey
     );
+    if ((await leaseAccount.loadData()) === undefined) {
+      throw new Error("A requested pda account has not been initialized.");
+    }
 
     const escrowPubkey = (await leaseAccount.loadData()).escrow;
     const queue = await params.oracleQueueAccount.loadData();
@@ -649,6 +652,9 @@ export class AggregatorAccount {
         params.oracleQueueAccount.publicKey,
         this.publicKey
       );
+    if ((await permissionAccount.loadData()) === undefined) {
+      throw new Error("A requested pda account has not been initialized.");
+    }
 
     return await this.program.rpc.aggregatorOpenRound(
       {
@@ -1651,6 +1657,9 @@ export class OracleAccount {
         queueAccount.publicKey,
         this.publicKey
       );
+    if ((await permissionAccount.loadData()) === undefined) {
+      throw new Error("A requested pda account has not been initialized.");
+    }
 
     return await this.program.rpc.oracleHeartbeat(
       {
