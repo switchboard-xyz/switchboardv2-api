@@ -584,24 +584,17 @@ class PermissionAccount {
      * @return newly generated PermissionAccount.
      */
     static async create(program, params) {
-        const permissionAccount = anchor.web3.Keypair.generate();
-        const size = program.account.permissionAccountData.size;
-        await program.rpc.permissionInit({}, {
+        const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, params.authority, params.granter, params.granteee);
+        await program.rpc.permissionInit({
+            permissionBump,
+        }, {
             accounts: {
                 permission: permissionAccount.publicKey,
-                granter: params.granter.publicKey,
+                authority: params.authority.publicKey,
+                granter: params.granter,
                 grantee: params.grantee,
             },
-            signers: [permissionAccount, params.granter],
-            instructions: [
-                anchor.web3.SystemProgram.createAccount({
-                    fromPubkey: program.provider.wallet.publicKey,
-                    newAccountPubkey: permissionAccount.publicKey,
-                    space: size,
-                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
-                    programId: program.programId,
-                }),
-            ],
+            signers: [permissionAccount, params.authority],
         });
         return new PermissionAccount({ program, keypair: permissionAccount });
     }
@@ -635,10 +628,11 @@ class PermissionAccount {
         }, {
             accounts: {
                 permission: this.publicKey,
+                authority: params.authority.publicKey,
                 granter: params.granter.publicKey,
                 grantee: params.grantee,
             },
-            signers: [params.granter],
+            signers: [params.granter, params.authority],
         });
     }
 }
