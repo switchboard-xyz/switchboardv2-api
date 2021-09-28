@@ -1059,6 +1059,7 @@ class OracleAccount {
             lastPubkey = queue.queue[queue.size - 1];
         }
         const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queue.authority, queueAccount.publicKey, this.publicKey);
+        console.log(permissionAccount.publicKey);
         try {
             await permissionAccount.loadData();
         }

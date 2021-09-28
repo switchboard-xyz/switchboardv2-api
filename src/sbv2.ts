@@ -1667,6 +1667,7 @@ export class OracleAccount {
         queueAccount.publicKey,
         this.publicKey
       );
+    console.log(permissionAccount.publicKey);
     try {
       await permissionAccount.loadData();
     } catch (_) {
