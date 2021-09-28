@@ -604,6 +604,7 @@ class PermissionAccount {
         permission.set(params.permission, null);
         return await this.program.rpc.permissionSet({
             permission: Object.fromEntries(permission),
+            enable: params.permission,
         }, {
             accounts: {
                 permission: this.publicKey,

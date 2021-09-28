@@ -408,6 +408,10 @@ export interface PermissionSetParams {
      *  The receiving account of a permission.
      */
     grantee: PublicKey;
+    /**
+     *  Specifies whether to enable or disable the permission.
+     */
+    enable: boolean;
 }
 /**
  * A Switchboard account representing a permission or privilege granted by one

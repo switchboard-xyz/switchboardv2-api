@@ -849,6 +849,10 @@ export interface PermissionSetParams {
    *  The receiving account of a permission.
    */
   grantee: PublicKey;
+  /**
+   *  Specifies whether to enable or disable the permission.
+   */
+  enable: boolean;
 }
 
 /**
@@ -955,6 +959,7 @@ export class PermissionAccount {
     return await this.program.rpc.permissionSet(
       {
         permission: Object.fromEntries(permission),
+        enable: params.permission,
       },
       {
         accounts: {
