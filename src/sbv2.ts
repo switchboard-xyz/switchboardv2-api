@@ -33,7 +33,10 @@ export class SwitchboardDecimal {
    * @param obj raw object to convert from
    * @return SwitchboardDecimal
    */
-  public static from(obj: any): SwitchboardDecimal {
+  public static from(obj: {
+    mantissa: anchor.BN;
+    scale: number;
+  }): SwitchboardDecimal {
     return new SwitchboardDecimal(new anchor.BN(obj.mantissa), obj.scale);
   }
 
@@ -459,7 +462,7 @@ export class AggregatorAccount {
    * @param aggregator A preloaded aggregator object.
    * @return The name of the aggregator.
    */
-  static getName(aggregator: any): string {
+  static getName(aggregator: { id: Uint8Array }): string {
     return Buffer.from(aggregator.id).toString("utf8");
   }
 
@@ -481,7 +484,9 @@ export class AggregatorAccount {
    * aggregator info.
    * @return latest feed value
    */
-  async getLatestValue(aggregator?: any): Promise<number> {
+  async getLatestValue(aggregator?: {
+    latestConfirmedRound: any;
+  }): Promise<number> {
     aggregator = aggregator ?? (await this.loadData());
     if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
       throw new Error("Aggregator currently holds no value.");
@@ -511,7 +516,10 @@ export class AggregatorAccount {
    * Load and deserialize all jobs stored in this aggregator
    * @return Array<OracleJob>
    */
-  async loadJobs(aggregator?: any): Promise<Array<OracleJob>> {
+  async loadJobs(aggregator?: {
+    jobPubkeysData: Array<PublicKey>;
+    jobPubkeysSize: number;
+  }): Promise<Array<OracleJob>> {
     const coder = new anchor.AccountsCoder(this.program.idl);
 
     aggregator = aggregator ?? (await this.loadData());
@@ -862,14 +870,6 @@ export interface PermissionSetParams {
    *  The permssion to set
    */
   permission: SwitchboardPermission;
-  /**
-   *  Keypair of the account granting the permission.
-   */
-  granter: PublicKey;
-  /**
-   *  The receiving account of a permission.
-   */
-  grantee: PublicKey;
   /**
    *  The authority controlling this permission.
    */

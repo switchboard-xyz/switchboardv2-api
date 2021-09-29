@@ -20,7 +20,10 @@ export declare class SwitchboardDecimal {
      * @param obj raw object to convert from
      * @return SwitchboardDecimal
      */
-    static from(obj: any): SwitchboardDecimal;
+    static from(obj: {
+        mantissa: anchor.BN;
+        scale: number;
+    }): SwitchboardDecimal;
     /**
      * Convert a Big.js decimal to a Switchboard decimal.
      * @param big a Big.js decimal
@@ -252,7 +255,9 @@ export declare class AggregatorAccount {
      * @param aggregator A preloaded aggregator object.
      * @return The name of the aggregator.
      */
-    static getName(aggregator: any): string;
+    static getName(aggregator: {
+        id: Uint8Array;
+    }): string;
     /**
      * Load and parse AggregatorAccount state based on the program IDL.
      * @return AggregatorAccount data parsed in accordance with the
@@ -265,7 +270,9 @@ export declare class AggregatorAccount {
      * aggregator info.
      * @return latest feed value
      */
-    getLatestValue(aggregator?: any): Promise<number>;
+    getLatestValue(aggregator?: {
+        latestConfirmedRound: any;
+    }): Promise<number>;
     /**
      * Produces a hash of all the jobs currently in the aggregator
      * @return hash of all the feed jobs.
@@ -275,7 +282,10 @@ export declare class AggregatorAccount {
      * Load and deserialize all jobs stored in this aggregator
      * @return Array<OracleJob>
      */
-    loadJobs(aggregator?: any): Promise<Array<OracleJob>>;
+    loadJobs(aggregator?: {
+        jobPubkeysData: Array<PublicKey>;
+        jobPubkeysSize: number;
+    }): Promise<Array<OracleJob>>;
     /**
      * Get the size of an AggregatorAccount on chain.
      * @return size.
@@ -400,14 +410,6 @@ export interface PermissionSetParams {
      *  The permssion to set
      */
     permission: SwitchboardPermission;
-    /**
-     *  Keypair of the account granting the permission.
-     */
-    granter: PublicKey;
-    /**
-     *  The receiving account of a permission.
-     */
-    grantee: PublicKey;
     /**
      *  The authority controlling this permission.
      */
