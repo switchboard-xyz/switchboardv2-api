@@ -1011,6 +1011,8 @@ export class PermissionAccount {
     const permission = new Map<string, null>();
     permission.set(params.permission.toString(), null);
     console.log(params.permission.toString());
+    console.log(params);
+    console.log(JSON.stringify(params));
     return await this.program.rpc.permissionSet(
       {
         permission: Object.fromEntries(permission),
