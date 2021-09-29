@@ -460,7 +460,7 @@ export class AggregatorAccount {
    * @return The name of the aggregator.
    */
   static getName(aggregator: any): string {
-    return aggregator.id.toString("utf8");
+    return Buffer.from(aggregator.id).toString("utf8");
   }
 
   /**

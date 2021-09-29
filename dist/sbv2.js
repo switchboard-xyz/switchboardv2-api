@@ -257,7 +257,7 @@ class AggregatorAccount {
      * @return The name of the aggregator.
      */
     static getName(aggregator) {
-        return aggregator.id.toString("utf8");
+        return Buffer.from(aggregator.id).toString("utf8");
     }
     /**
      * Load and parse AggregatorAccount state based on the program IDL.
