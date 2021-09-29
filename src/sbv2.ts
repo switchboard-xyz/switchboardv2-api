@@ -462,7 +462,7 @@ export class AggregatorAccount {
    * @param aggregator A preloaded aggregator object.
    * @return The name of the aggregator.
    */
-  static getName(aggregator: { id: Uint8Array }): string {
+  static getName(aggregator: any): string {
     return Buffer.from(aggregator.id).toString("utf8");
   }
 
@@ -484,9 +484,7 @@ export class AggregatorAccount {
    * aggregator info.
    * @return latest feed value
    */
-  async getLatestValue(aggregator?: {
-    latestConfirmedRound: any;
-  }): Promise<number> {
+  async getLatestValue(aggregator?: any): Promise<number> {
     aggregator = aggregator ?? (await this.loadData());
     if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
       throw new Error("Aggregator currently holds no value.");
@@ -516,10 +514,7 @@ export class AggregatorAccount {
    * Load and deserialize all jobs stored in this aggregator
    * @return Array<OracleJob>
    */
-  async loadJobs(aggregator?: {
-    jobPubkeysData: Array<PublicKey>;
-    jobPubkeysSize: number;
-  }): Promise<Array<OracleJob>> {
+  async loadJobs(aggregator?: any): Promise<Array<OracleJob>> {
     const coder = new anchor.AccountsCoder(this.program.idl);
 
     aggregator = aggregator ?? (await this.loadData());

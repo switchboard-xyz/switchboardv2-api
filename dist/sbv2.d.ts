@@ -255,9 +255,7 @@ export declare class AggregatorAccount {
      * @param aggregator A preloaded aggregator object.
      * @return The name of the aggregator.
      */
-    static getName(aggregator: {
-        id: Uint8Array;
-    }): string;
+    static getName(aggregator: any): string;
     /**
      * Load and parse AggregatorAccount state based on the program IDL.
      * @return AggregatorAccount data parsed in accordance with the
@@ -270,9 +268,7 @@ export declare class AggregatorAccount {
      * aggregator info.
      * @return latest feed value
      */
-    getLatestValue(aggregator?: {
-        latestConfirmedRound: any;
-    }): Promise<number>;
+    getLatestValue(aggregator?: any): Promise<number>;
     /**
      * Produces a hash of all the jobs currently in the aggregator
      * @return hash of all the feed jobs.
@@ -282,10 +278,7 @@ export declare class AggregatorAccount {
      * Load and deserialize all jobs stored in this aggregator
      * @return Array<OracleJob>
      */
-    loadJobs(aggregator?: {
-        jobPubkeysData: Array<PublicKey>;
-        jobPubkeysSize: number;
-    }): Promise<Array<OracleJob>>;
+    loadJobs(aggregator?: any): Promise<Array<OracleJob>>;
     /**
      * Get the size of an AggregatorAccount on chain.
      * @return size.
