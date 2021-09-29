@@ -636,9 +636,6 @@ class PermissionAccount {
     async set(params) {
         const permission = new Map();
         permission.set(params.permission.toString(), null);
-        console.log(params.permission.toString());
-        console.log(params);
-        console.log(JSON.stringify(params));
         return await this.program.rpc.permissionSet({
             permission: Object.fromEntries(permission),
             enable: params.enable,
