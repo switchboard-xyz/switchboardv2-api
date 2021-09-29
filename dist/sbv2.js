@@ -643,10 +643,8 @@ class PermissionAccount {
             accounts: {
                 permission: this.publicKey,
                 authority: params.authority.publicKey,
-                granter: params.granter,
-                grantee: params.grantee,
             },
-            signers: [params.granter, params.authority],
+            signers: [params.authority],
         });
     }
 }
