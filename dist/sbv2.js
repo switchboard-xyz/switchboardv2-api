@@ -640,7 +640,7 @@ class PermissionAccount {
         console.log(params);
         console.log(JSON.stringify(params));
         return await this.program.rpc.permissionSet({
-            permission: params.permission,
+            permission: 1 << 0,
             enable: params.enable,
         }, {
             accounts: {
