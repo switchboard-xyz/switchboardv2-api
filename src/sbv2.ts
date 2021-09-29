@@ -1015,7 +1015,7 @@ export class PermissionAccount {
     console.log(JSON.stringify(params));
     return await this.program.rpc.permissionSet(
       {
-        permission: Object.fromEntries(params.permission),
+        permission: Object.fromEntries(permission),
         enable: params.enable,
       },
       {
