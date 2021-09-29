@@ -639,7 +639,7 @@ class PermissionAccount {
         console.log(params.permission.toString());
         return await this.program.rpc.permissionSet({
             permission: Object.fromEntries(permission),
-            enable: params.permission,
+            enable: params.enable,
         }, {
             accounts: {
                 permission: this.publicKey,
