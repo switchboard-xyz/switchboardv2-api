@@ -730,6 +730,10 @@ export interface JobInitParams {
    */
   data: Buffer;
   /**
+   *  A required variables oracles must fill to complete the job.
+   */
+  variables?: Array<string>;
+  /**
    *  A pre-generated keypair to use.
    */
   keypair?: Keypair;
@@ -806,12 +810,13 @@ export class JobAccount {
     params: JobInitParams
   ): Promise<JobAccount> {
     const jobAccount = params.keypair ?? anchor.web3.Keypair.generate();
-    const size = 212 + params.data.length;
+    const size = 212 + params.data.length + params.variables.join("").length;
     await program.rpc.jobInit(
       {
         id: params.id ?? Buffer.from(""),
         expiration: params.expiration ?? new anchor.BN(0),
         data: params.data,
+        variables: params.variables.map((item) => Buffer.from(item)),
       },
       {
         accounts: {
