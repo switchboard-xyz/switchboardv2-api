@@ -512,12 +512,12 @@ class JobAccount {
      * @return newly generated JobAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e, _f;
         const jobAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
-        const size = 212 + params.data.length + params.variables.join("").length;
+        const size = 212 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
         await program.rpc.jobInit({
-            id: (_b = params.id) !== null && _b !== void 0 ? _b : Buffer.from(""),
-            expiration: (_c = params.expiration) !== null && _c !== void 0 ? _c : new anchor.BN(0),
+            id: (_e = params.id) !== null && _e !== void 0 ? _e : Buffer.from(""),
+            expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             data: params.data,
             variables: params.variables.map((item) => new Uint8Array()),
         }, {

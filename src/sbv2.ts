@@ -810,7 +810,8 @@ export class JobAccount {
     params: JobInitParams
   ): Promise<JobAccount> {
     const jobAccount = params.keypair ?? anchor.web3.Keypair.generate();
-    const size = 212 + params.data.length + params.variables.join("").length;
+    const size =
+      212 + params.data.length + (params.variables?.join("")?.length ?? 0);
     await program.rpc.jobInit(
       {
         id: params.id ?? Buffer.from(""),
