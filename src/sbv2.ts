@@ -1475,6 +1475,7 @@ export class CrankAccount {
           crank: this.publicKey,
           aggregator: aggregatorAccount.publicKey,
           oracleQueue: queueAccount.publicKey,
+          queueAuthority,
           permission: permissionAccount.publicKey,
           lease: leaseAccount.publicKey,
           escrow: lease.escrow,
