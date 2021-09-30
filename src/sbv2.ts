@@ -1449,7 +1449,6 @@ export class CrankAccount {
     });
     const queue = await queueAccount.loadData();
     const queueAuthority = queue.authority;
-    const permissionAccount = await PermissionAccount.fromSeed();
     const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(
       this.program,
       aggrgatorAccount.publicKey,
