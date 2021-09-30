@@ -519,7 +519,7 @@ class JobAccount {
             id: (_e = params.id) !== null && _e !== void 0 ? _e : Buffer.from(""),
             expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             data: params.data,
-            variables: (_h = (_g = params.variables) === null || _g === void 0 ? void 0 : _g.map((item) => new Uint8Array())) !== null && _h !== void 0 ? _h : [],
+            variables: (_h = (_g = params.variables) === null || _g === void 0 ? void 0 : _g.map((item) => new Uint8Array())) !== null && _h !== void 0 ? _h : new Array(),
         }, {
             accounts: {
                 job: jobAccount.publicKey,
