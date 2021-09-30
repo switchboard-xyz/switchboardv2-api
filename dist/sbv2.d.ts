@@ -20,10 +20,7 @@ export declare class SwitchboardDecimal {
      * @param obj raw object to convert from
      * @return SwitchboardDecimal
      */
-    static from(obj: {
-        mantissa: anchor.BN;
-        scale: number;
-    }): SwitchboardDecimal;
+    static from(obj: any): SwitchboardDecimal;
     /**
      * Convert a Big.js decimal to a Switchboard decimal.
      * @param big a Big.js decimal
@@ -620,6 +617,15 @@ export interface CrankPopParams {
     payoutWallet: PublicKey;
 }
 /**
+ * Parameters for pushing an element into a CrankAccount.
+ */
+export interface CrankPushParams {
+    /**
+     * Specifies the aggregator to push onto the crank.
+     */
+    aggregatorAccount: AggregatorAccount;
+}
+/**
  * Row structure of elements in the crank.
  */
 export declare class CrankRow {
@@ -667,7 +673,7 @@ export declare class CrankAccount {
      * @param aggregator The Aggregator account to push on the crank.
      * @return TransactionSignature
      */
-    push(aggregator: AggregatorAccount): Promise<TransactionSignature>;
+    push(params: CrankPushParams): Promise<TransactionSignature>;
     /**
      * Pops an aggregator from the crank.
      * @param params

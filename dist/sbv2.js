@@ -891,11 +891,32 @@ class CrankAccount {
      * @param aggregator The Aggregator account to push on the crank.
      * @return TransactionSignature
      */
-    async push(aggregator) {
-        return await this.program.rpc.crankPush({}, {
+    async push(params) {
+        const aggregatorAccount = params.aggrgatorAccount;
+        const crank = await this.loadData();
+        const queueAccount = new OracleQueueAccount({
+            program: this.program,
+            publicKey: crank.queuePubkey,
+        });
+        const queue = await queueAccount.loadData();
+        const queueAuthority = queue.authority;
+        const permissionAccount = await PermissionAccount.fromSeed();
+        const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, aggrgatorAccount.publicKey, queueAccount.publicKey);
+        const lease = await leaseAccount.loadData();
+        const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, aggregatorAccount.publicKey);
+        const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(this.program);
+        return await this.program.rpc.crankPush({
+            stateBump,
+            permissionBump,
+        }, {
             accounts: {
                 crank: this.publicKey,
-                aggregator: aggregator.publicKey,
+                aggregator: aggregatorAccount.publicKey,
+                oracleQueue: queueAccount.publicKey,
+                permission: permissionAccount.publicKey,
+                lease: leaseAccount.publicKey,
+                escrow: lease.escrow,
+                programState: programStateAccount.publicKey,
             },
         });
     }

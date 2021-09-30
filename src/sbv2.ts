@@ -33,10 +33,7 @@ export class SwitchboardDecimal {
    * @param obj raw object to convert from
    * @return SwitchboardDecimal
    */
-  public static from(obj: {
-    mantissa: anchor.BN;
-    scale: number;
-  }): SwitchboardDecimal {
+  public static from(obj: any): SwitchboardDecimal {
     return new SwitchboardDecimal(new anchor.BN(obj.mantissa), obj.scale);
   }
 
@@ -1323,6 +1320,16 @@ export interface CrankPopParams {
 }
 
 /**
+ * Parameters for pushing an element into a CrankAccount.
+ */
+export interface CrankPushParams {
+  /**
+   * Specifies the aggregator to push onto the crank.
+   */
+  aggregatorAccount: AggregatorAccount;
+}
+
+/**
  * Row structure of elements in the crank.
  */
 export class CrankRow {
@@ -1433,13 +1440,46 @@ export class CrankAccount {
    * @param aggregator The Aggregator account to push on the crank.
    * @return TransactionSignature
    */
-  async push(aggregator: AggregatorAccount): Promise<TransactionSignature> {
+  async push(params: CrankPushParams): Promise<TransactionSignature> {
+    const aggregatorAccount: AggregatorAccount = params.aggrgatorAccount;
+    const crank = await this.loadData();
+    const queueAccount = new OracleQueueAccount({
+      program: this.program,
+      publicKey: crank.queuePubkey,
+    });
+    const queue = await queueAccount.loadData();
+    const queueAuthority = queue.authority;
+    const permissionAccount = await PermissionAccount.fromSeed();
+    const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(
+      this.program,
+      aggrgatorAccount.publicKey,
+      queueAccount.publicKey
+    );
+    const lease = await leaseAccount.loadData();
+    const [permissionAccount, permissionBump] =
+      await PermissionAccount.fromSeed(
+        this.program,
+        queueAuthority,
+        queueAccount.publicKey,
+        aggregatorAccount.publicKey
+      );
+    const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(
+      this.program
+    );
     return await this.program.rpc.crankPush(
-      {},
+      {
+        stateBump,
+        permissionBump,
+      },
       {
         accounts: {
           crank: this.publicKey,
-          aggregator: aggregator.publicKey,
+          aggregator: aggregatorAccount.publicKey,
+          oracleQueue: queueAccount.publicKey,
+          permission: permissionAccount.publicKey,
+          lease: leaseAccount.publicKey,
+          escrow: lease.escrow,
+          programState: programStateAccount.publicKey,
         },
       }
     );
