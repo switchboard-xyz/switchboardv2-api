@@ -910,7 +910,7 @@ class CrankAccount {
         }
         const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, aggregatorAccount.publicKey);
         try {
-            await PermissionAccount.loadData();
+            await permissionAccount.loadData();
         }
         catch (_) {
             throw new Error("A requested pda account has not been initialized.");
