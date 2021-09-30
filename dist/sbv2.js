@@ -900,7 +900,7 @@ class CrankAccount {
         });
         const queue = await queueAccount.loadData();
         const queueAuthority = queue.authority;
-        const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, aggrgatorAccount.publicKey, queueAccount.publicKey);
+        const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, aggregatorAccount.publicKey, queueAccount.publicKey);
         const lease = await leaseAccount.loadData();
         const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, aggregatorAccount.publicKey);
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(this.program);
