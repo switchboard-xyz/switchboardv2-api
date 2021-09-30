@@ -806,7 +806,7 @@ export class JobAccount {
     params: JobInitParams
   ): Promise<JobAccount> {
     const jobAccount = params.keypair ?? anchor.web3.Keypair.generate();
-    const size = 212 + params.data.length;
+    const size = 211 + params.data.length;
     await program.rpc.jobInit(
       {
         id: params.id ?? Buffer.from(""),
