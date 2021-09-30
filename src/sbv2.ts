@@ -1441,7 +1441,7 @@ export class CrankAccount {
    * @return TransactionSignature
    */
   async push(params: CrankPushParams): Promise<TransactionSignature> {
-    const aggregatorAccount: AggregatorAccount = params.aggrgatorAccount;
+    const aggregatorAccount: AggregatorAccount = params.aggregatorAccount;
     const crank = await this.loadData();
     const queueAccount = new OracleQueueAccount({
       program: this.program,
