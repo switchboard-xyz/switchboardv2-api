@@ -1553,8 +1553,8 @@ export class CrankAccount {
     return await this.program.rpc.crankPop(
       {
         stateBump,
-        leaseBumps,
-        permissionBumps,
+        leaseBumps: Uint8Array.from(leaseBumps),
+        permissionBumps: Uint8Array.from(permissionBumps),
       },
       {
         accounts: {
