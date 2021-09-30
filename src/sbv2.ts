@@ -816,7 +816,7 @@ export class JobAccount {
         id: params.id ?? Buffer.from(""),
         expiration: params.expiration ?? new anchor.BN(0),
         data: params.data,
-        variables: params.variables.map((item) => Buffer.from(item)),
+        variables: params.variables.map((item) => new Uint8Array()),
       },
       {
         accounts: {

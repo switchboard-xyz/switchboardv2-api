@@ -333,6 +333,10 @@ export interface JobInitParams {
      */
     data: Buffer;
     /**
+     *  A required variables oracles must fill to complete the job.
+     */
+    variables?: Array<string>;
+    /**
      *  A pre-generated keypair to use.
      */
     keypair?: Keypair;

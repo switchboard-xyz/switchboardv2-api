@@ -514,11 +514,12 @@ class JobAccount {
     static async create(program, params) {
         var _a, _b, _c;
         const jobAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
-        const size = 212 + params.data.length;
+        const size = 212 + params.data.length + params.variables.join("").length;
         await program.rpc.jobInit({
             id: (_b = params.id) !== null && _b !== void 0 ? _b : Buffer.from(""),
             expiration: (_c = params.expiration) !== null && _c !== void 0 ? _c : new anchor.BN(0),
             data: params.data,
+            variables: params.variables.map((item) => new Uint8Array()),
         }, {
             accounts: {
                 job: jobAccount.publicKey,
