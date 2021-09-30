@@ -1454,7 +1454,13 @@ export class CrankAccount {
       aggregatorAccount.publicKey,
       queueAccount.publicKey
     );
-    const lease = await leaseAccount.loadData();
+    let lease = null;
+    try {
+      lease = await leaseAccount.loadData();
+    } catch (_) {
+      throw new Error("A requested pda account has not been initialized.");
+    }
+
     const [permissionAccount, permissionBump] =
       await PermissionAccount.fromSeed(
         this.program,
@@ -1462,6 +1468,11 @@ export class CrankAccount {
         queueAccount.publicKey,
         aggregatorAccount.publicKey
       );
+    try {
+      await PermissionAccount.loadData();
+    } catch (_) {
+      throw new Error("A requested pda account has not been initialized.");
+    }
     const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(
       this.program
     );
