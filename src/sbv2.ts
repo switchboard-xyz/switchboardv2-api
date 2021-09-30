@@ -1709,7 +1709,7 @@ export class OracleAccount {
     const queue = await queueAccount.loadData();
     let lastPubkey = this.publicKey;
     if (queue.size !== 0) {
-      lastPubkey = queue.queue[queue.size - 1];
+      lastPubkey = queue.queue[queue.gcIdx];
     }
     const [permissionAccount, permissionBump] =
       await PermissionAccount.fromSeed(
