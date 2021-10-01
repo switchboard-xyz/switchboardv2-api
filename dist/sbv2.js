@@ -790,11 +790,18 @@ class LeaseAccount {
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(program, params.oracleQueueAccount, params.aggregatorAccount);
+        // TODO: check on chain
         const escrow = await switchTokenMint.createAssociatedTokenAccount(leaseAccount.publicKey);
+        const escrowBump = (await web3_js_1.PublicKey.findProgramAddress([
+            leaseAccount.publicKey.toBuffer(),
+            program.programId.toBuffer(),
+            switchTokenMint.publicKey.toBuffer(),
+        ], switchTokenMint.associatedProgramId))[1];
         await program.rpc.leaseInit({
             loadAmount: params.loadAmount,
             stateBump,
             leaseBump,
+            escrowBump,
         }, {
             accounts: {
                 programState: programStateAccount.publicKey,
@@ -806,7 +813,7 @@ class LeaseAccount {
                 payer: program.provider.wallet.publicKey,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
                 escrow,
-                owner: params.funderAuthority.publicKey,
+                // owner: params.funderAuthority.publicKey,
             },
             signers: [params.funderAuthority],
         });

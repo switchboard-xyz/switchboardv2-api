@@ -1272,14 +1272,26 @@ export class LeaseAccount {
       params.oracleQueueAccount,
       params.aggregatorAccount
     );
+    // TODO: check on chain
     const escrow = await switchTokenMint.createAssociatedTokenAccount(
       leaseAccount.publicKey
     );
+    const escrowBump = (
+      await PublicKey.findProgramAddress(
+        [
+          leaseAccount.publicKey.toBuffer(),
+          program.programId.toBuffer(),
+          switchTokenMint.publicKey.toBuffer(),
+        ],
+        switchTokenMint.associatedProgramId
+      )
+    )[1];
     await program.rpc.leaseInit(
       {
         loadAmount: params.loadAmount,
         stateBump,
         leaseBump,
+        escrowBump,
       },
       {
         accounts: {
@@ -1292,7 +1304,7 @@ export class LeaseAccount {
           payer: program.provider.wallet.publicKey,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           escrow,
-          owner: params.funderAuthority.publicKey,
+          // owner: params.funderAuthority.publicKey,
         },
         signers: [params.funderAuthority],
       }
