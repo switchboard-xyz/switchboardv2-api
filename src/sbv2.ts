@@ -1308,6 +1308,8 @@ export class OracleQueueAccount {
         varianceToleranceMultiplier: (
           params.varianceToleranceMultiplier ?? 2
         ).toString(),
+        authority: params.authority,
+        oracleTimeout: params.oracleTimeout ?? null,
       },
       {
         accounts: {

@@ -808,6 +808,7 @@ class OracleQueueAccount {
      * @return newly generated OracleQueueAccount.
      */
     static async create(program, params) {
+<<<<<<< HEAD
         var _a, _b, _c, _d, _e, _f, _g, _h;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
@@ -820,6 +821,19 @@ class OracleQueueAccount {
             oracleTimeout: (_f = params.oracleTimeout) !== null && _f !== void 0 ? _f : 180,
             slashingEnabled: (_g = params.slashingEnabled) !== null && _g !== void 0 ? _g : false,
             varianceToleranceMultiplier: ((_h = params.varianceToleranceMultiplier) !== null && _h !== void 0 ? _h : 2).toString(),
+=======
+        var _a, _b, _c, _d, _e, _f;
+        const oracleQueueAccount = anchor.web3.Keypair.generate();
+        const size = program.account.oracleQueueAccountData.size;
+        await program.rpc.oracleQueueInit({
+            id: (_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from(""),
+            metadata: (_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from(""),
+            slashingCurve: (_c = params.slashingCurve) !== null && _c !== void 0 ? _c : null,
+            reward: (_d = params.reward) !== null && _d !== void 0 ? _d : new anchor.BN(0),
+            minStake: (_e = params.minStake) !== null && _e !== void 0 ? _e : new anchor.BN(0),
+            authority: params.authority,
+            oracleTimeout: (_f = params.oracleTimeout) !== null && _f !== void 0 ? _f : null,
+>>>>>>> 164c8a4 (added frontend for the timeout parameter)
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,

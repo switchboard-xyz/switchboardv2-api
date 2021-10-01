@@ -532,6 +532,7 @@ export interface OracleQueueInitParams {
      */
     authority: PublicKey;
     /**
+<<<<<<< HEAD
      *  Time period we should remove an oracle after if no response.
      */
     oracleTimeout?: anchor.BN;
@@ -546,6 +547,11 @@ export interface OracleQueueInitParams {
      *  Default: 2
      */
     varianceToleranceMultiplier?: number;
+=======
+     * The number of seconds between heartbeats before a Oracle times out
+     */
+    oracleTimeout?: anchor.BN;
+>>>>>>> 164c8a4 (added frontend for the timeout parameter)
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to
