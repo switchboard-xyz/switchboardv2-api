@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>JobInitParams | switchboard-v2</title>
+	<title>CrankPushParams | switchboard-v2</title>
 	<meta name="description" content="Documentation for switchboard-v2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules.html">switchboard-v2</a>
 				</li>
 				<li>
-					<a href="jobinitparams.html">JobInitParams</a>
+					<a href="crankpushparams.html">CrankPushParams</a>
 				</li>
 			</ul>
-			<h1>Interface JobInitParams</h1>
+			<h1>Interface CrankPushParams</h1>
 		</div>
 	</div>
 </header>
@@ -68,7 +68,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Parameters for initializing JobAccount</p>
+						<p>Parameters for pushing an element into a CrankAccount.</p>
 					</div>
 				</div>
 			</section>
@@ -76,7 +76,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">JobInitParams</span>
+						<span class="target">CrankPushParams</span>
 					</li>
 				</ul>
 			</section>
@@ -87,11 +87,7 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="jobinitparams.html#data" class="tsd-kind-icon">data</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="jobinitparams.html#expiration" class="tsd-kind-icon">expiration</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="jobinitparams.html#id" class="tsd-kind-icon">id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="jobinitparams.html#keypair" class="tsd-kind-icon">keypair</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="jobinitparams.html#variables" class="tsd-kind-icon">variables</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="crankpushparams.html#aggregatoraccount" class="tsd-kind-icon">aggregator<wbr>Account</a></li>
 							</ul>
 						</section>
 					</div>
@@ -100,77 +96,17 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="data" class="tsd-anchor"></a>
-					<h3>data</h3>
-					<div class="tsd-signature tsd-kind-icon">data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<a name="aggregatoraccount" class="tsd-anchor"></a>
+					<h3>aggregator<wbr>Account</h3>
+					<div class="tsd-signature tsd-kind-icon">aggregator<wbr>Account<span class="tsd-signature-symbol">:</span> <a href="../classes/aggregatoraccount.html" class="tsd-signature-type" data-tsd-kind="Class">AggregatorAccount</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/4ad3564/src/sbv2.ts#L775">sbv2.ts:775</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/4ad3564/src/sbv2.ts#L1396">sbv2.ts:1396</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p> A serialized protocol buffer holding the schema of the job.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="expiration" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> expiration</h3>
-					<div class="tsd-signature tsd-kind-icon">expiration<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">BN</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/4ad3564/src/sbv2.ts#L771">sbv2.ts:771</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p> unix_timestamp of when funds can be withdrawn from this account.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="id" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> id</h3>
-					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/4ad3564/src/sbv2.ts#L767">sbv2.ts:767</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p> An optional ID to apply to the job account.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="keypair" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> keypair</h3>
-					<div class="tsd-signature tsd-kind-icon">keypair<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Keypair</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/4ad3564/src/sbv2.ts#L783">sbv2.ts:783</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p> A pre-generated keypair to use.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="variables" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> variables</h3>
-					<div class="tsd-signature tsd-kind-icon">variables<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/4ad3564/src/sbv2.ts#L779">sbv2.ts:779</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p> A required variables oracles must fill to complete the job.</p>
+							<p>Specifies the aggregator to push onto the crank.</p>
 						</div>
 					</div>
 				</section>
@@ -240,33 +176,21 @@
 					<li class=" tsd-kind-interface">
 						<a href="crankpopparams.html" class="tsd-kind-icon">Crank<wbr>Pop<wbr>Params</a>
 					</li>
-					<li class=" tsd-kind-interface">
-						<a href="crankpushparams.html" class="tsd-kind-icon">Crank<wbr>Push<wbr>Params</a>
-					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="jobinitparams.html" class="tsd-kind-icon">Job<wbr>Init<wbr>Params</a>
+						<a href="crankpushparams.html" class="tsd-kind-icon">Crank<wbr>Push<wbr>Params</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="jobinitparams.html#data" class="tsd-kind-icon">data</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="jobinitparams.html#expiration" class="tsd-kind-icon">expiration</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="jobinitparams.html#id" class="tsd-kind-icon">id</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="jobinitparams.html#keypair" class="tsd-kind-icon">keypair</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="jobinitparams.html#variables" class="tsd-kind-icon">variables</a>
+								<a href="crankpushparams.html#aggregatoraccount" class="tsd-kind-icon">aggregator<wbr>Account</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface">
+						<a href="jobinitparams.html" class="tsd-kind-icon">Job<wbr>Init<wbr>Params</a>
+					</li>
 					<li class=" tsd-kind-interface">
 						<a href="leaseinitparams.html" class="tsd-kind-icon">Lease<wbr>Init<wbr>Params</a>
 					</li>
