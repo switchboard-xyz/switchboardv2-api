@@ -512,6 +512,10 @@ export interface OracleQueueInitParams {
      *  at the queue.
      */
     authority: PublicKey;
+    /**
+     * The number of seconds between heartbeats before a Oracle times out
+     */
+    oracleTimeout?: anchor.BN;
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to

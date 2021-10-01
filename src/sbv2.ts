@@ -1099,6 +1099,10 @@ export interface OracleQueueInitParams {
    *  at the queue.
    */
   authority: PublicKey;
+  /**
+   * The number of seconds between heartbeats before a Oracle times out
+   */
+  oracleTimeout?: anchor.BN;
 }
 
 /**
@@ -1173,6 +1177,7 @@ export class OracleQueueAccount {
         reward: params.reward ?? new anchor.BN(0),
         minStake: params.minStake ?? new anchor.BN(0),
         authority: params.authority,
+        oracleTimeout: params.oracleTimeout ?? null,
       },
       {
         accounts: {
