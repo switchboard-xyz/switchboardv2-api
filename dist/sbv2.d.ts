@@ -274,13 +274,13 @@ export declare class AggregatorAccount {
      */
     getLatestFeedTimestamp(aggregator?: any): Promise<number>;
     /**
-     * Get the individual oracle latest results of the latest confirmed round.
+     * Get the individual oracle results of the latest confirmed round.
      * @param aggregator Optional parameter representing the already loaded
      * aggregator info.
      * @return latest results by oracle pubkey
      */
     getConfirmedRoundResults(aggregator?: any): Promise<Array<{
-        pubkey: PublicKey;
+        oracleAccount: OracleAccount;
         value: Big;
     }>>;
     /**

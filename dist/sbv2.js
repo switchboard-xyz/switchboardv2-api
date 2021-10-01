@@ -300,7 +300,7 @@ class AggregatorAccount {
         return aggregator.latestConfirmedRound.roundOpenTimestamp;
     }
     /**
-     * Get the individual oracle latest results of the latest confirmed round.
+     * Get the individual oracle results of the latest confirmed round.
      * @param aggregator Optional parameter representing the already loaded
      * aggregator info.
      * @return latest results by oracle pubkey
@@ -315,7 +315,10 @@ class AggregatorAccount {
         for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
             if (aggregator.latestConfirmedRound.mediansFulfilled[i] === true) {
                 results.push({
-                    pubkey: aggregator.latestConfirmedRound.oraclePubkeysData[i],
+                    pubkey: new OracleAccount({
+                        program: this.program,
+                        publicKey: aggregator.latestConfirmedRound.oraclePubkeysData[i],
+                    }),
                     value: SwitchboardDecimal.from(aggregator.latestConfirmedRound.mediansData[i]).toBig(),
                 });
             }
