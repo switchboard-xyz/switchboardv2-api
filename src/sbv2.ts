@@ -1304,7 +1304,7 @@ export class LeaseAccount {
           payer: program.provider.wallet.publicKey,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           escrow,
-          // owner: params.funderAuthority.publicKey,
+          owner: params.funderAuthority.publicKey,
         },
         signers: [params.funderAuthority],
       }
