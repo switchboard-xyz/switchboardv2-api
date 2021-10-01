@@ -1276,14 +1276,17 @@ export class LeaseAccount {
     const escrow = await switchTokenMint.createAssociatedTokenAccount(
       leaseAccount.publicKey
     );
+    const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: PublicKey = new PublicKey(
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+    );
     const escrowBump = (
       await PublicKey.findProgramAddress(
         [
           leaseAccount.publicKey.toBuffer(),
-          program.programId.toBuffer(),
+          spl.TOKEN_PROGRAM_ID.toBuffer(),
           switchTokenMint.publicKey.toBuffer(),
         ],
-        switchTokenMint.associatedProgramId
+        SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
       )
     )[1];
     await program.rpc.leaseInit(
