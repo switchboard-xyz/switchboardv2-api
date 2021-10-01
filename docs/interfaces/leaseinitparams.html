@@ -87,11 +87,11 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="leaseinitparams.html#aggregatoraccount" class="tsd-kind-icon">aggregator<wbr>Account</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="leaseinitparams.html#funder" class="tsd-kind-icon">funder</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="leaseinitparams.html#funderauthority" class="tsd-kind-icon">funder<wbr>Authority</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="leaseinitparams.html#leaser" class="tsd-kind-icon">leaser</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="leaseinitparams.html#loadamount" class="tsd-kind-icon">load<wbr>Amount</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="leaseinitparams.html#target" class="tsd-kind-icon">target</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="leaseinitparams.html#oraclequeueaccount" class="tsd-kind-icon">oracle<wbr>Queue<wbr>Account</a></li>
 							</ul>
 						</section>
 					</div>
@@ -100,12 +100,27 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="aggregatoraccount" class="tsd-anchor"></a>
+					<h3>aggregator<wbr>Account</h3>
+					<div class="tsd-signature tsd-kind-icon">aggregator<wbr>Account<span class="tsd-signature-symbol">:</span> <a href="../classes/aggregatoraccount.html" class="tsd-signature-type" data-tsd-kind="Class">AggregatorAccount</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/b66f379/src/sbv2.ts#L1179">sbv2.ts:1179</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p> The feed which the lease grants permission.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="funder" class="tsd-anchor"></a>
 					<h3>funder</h3>
 					<div class="tsd-signature tsd-kind-icon">funder<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/4589400/src/sbv2.ts#L1167">sbv2.ts:1167</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/b66f379/src/sbv2.ts#L1167">sbv2.ts:1167</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -120,7 +135,7 @@
 					<div class="tsd-signature tsd-kind-icon">funder<wbr>Authority<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Keypair</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/4589400/src/sbv2.ts#L1171">sbv2.ts:1171</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/b66f379/src/sbv2.ts#L1171">sbv2.ts:1171</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -130,27 +145,12 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="leaser" class="tsd-anchor"></a>
-					<h3>leaser</h3>
-					<div class="tsd-signature tsd-kind-icon">leaser<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/4589400/src/sbv2.ts#L1181">sbv2.ts:1181</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p> The leaser which the lease grants permission.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="loadamount" class="tsd-anchor"></a>
 					<h3>load<wbr>Amount</h3>
 					<div class="tsd-signature tsd-kind-icon">load<wbr>Amount<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">BN</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/4589400/src/sbv2.ts#L1163">sbv2.ts:1163</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/b66f379/src/sbv2.ts#L1163">sbv2.ts:1163</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -160,19 +160,17 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="target" class="tsd-anchor"></a>
-					<h3>target</h3>
-					<div class="tsd-signature tsd-kind-icon">target<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Keypair</span></div>
+					<a name="oraclequeueaccount" class="tsd-anchor"></a>
+					<h3>oracle<wbr>Queue<wbr>Account</h3>
+					<div class="tsd-signature tsd-kind-icon">oracle<wbr>Queue<wbr>Account<span class="tsd-signature-symbol">:</span> <a href="../classes/oraclequeueaccount.html" class="tsd-signature-type" data-tsd-kind="Class">OracleQueueAccount</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/4589400/src/sbv2.ts#L1177">sbv2.ts:1177</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/b66f379/src/sbv2.ts#L1175">sbv2.ts:1175</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p> TODO: replace the 2 arguments below with a locked permission account?
-								TODO: this shouldnt be signer, this should be some authority or some permission.
-							The target to which this lease is applied.</p>
+							<p> The target to which this lease is applied.</p>
 						</div>
 					</div>
 				</section>
@@ -254,19 +252,19 @@
 						<a href="leaseinitparams.html" class="tsd-kind-icon">Lease<wbr>Init<wbr>Params</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="leaseinitparams.html#aggregatoraccount" class="tsd-kind-icon">aggregator<wbr>Account</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="leaseinitparams.html#funder" class="tsd-kind-icon">funder</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="leaseinitparams.html#funderauthority" class="tsd-kind-icon">funder<wbr>Authority</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="leaseinitparams.html#leaser" class="tsd-kind-icon">leaser</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="leaseinitparams.html#loadamount" class="tsd-kind-icon">load<wbr>Amount</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="leaseinitparams.html#target" class="tsd-kind-icon">target</a>
+								<a href="leaseinitparams.html#oraclequeueaccount" class="tsd-kind-icon">oracle<wbr>Queue<wbr>Account</a>
 							</li>
 						</ul>
 					</li>

@@ -545,15 +545,13 @@ export interface LeaseInitParams {
      */
     funderAuthority: Keypair;
     /**
-     *  TODO: replace the 2 arguments below with a locked permission account?
-     *  TODO: this shouldnt be signer, this should be some authority or some permission.
      *  The target to which this lease is applied.
      */
-    target: Keypair;
+    oracleQueueAccount: OracleQueueAccount;
     /**
-     *  The leaser which the lease grants permission.
+     *  The feed which the lease grants permission.
      */
-    leaser: PublicKey;
+    aggregatorAccount: AggregatorAccount;
 }
 /**
  * A Switchboard account representing a lease for managing funds for oracle payouts
@@ -574,7 +572,7 @@ export declare class LeaseAccount {
      * @param target The target pubkey to be incorporated into the account seed.
      * @return LeaseAccount and PDA bump.
      */
-    static fromSeed(program: anchor.Program, leaser: PublicKey, target: PublicKey): Promise<[LeaseAccount, number]>;
+    static fromSeed(program: anchor.Program, queueAccount: OracleQueueAccount, aggregatorAccount: AggregatorAccount): Promise<[LeaseAccount, number]>;
     /**
      * Load and parse LeaseAccount data based on the program IDL.
      * @return LeaseAccount data parsed in accordance with the

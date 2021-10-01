@@ -395,7 +395,7 @@ class AggregatorAccount {
      */
     async openRound(params) {
         const [stateAccount, stateBump] = await ProgramStateAccount.fromSeed(this.program);
-        const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, this.publicKey, params.oracleQueueAccount.publicKey);
+        const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, params.oracleQueueAccount, this);
         try {
             await leaseAccount.loadData();
         }
@@ -755,8 +755,12 @@ class LeaseAccount {
      * @param target The target pubkey to be incorporated into the account seed.
      * @return LeaseAccount and PDA bump.
      */
-    static async fromSeed(program, leaser, target) {
-        const [pubkey, bump] = await anchor.utils.publicKey.findProgramAddressSync([Buffer.from("lease_account"), leaser.toBytes(), target.toBytes()], program.programId);
+    static async fromSeed(program, queueAccount, aggregatorAccount) {
+        const [pubkey, bump] = await anchor.utils.publicKey.findProgramAddressSync([
+            Buffer.from("LeaseAccountData"),
+            queueAccount.publicKey.toBytes(),
+            aggregatorAccount.publicKey.toBytes(),
+        ], program.programId);
         return [new LeaseAccount({ program, publicKey: pubkey }), bump];
     }
     /**
@@ -786,7 +790,7 @@ class LeaseAccount {
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const escrow = await switchTokenMint.createAccount(params.funderAuthority.publicKey);
-        const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(program, params.leaser, params.target.publicKey);
+        const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(program, params.oracleQueueAccount, params.aggregatorAccount);
         await program.rpc.leaseInit({
             loadAmount: params.loadAmount,
             stateBump,
@@ -795,11 +799,11 @@ class LeaseAccount {
             accounts: {
                 programState: programStateAccount.publicKey,
                 lease: leaseAccount.publicKey,
-                target: params.target.publicKey,
+                queue: params.oracleQueueAccount.publicKey,
+                aggregator: params.aggregatorAccount.publicKey,
                 systemProgram: web3_js_1.SystemProgram.programId,
                 funder: params.funder,
                 payer: program.provider.wallet.publicKey,
-                leaser: params.leaser,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
                 escrow,
                 owner: params.funderAuthority.publicKey,
@@ -901,7 +905,7 @@ class CrankAccount {
         });
         const queue = await queueAccount.loadData();
         const queueAuthority = queue.authority;
-        const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, aggregatorAccount.publicKey, queueAccount.publicKey);
+        const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, queueAccount, aggregatorAccount);
         let lease = null;
         try {
             lease = await leaseAccount.loadData();
@@ -955,7 +959,10 @@ class CrankAccount {
                 program: this.program,
                 publicKey: feedKey,
             });
-            const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, feedKey, crank.queuePubkey);
+            const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, new OracleQueueAccount({
+                program: this.program,
+                publicKey: crank.queuePubkey,
+            }), aggregatorAccount);
             const escrow = (await leaseAccount.loadData()).escrow;
             const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, feedKey);
             remainingAccounts.push(leaseAccount.publicKey);
