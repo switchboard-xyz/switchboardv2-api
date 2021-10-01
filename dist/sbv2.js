@@ -789,8 +789,8 @@ class LeaseAccount {
     static async create(program, params) {
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
-        const escrow = await switchTokenMint.createAccount(params.funderAuthority.publicKey);
         const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(program, params.oracleQueueAccount, params.aggregatorAccount);
+        const escrow = await switchTokenMint.createAssociatedTokenAccount(leaseAccount.publicKey);
         await program.rpc.leaseInit({
             loadAmount: params.loadAmount,
             stateBump,
