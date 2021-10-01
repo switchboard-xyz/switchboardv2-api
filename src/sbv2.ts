@@ -491,6 +491,47 @@ export class AggregatorAccount {
     return mantissa / Math.pow(10, scale);
   }
 
+  /**
+   * Get the timestamp latest confirmed round stored in the aggregator account.
+   * @param aggregator Optional parameter representing the already loaded
+   * aggregator info.
+   * @return latest feed timestamp
+   */
+  async getLatestFeedTimestamp(aggregator?: any): Promise<number> {
+    aggregator = aggregator ?? (await this.loadData());
+    if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
+      throw new Error("Aggregator currently holds no value.");
+    }
+    return aggregator.latestConfirmedRound.roundOpenTimestamp;
+  }
+
+  /**
+   * Get the individual oracle latest results of the latest confirmed round.
+   * @param aggregator Optional parameter representing the already loaded
+   * aggregator info.
+   * @return latest results by oracle pubkey
+   */
+  async getConfirmedRoundResults(
+    aggregator?: any
+  ): Promise<Array<{ pubkey: PublicKey; value: Big }>> {
+    aggregator = aggregator ?? (await this.loadData());
+    if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
+      throw new Error("Aggregator currently holds no value.");
+    }
+    const results = [];
+    for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
+      if (aggregator.latestConfirmedRound.mediansFulfilled[i] === true) {
+        results.push({
+          pubkey: aggregator.latestConfirmedRound.oraclePubkeysData[i],
+          value: SwitchboardDecimal.from(
+            aggregator.latestConfirmedRound.mediansData[i]
+          ).toBig(),
+        });
+      }
+    }
+    return results;
+  }
+
   // TODO: allow passing cache
   /**
    * Produces a hash of all the jobs currently in the aggregator

@@ -267,6 +267,23 @@ export declare class AggregatorAccount {
      */
     getLatestValue(aggregator?: any): Promise<number>;
     /**
+     * Get the timestamp latest confirmed round stored in the aggregator account.
+     * @param aggregator Optional parameter representing the already loaded
+     * aggregator info.
+     * @return latest feed timestamp
+     */
+    getLatestFeedTimestamp(aggregator?: any): Promise<number>;
+    /**
+     * Get the individual oracle latest results of the latest confirmed round.
+     * @param aggregator Optional parameter representing the already loaded
+     * aggregator info.
+     * @return latest results by oracle pubkey
+     */
+    getConfirmedRoundResults(aggregator?: any): Promise<Array<{
+        pubkey: PublicKey;
+        value: Big;
+    }>>;
+    /**
      * Produces a hash of all the jobs currently in the aggregator
      * @return hash of all the feed jobs.
      */

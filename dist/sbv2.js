@@ -285,6 +285,43 @@ class AggregatorAccount {
         const scale = aggregator.latestConfirmedRound.result.scale.toNumber();
         return mantissa / Math.pow(10, scale);
     }
+    /**
+     * Get the timestamp latest confirmed round stored in the aggregator account.
+     * @param aggregator Optional parameter representing the already loaded
+     * aggregator info.
+     * @return latest feed timestamp
+     */
+    async getLatestFeedTimestamp(aggregator) {
+        var _a, _b;
+        aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
+        if (((_b = (_a = aggregator.latestConfirmedRound) === null || _a === void 0 ? void 0 : _a.numSuccess) !== null && _b !== void 0 ? _b : 0) === 0) {
+            throw new Error("Aggregator currently holds no value.");
+        }
+        return aggregator.latestConfirmedRound.roundOpenTimestamp;
+    }
+    /**
+     * Get the individual oracle latest results of the latest confirmed round.
+     * @param aggregator Optional parameter representing the already loaded
+     * aggregator info.
+     * @return latest results by oracle pubkey
+     */
+    async getConfirmedRoundResults(aggregator) {
+        var _a, _b;
+        aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
+        if (((_b = (_a = aggregator.latestConfirmedRound) === null || _a === void 0 ? void 0 : _a.numSuccess) !== null && _b !== void 0 ? _b : 0) === 0) {
+            throw new Error("Aggregator currently holds no value.");
+        }
+        const results = [];
+        for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
+            if (aggregator.latestConfirmedRound.mediansFulfilled[i] === true) {
+                results.push({
+                    pubkey: aggregator.latestConfirmedRound.oraclePubkeysData[i],
+                    value: SwitchboardDecimal.from(aggregator.latestConfirmedRound.mediansData[i]).toBig(),
+                });
+            }
+        }
+        return results;
+    }
     // TODO: allow passing cache
     /**
      * Produces a hash of all the jobs currently in the aggregator
