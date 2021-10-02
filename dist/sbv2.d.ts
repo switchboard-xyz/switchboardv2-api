@@ -276,7 +276,7 @@ export declare class AggregatorAccount {
      * aggregator info.
      * @return latest feed timestamp
      */
-    getLatestFeedTimestamp(aggregator?: any): Promise<number>;
+    getLatestFeedTimestamp(aggregator?: any): Promise<anchor.BN>;
     /**
      * Get the individual oracle results of the latest confirmed round.
      * @param aggregator Optional parameter representing the already loaded

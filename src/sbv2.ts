@@ -501,7 +501,7 @@ export class AggregatorAccount {
    * aggregator info.
    * @return latest feed timestamp
    */
-  async getLatestFeedTimestamp(aggregator?: any): Promise<number> {
+  async getLatestFeedTimestamp(aggregator?: any): Promise<anchor.BN> {
     aggregator = aggregator ?? (await this.loadData());
     if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
       throw new Error("Aggregator currently holds no value.");
