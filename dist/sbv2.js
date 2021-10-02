@@ -1005,7 +1005,7 @@ class CrankAccount {
             publicKey: crank.queuePubkey,
         });
         const queueAuthority = (await queueAccount.loadData()).authority;
-        const peakAggKeys = await this.peakNext(8);
+        const peakAggKeys = await this.peakNext(7);
         let remainingAccounts = peakAggKeys.slice();
         const leaseBumpsMap = new Map();
         const permissionBumpsMap = new Map();
