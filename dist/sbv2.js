@@ -282,7 +282,7 @@ class AggregatorAccount {
             throw new Error("Aggregator currently holds no value.");
         }
         const mantissa = aggregator.latestConfirmedRound.result.mantissa.toNumber();
-        const scale = aggregator.latestConfirmedRound.result.scale.toNumber();
+        const scale = aggregator.latestConfirmedRound.result.scale;
         return mantissa / Math.pow(10, scale);
     }
     /**
