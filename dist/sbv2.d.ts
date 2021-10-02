@@ -174,6 +174,10 @@ export interface AggregatorSaveResultParams {
      */
     oracleIdx: number;
     /**
+     *  Reports that an error occured and the oracle could not send a value.
+     */
+    error: boolean;
+    /**
      *  Value the oracle is responding with for this update.
      */
     value: number;

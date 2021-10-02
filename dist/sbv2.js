@@ -478,18 +478,29 @@ class AggregatorAccount {
      */
     async saveResult(oracleAccount, // TODO: move to params.
     params) {
-        let data = await this.loadData();
+        const aggregator = await this.loadData();
+        const queuePubkey = aggregator.currentRound.oracleQueuePubkey;
+        const queueAccount = new OracleQueueAccount({
+            program: this.program,
+            publicKey: queuePubkey,
+        });
+        const queue = await queueAccount.loadData();
+        const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, this.publicKey);
         return await this.program.rpc.aggregatorSaveResult({
             oracleIdx: params.oracleIdx,
+            error: params.error,
             value: params.value.toString(),
             jobsHash: Buffer.from(""),
             minResponse: params.minResponse.toString(),
             maxResponse: params.maxResponse.toString(),
+            permissionBump,
         }, {
             accounts: {
                 aggregator: this.publicKey,
                 oracle: oracleAccount.publicKey,
-                oracleQueue: data.currentRound.oracleQueuePubkey,
+                oracleQueue: queueAccount.publicKey,
+                authority: queue.authority,
+                permission: permissionAccount.publicKey,
             },
             signers: [oracleAccount.keypair],
         });
