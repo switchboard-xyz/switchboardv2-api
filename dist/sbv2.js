@@ -281,9 +281,9 @@ class AggregatorAccount {
         if (((_b = (_a = aggregator.latestConfirmedRound) === null || _a === void 0 ? void 0 : _a.numSuccess) !== null && _b !== void 0 ? _b : 0) === 0) {
             throw new Error("Aggregator currently holds no value.");
         }
-        const mantissa = aggregator.latestConfirmedRound.result.mantissa.toNumber();
+        const mantissa = new big_js_1.default(aggregator.latestConfirmedRound.result.mantissa.toString());
         const scale = aggregator.latestConfirmedRound.result.scale;
-        return mantissa / Math.pow(10, scale);
+        return mantissa.div(new big_js_1.default(10).pow(scale));
     }
     /**
      * Get the timestamp latest confirmed round stored in the aggregator account.

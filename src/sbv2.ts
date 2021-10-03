@@ -485,14 +485,16 @@ export class AggregatorAccount {
    * aggregator info.
    * @return latest feed value
    */
-  async getLatestValue(aggregator?: any): Promise<number> {
+  async getLatestValue(aggregator?: any): Promise<Big> {
     aggregator = aggregator ?? (await this.loadData());
     if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
       throw new Error("Aggregator currently holds no value.");
     }
-    const mantissa = aggregator.latestConfirmedRound.result.mantissa.toNumber();
+    const mantissa = new Big(
+      aggregator.latestConfirmedRound.result.mantissa.toString()
+    );
     const scale = aggregator.latestConfirmedRound.result.scale;
-    return mantissa / Math.pow(10, scale);
+    return mantissa.div(new Big(10).pow(scale));
   }
 
   /**
