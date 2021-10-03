@@ -297,6 +297,10 @@ export interface AggregatorInitParams {
    */
   id: Buffer;
   /**
+   *  Metadata of the aggregator to store on-chain.
+   */
+  metadata?: Buffer;
+  /**
    *  Number of oracles to request on aggregator update.
    */
   batchSize: number;
@@ -603,6 +607,7 @@ export class AggregatorAccount {
     await program.rpc.aggregatorInit(
       {
         id: params.id,
+        metadata: params.metadata ?? Buffer.from(""),
         batchSize: params.batchSize,
         minOracleResults: params.minRequiredOracleResults,
         minJobResults: params.minRequiredJobResults,
@@ -1244,6 +1249,10 @@ export interface LeaseInitParams {
    *  The feed which the lease grants permission.
    */
   aggregatorAccount: AggregatorAccount;
+  /**
+   *  This authority will be permitted to withdraw funds from this lease.
+   */
+  withdrawAuthority?: PublicKey;
 }
 
 /**
@@ -1359,7 +1368,7 @@ export class LeaseAccount {
         loadAmount: params.loadAmount,
         stateBump,
         leaseBump,
-        // escrowBump,
+        withdrawAuthority: params.withdrawAuthority ?? PublicKey.default,
       },
       {
         accounts: {
