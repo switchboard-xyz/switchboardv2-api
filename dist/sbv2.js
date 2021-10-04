@@ -702,7 +702,7 @@ class PermissionAccount {
      */
     static async fromSeed(program, authority, granter, grantee) {
         const [pubkey, bump] = await anchor.utils.publicKey.findProgramAddressSync([
-            Buffer.from("permission"),
+            Buffer.from("PermissionAccountData"),
             authority.toBytes(),
             granter.toBytes(),
             grantee.toBytes(),
