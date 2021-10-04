@@ -54,7 +54,7 @@
     "mz": "^2.7.0",
     "node-fetch": "^2.6.1",
     "npm": "^7.24.1",
-    "prompt-sync": "^4.2.0",
+    "prompt-sync": "^4.1.6",
     "protobufjs": "^6.10.2",
     "readline-sync": "^1.4.10",
     "resolve-dir": "^1.0.1",
