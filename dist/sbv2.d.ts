@@ -123,7 +123,7 @@ export interface AggregatorInitParams {
     /**
      *  ID of the aggregator to store on-chain.
      */
-    id: Buffer;
+    id?: Buffer;
     /**
      *  Metadata of the aggregator to store on-chain.
      */
@@ -498,15 +498,15 @@ export interface OracleQueueInitParams {
     /**
      *  A name to assign to this OracleQueue
      */
-    id: Buffer;
+    id?: Buffer;
     /**
      *  Buffer for queue metadata
      */
-    metadata: Buffer;
+    metadata?: Buffer;
     /**
      *  Slashing mechanisms for oracles on this queue.
      */
-    slashingCurve: Buffer;
+    slashingCurve?: Buffer;
     /**
      *  Rewards to provide oracles and round openers on this queue.
      */
@@ -633,11 +633,11 @@ export interface CrankInitParams {
     /**
      *  Buffer specifying crank id
      */
-    id: Buffer;
+    id?: Buffer;
     /**
      *  Buffer specifying crank metadata
      */
-    metadata: Buffer;
+    metadata?: Buffer;
     /**
      *  OracleQueueAccount for which this crank is associated
      */

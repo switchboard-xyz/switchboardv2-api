@@ -370,19 +370,19 @@ class AggregatorAccount {
      * @return newly generated AggregatorAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f;
         const aggregatorAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
         const size = program.account.aggregatorAccountData.size;
         await program.rpc.aggregatorInit({
-            id: params.id,
-            metadata: (_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from(""),
+            id: ((_b = params.id) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
+            metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 128),
             batchSize: params.batchSize,
             minOracleResults: params.minRequiredOracleResults,
             minJobResults: params.minRequiredJobResults,
             minUpdateDelaySeconds: params.minUpdateDelaySeconds,
-            varianceThreshold: ((_c = params.varianceThreshold) !== null && _c !== void 0 ? _c : 0).toString(),
-            forceReportPeriod: (_d = params.forceReportPeriod) !== null && _d !== void 0 ? _d : new anchor.BN(0),
-            expiration: (_e = params.expiration) !== null && _e !== void 0 ? _e : new anchor.BN(0),
+            varianceThreshold: ((_d = params.varianceThreshold) !== null && _d !== void 0 ? _d : 0).toString(),
+            forceReportPeriod: (_e = params.forceReportPeriod) !== null && _e !== void 0 ? _e : new anchor.BN(0),
+            expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
         }, {
             accounts: {
                 aggregator: aggregatorAccount.publicKey,
@@ -749,16 +749,16 @@ class OracleQueueAccount {
      * @return newly generated OracleQueueAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b, _c, _d, _e, _f, _g;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         await program.rpc.oracleQueueInit({
-            id: (_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from(""),
-            metadata: (_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from(""),
-            slashingCurve: (_c = params.slashingCurve) !== null && _c !== void 0 ? _c : null,
-            reward: (_d = params.reward) !== null && _d !== void 0 ? _d : new anchor.BN(0),
-            minStake: (_e = params.minStake) !== null && _e !== void 0 ? _e : new anchor.BN(0),
-            feedProbationPeriod: (_f = params.feedProbationPeriod) !== null && _f !== void 0 ? _f : 0,
+            id: ((_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
+            metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 64),
+            slashingCurve: (_d = (_c = params.slashingCurve) === null || _c === void 0 ? void 0 : _c.slice(0, 256)) !== null && _d !== void 0 ? _d : null,
+            reward: (_e = params.reward) !== null && _e !== void 0 ? _e : new anchor.BN(0),
+            minStake: (_f = params.minStake) !== null && _f !== void 0 ? _f : new anchor.BN(0),
+            feedProbationPeriod: (_g = params.feedProbationPeriod) !== null && _g !== void 0 ? _g : 0,
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
@@ -935,11 +935,12 @@ class CrankAccount {
      * @return newly generated CrankAccount.
      */
     static async create(program, params) {
+        var _a, _b;
         const crankAccount = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
         await program.rpc.crankInit({
-            id: new Buffer(32),
-            metadata: new Buffer(64).slice(0, 128),
+            id: ((_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
+            metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 64),
         }, {
             accounts: {
                 crank: crankAccount.publicKey,

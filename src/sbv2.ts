@@ -295,7 +295,7 @@ export interface AggregatorInitParams {
   /**
    *  ID of the aggregator to store on-chain.
    */
-  id: Buffer;
+  id?: Buffer;
   /**
    *  Metadata of the aggregator to store on-chain.
    */
@@ -606,8 +606,8 @@ export class AggregatorAccount {
     const size = program.account.aggregatorAccountData.size;
     await program.rpc.aggregatorInit(
       {
-        id: params.id,
-        metadata: params.metadata ?? Buffer.from(""),
+        id: (params.id ?? Buffer.from("")).slice(0, 32),
+        metadata: (params.metadata ?? Buffer.from("")).slice(0, 128),
         batchSize: params.batchSize,
         minOracleResults: params.minRequiredOracleResults,
         minJobResults: params.minRequiredJobResults,
@@ -1105,15 +1105,15 @@ export interface OracleQueueInitParams {
   /**
    *  A name to assign to this OracleQueue
    */
-  id: Buffer;
+  id?: Buffer;
   /**
    *  Buffer for queue metadata
    */
-  metadata: Buffer;
+  metadata?: Buffer;
   /**
    *  Slashing mechanisms for oracles on this queue.
    */
-  slashingCurve: Buffer;
+  slashingCurve?: Buffer;
   /**
    *  Rewards to provide oracles and round openers on this queue.
    */
@@ -1200,9 +1200,9 @@ export class OracleQueueAccount {
     const size = program.account.oracleQueueAccountData.size;
     await program.rpc.oracleQueueInit(
       {
-        id: params.id ?? Buffer.from(""),
-        metadata: params.metadata ?? Buffer.from(""),
-        slashingCurve: params.slashingCurve ?? null,
+        id: (params.id ?? Buffer.from("")).slice(0, 32),
+        metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
+        slashingCurve: params.slashingCurve?.slice(0, 256) ?? null,
         reward: params.reward ?? new anchor.BN(0),
         minStake: params.minStake ?? new anchor.BN(0),
         feedProbationPeriod: params.feedProbationPeriod ?? 0,
@@ -1403,11 +1403,11 @@ export interface CrankInitParams {
   /**
    *  Buffer specifying crank id
    */
-  id: Buffer;
+  id?: Buffer;
   /**
    *  Buffer specifying crank metadata
    */
-  metadata: Buffer;
+  metadata?: Buffer;
   /**
    *  OracleQueueAccount for which this crank is associated
    */
@@ -1513,8 +1513,8 @@ export class CrankAccount {
     const size = program.account.crankAccountData.size;
     await program.rpc.crankInit(
       {
-        id: new Buffer(32),
-        metadata: new Buffer(64).slice(0, 128),
+        id: (params.id ?? Buffer.from("")).slice(0, 32),
+        metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
       },
       {
         accounts: {
