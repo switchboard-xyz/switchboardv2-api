@@ -1514,7 +1514,7 @@ export class CrankAccount {
     await program.rpc.crankInit(
       {
         id: Buffer.from(""),
-        // metadata: new Uint8Array(),
+        metadata: Buffer.from(""),
       },
       {
         accounts: {
