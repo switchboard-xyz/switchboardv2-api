@@ -938,8 +938,8 @@ class CrankAccount {
         const crankAccount = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
         await program.rpc.crankInit({
-            id: Buffer.from(""),
-            metadata: Buffer.from(""),
+            id: new Buffer(32),
+            metadata: new Buffer(64),
         }, {
             accounts: {
                 crank: crankAccount.publicKey,
