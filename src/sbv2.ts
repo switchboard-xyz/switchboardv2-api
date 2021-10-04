@@ -1514,7 +1514,7 @@ export class CrankAccount {
     await program.rpc.crankInit(
       {
         id: (params.id ?? Buffer.from("")).slice(0, 32),
-        unused: new anchor.BN(0), // resolves borsh bug in deserialization.
+        unused: new anchor.BN(5), // resolves borsh bug in deserialization.
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
       },
       {

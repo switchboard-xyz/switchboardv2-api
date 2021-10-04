@@ -940,7 +940,7 @@ class CrankAccount {
         const size = program.account.crankAccountData.size;
         await program.rpc.crankInit({
             id: ((_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
-            unused: new anchor.BN(0),
+            unused: new anchor.BN(5),
             metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 64),
         }, {
             accounts: {
