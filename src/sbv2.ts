@@ -1513,7 +1513,7 @@ export class CrankAccount {
     const size = program.account.crankAccountData.size;
     await program.rpc.crankInit(
       {
-        id: (params.id ?? Buffer.from("")).slice(0, 32),
+        id: params.id,
         // unused: 5, // resolves borsh bug in deserialization.
         // metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
       },
