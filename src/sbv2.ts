@@ -1513,8 +1513,8 @@ export class CrankAccount {
     const size = program.account.crankAccountData.size;
     await program.rpc.crankInit(
       {
-        // id: params.id ?? Buffer.from(""),
-        // metadata: params.metadata ?? Buffer.from(""),
+        id: Buffer.from(""),
+        metadata: Buffer.from(""),
         // queue: params.queueAccount.publicKey,
       },
       {
