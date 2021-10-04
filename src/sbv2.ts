@@ -1519,7 +1519,7 @@ export class CrankAccount {
       },
       {
         accounts: {
-          // crank: crankAccount.publicKey,
+          crank: crankAccount.publicKey,
           // queue: params.queueAccount.publicKey,
         },
         signers: [crankAccount],

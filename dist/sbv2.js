@@ -943,8 +943,8 @@ class CrankAccount {
         // queue: params.queueAccount.publicKey,
         }, {
             accounts: {
-            // crank: crankAccount.publicKey,
-            // queue: params.queueAccount.publicKey,
+                crank: crankAccount.publicKey,
+                // queue: params.queueAccount.publicKey,
             },
             signers: [crankAccount],
             instructions: [
