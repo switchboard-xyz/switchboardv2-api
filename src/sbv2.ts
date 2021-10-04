@@ -1123,6 +1123,11 @@ export interface OracleQueueInitParams {
    */
   minStake: anchor.BN;
   /**
+   *  After a feed lease is funded or re-funded, it must consecutively succeed
+   *  N amount of times or its authorization to use the queue is auto-revoked.
+   */
+  feedProbationPeriod?: number;
+  /**
    *  The account to delegate authority to for creating permissions targeted
    *  at the queue.
    */
@@ -1200,11 +1205,12 @@ export class OracleQueueAccount {
         slashingCurve: params.slashingCurve ?? null,
         reward: params.reward ?? new anchor.BN(0),
         minStake: params.minStake ?? new anchor.BN(0),
-        authority: params.authority,
+        feedProbationPeriod: params.feedProbationPeriod ?? 0,
       },
       {
         accounts: {
           oracleQueue: oracleQueueAccount.publicKey,
+          authority: params.authority,
         },
         signers: [oracleQueueAccount],
         instructions: [
@@ -1509,11 +1515,11 @@ export class CrankAccount {
       {
         id: params.id ?? Buffer.from(""),
         metadata: params.metadata ?? Buffer.from(""),
-        queuePubkey: params.queueAccount.publicKey,
       },
       {
         accounts: {
           crank: crankAccount.publicKey,
+          queue: params.queueAccount.publicKey,
         },
         signers: [crankAccount],
         instructions: [

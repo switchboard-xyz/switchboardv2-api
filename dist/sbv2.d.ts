@@ -125,6 +125,10 @@ export interface AggregatorInitParams {
      */
     id: Buffer;
     /**
+     *  Metadata of the aggregator to store on-chain.
+     */
+    metadata?: Buffer;
+    /**
      *  Number of oracles to request on aggregator update.
      */
     batchSize: number;
@@ -512,6 +516,11 @@ export interface OracleQueueInitParams {
      */
     minStake: anchor.BN;
     /**
+     *  After a feed lease is funded or re-funded, it must consecutively succeed
+     *  N amount of times or its authorization to use the queue is auto-revoked.
+     */
+    feedProbationPeriod?: number;
+    /**
      *  The account to delegate authority to for creating permissions targeted
      *  at the queue.
      */
@@ -573,6 +582,10 @@ export interface LeaseInitParams {
      *  The feed which the lease grants permission.
      */
     aggregatorAccount: AggregatorAccount;
+    /**
+     *  This authority will be permitted to withdraw funds from this lease.
+     */
+    withdrawAuthority?: PublicKey;
 }
 /**
  * A Switchboard account representing a lease for managing funds for oracle payouts

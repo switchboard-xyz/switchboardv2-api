@@ -370,18 +370,19 @@ class AggregatorAccount {
      * @return newly generated AggregatorAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e;
         const aggregatorAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
         const size = program.account.aggregatorAccountData.size;
         await program.rpc.aggregatorInit({
             id: params.id,
+            metadata: (_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from(""),
             batchSize: params.batchSize,
             minOracleResults: params.minRequiredOracleResults,
             minJobResults: params.minRequiredJobResults,
             minUpdateDelaySeconds: params.minUpdateDelaySeconds,
-            varianceThreshold: ((_b = params.varianceThreshold) !== null && _b !== void 0 ? _b : 0).toString(),
-            forceReportPeriod: (_c = params.forceReportPeriod) !== null && _c !== void 0 ? _c : new anchor.BN(0),
-            expiration: (_d = params.expiration) !== null && _d !== void 0 ? _d : new anchor.BN(0),
+            varianceThreshold: ((_c = params.varianceThreshold) !== null && _c !== void 0 ? _c : 0).toString(),
+            forceReportPeriod: (_d = params.forceReportPeriod) !== null && _d !== void 0 ? _d : new anchor.BN(0),
+            expiration: (_e = params.expiration) !== null && _e !== void 0 ? _e : new anchor.BN(0),
         }, {
             accounts: {
                 aggregator: aggregatorAccount.publicKey,
@@ -748,7 +749,7 @@ class OracleQueueAccount {
      * @return newly generated OracleQueueAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         await program.rpc.oracleQueueInit({
@@ -757,10 +758,11 @@ class OracleQueueAccount {
             slashingCurve: (_c = params.slashingCurve) !== null && _c !== void 0 ? _c : null,
             reward: (_d = params.reward) !== null && _d !== void 0 ? _d : new anchor.BN(0),
             minStake: (_e = params.minStake) !== null && _e !== void 0 ? _e : new anchor.BN(0),
-            authority: params.authority,
+            feedProbationPeriod: (_f = params.feedProbationPeriod) !== null && _f !== void 0 ? _f : 0,
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
+                authority: params.authority,
             },
             signers: [oracleQueueAccount],
             instructions: [
@@ -838,6 +840,7 @@ class LeaseAccount {
      * @return newly generated LeaseAccount.
      */
     static async create(program, params) {
+        var _a;
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(program, params.oracleQueueAccount, params.aggregatorAccount);
@@ -860,7 +863,7 @@ class LeaseAccount {
             loadAmount: params.loadAmount,
             stateBump,
             leaseBump,
-            // escrowBump,
+            withdrawAuthority: (_a = params.withdrawAuthority) !== null && _a !== void 0 ? _a : web3_js_1.PublicKey.default,
         }, {
             accounts: {
                 programState: programStateAccount.publicKey,
@@ -938,10 +941,10 @@ class CrankAccount {
         await program.rpc.crankInit({
             id: (_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from(""),
             metadata: (_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from(""),
-            queuePubkey: params.queueAccount.publicKey,
         }, {
             accounts: {
                 crank: crankAccount.publicKey,
+                queue: params.queueAccount.publicKey,
             },
             signers: [crankAccount],
             instructions: [
