@@ -110,7 +110,7 @@ class ProgramStateAccount {
      * @return ProgramStateAccount and PDA bump tuple.
      */
     static async fromSeed(program) {
-        const [statePubkey, stateBump] = await anchor.utils.publicKey.findProgramAddressSync([Buffer.from("SB_STATE_V1")], program.programId);
+        const [statePubkey, stateBump] = await anchor.utils.publicKey.findProgramAddressSync([Buffer.from("STATE")], program.programId);
         return [
             new ProgramStateAccount({ program, publicKey: statePubkey }),
             stateBump,
@@ -185,7 +185,7 @@ class ProgramStateAccount {
      * @return TransactionSignature
      */
     async vaultTransfer(to, authority, params) {
-        const [statePubkey, stateBump] = await anchor.utils.publicKey.findProgramAddressSync([Buffer.from("SB_STATE_V1")], this.program.programId);
+        const [statePubkey, stateBump] = await anchor.utils.publicKey.findProgramAddressSync([Buffer.from("STATE")], this.program.programId);
         const vault = (await this.loadData()).tokenVault;
         return await this.program.rpc.vaultTransfer({
             stateBump,

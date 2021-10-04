@@ -147,7 +147,7 @@ export class ProgramStateAccount {
   ): Promise<[ProgramStateAccount, number]> {
     const [statePubkey, stateBump] =
       await anchor.utils.publicKey.findProgramAddressSync(
-        [Buffer.from("SB_STATE_V1")],
+        [Buffer.from("STATE")],
         program.programId
       );
     return [
@@ -266,7 +266,7 @@ export class ProgramStateAccount {
   ): Promise<TransactionSignature> {
     const [statePubkey, stateBump] =
       await anchor.utils.publicKey.findProgramAddressSync(
-        [Buffer.from("SB_STATE_V1")],
+        [Buffer.from("STATE")],
         this.program.programId
       );
     const vault = (await this.loadData()).tokenVault;
