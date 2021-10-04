@@ -935,13 +935,13 @@ class CrankAccount {
      * @return newly generated CrankAccount.
      */
     static async create(program, params) {
-        var _a;
+        var _a, _b;
         const crankAccount = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
         await program.rpc.crankInit({
             id: ((_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
             // unused: 1, // resolves borsh bug in deserialization.
-            // metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
+            metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 64),
         }, {
             accounts: {
                 crank: crankAccount.publicKey,
