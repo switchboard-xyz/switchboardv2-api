@@ -748,6 +748,22 @@ export class AggregatorAccount {
     params: AggregatorSaveResultParams
   ): Promise<TransactionSignature> {
     const aggregator = await this.loadData();
+    const remainingAccounts: Array<PublicKey> = [];
+    for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
+      remainingAccounts.push(aggregator.currentRound.oraclePubkeysData[i]);
+    }
+    // TODO: load multiple accounts with one call here.
+    const oraclePromises = [];
+    for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
+      const oracleAccount = new OracleAccount({
+        program: this.program,
+        publicKey: aggregator.currentRound.oraclePubkeysData[i],
+      });
+      oraclePromises.push(oracleAccount.loadData());
+    }
+    for (const promise of oraclePromises) {
+      remainingAccounts.push((await promise).tokenAccount);
+    }
     const queuePubkey = aggregator.currentRound.oracleQueuePubkey;
     const queueAccount = new OracleQueueAccount({
       program: this.program,
@@ -761,6 +777,15 @@ export class AggregatorAccount {
         queuePubkey,
         this.publicKey
       );
+    const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(
+      this.program,
+      queueAccount,
+      this
+    );
+    const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(
+      this.program
+    );
+    const escrow = (await leaseAccount.loadData()).escrow;
     return await this.program.rpc.aggregatorSaveResult(
       {
         oracleIdx: params.oracleIdx,
@@ -770,6 +795,8 @@ export class AggregatorAccount {
         minResponse: params.minResponse.toString(),
         maxResponse: params.maxResponse.toString(),
         permissionBump,
+        leaseBump,
+        stateBump,
       },
       {
         accounts: {
@@ -778,7 +805,14 @@ export class AggregatorAccount {
           oracleQueue: queueAccount.publicKey,
           authority: queue.authority,
           permission: permissionAccount.publicKey,
+          lease: leaseAccount.publicKey,
+          escrow,
+          tokenProgram: spl.TOKEN_PROGRAM_ID,
+          programState: programStateAccount.publicKey,
         },
+        remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
+          return { isSigner: false, isWritable: true, pubkey };
+        }),
         signers: [oracleAccount.keypair],
       }
     );
