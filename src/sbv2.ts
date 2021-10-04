@@ -1403,11 +1403,11 @@ export interface CrankInitParams {
   /**
    *  Buffer specifying crank id
    */
-  id?: Buffer;
+  id: Buffer;
   /**
    *  Buffer specifying crank metadata
    */
-  metadata?: Buffer;
+  metadata: Buffer;
   /**
    *  OracleQueueAccount for which this crank is associated
    */
@@ -1513,9 +1513,8 @@ export class CrankAccount {
     const size = program.account.crankAccountData.size;
     await program.rpc.crankInit(
       {
-        // id: Buffer.from(""),
-        // metadata: Buffer.from(""),
-        // queue: params.queueAccount.publicKey,
+        id: params.id ?? Buffer.from(""),
+        metadata: params.metadata ?? Buffer.from(""),
       },
       {
         accounts: {
