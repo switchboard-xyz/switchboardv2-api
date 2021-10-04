@@ -1513,13 +1513,13 @@ export class CrankAccount {
     const size = program.account.crankAccountData.size;
     await program.rpc.crankInit(
       {
-        id: params.id ?? Buffer.from(""),
-        metadata: params.metadata ?? Buffer.from(""),
-        queue: params.queueAccount.publicKey,
+        // id: params.id ?? Buffer.from(""),
+        // metadata: params.metadata ?? Buffer.from(""),
+        // queue: params.queueAccount.publicKey,
       },
       {
         accounts: {
-          crank: crankAccount.publicKey,
+          // crank: crankAccount.publicKey,
           // queue: params.queueAccount.publicKey,
         },
         signers: [crankAccount],

@@ -935,17 +935,16 @@ class CrankAccount {
      * @return newly generated CrankAccount.
      */
     static async create(program, params) {
-        var _a, _b;
         const crankAccount = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
         await program.rpc.crankInit({
-            id: (_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from(""),
-            metadata: (_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from(""),
-            queue: params.queueAccount.publicKey,
+        // id: params.id ?? Buffer.from(""),
+        // metadata: params.metadata ?? Buffer.from(""),
+        // queue: params.queueAccount.publicKey,
         }, {
             accounts: {
-                crank: crankAccount.publicKey,
-                // queue: params.queueAccount.publicKey,
+            // crank: crankAccount.publicKey,
+            // queue: params.queueAccount.publicKey,
             },
             signers: [crankAccount],
             instructions: [
