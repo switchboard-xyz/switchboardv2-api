@@ -1515,11 +1515,12 @@ export class CrankAccount {
       {
         id: params.id ?? Buffer.from(""),
         metadata: params.metadata ?? Buffer.from(""),
+        queue: params.queueAccount.publicKey,
       },
       {
         accounts: {
           crank: crankAccount.publicKey,
-          queue: params.queueAccount.publicKey,
+          // queue: params.queueAccount.publicKey,
         },
         signers: [crankAccount],
         instructions: [

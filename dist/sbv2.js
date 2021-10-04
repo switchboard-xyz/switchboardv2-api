@@ -941,10 +941,11 @@ class CrankAccount {
         await program.rpc.crankInit({
             id: (_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from(""),
             metadata: (_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from(""),
+            queue: params.queueAccount.publicKey,
         }, {
             accounts: {
                 crank: crankAccount.publicKey,
-                queue: params.queueAccount.publicKey,
+                // queue: params.queueAccount.publicKey,
             },
             signers: [crankAccount],
             instructions: [
