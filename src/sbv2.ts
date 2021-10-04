@@ -1403,11 +1403,11 @@ export interface CrankInitParams {
   /**
    *  Buffer specifying crank id
    */
-  id: Buffer;
+  id?: Buffer;
   /**
    *  Buffer specifying crank metadata
    */
-  metadata: Buffer;
+  metadata?: Buffer;
   /**
    *  OracleQueueAccount for which this crank is associated
    */
