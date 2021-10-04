@@ -1513,8 +1513,8 @@ export class CrankAccount {
     const size = program.account.crankAccountData.size;
     await program.rpc.crankInit(
       {
-        id: new Uint8Array(),
-        metadata: new Uint8Array(),
+        // id: new Uint8Array(),
+        // metadata: new Uint8Array(),
       },
       {
         accounts: {
