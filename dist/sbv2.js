@@ -777,7 +777,7 @@ class OracleQueueAccount {
      * @return newly generated OracleQueueAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f, _g;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         await program.rpc.oracleQueueInit({
@@ -787,6 +787,7 @@ class OracleQueueAccount {
             reward: (_e = params.reward) !== null && _e !== void 0 ? _e : new anchor.BN(0),
             minStake: (_f = params.minStake) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             feedProbationPeriod: (_g = params.feedProbationPeriod) !== null && _g !== void 0 ? _g : 0,
+            oracleTimout: (_h = params.oracleTimout) !== null && _h !== void 0 ? _h : 180,
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,

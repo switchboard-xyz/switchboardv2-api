@@ -525,6 +525,10 @@ export interface OracleQueueInitParams {
      *  at the queue.
      */
     authority: PublicKey;
+    /**
+     *  Time period we should remove an oracle after if no response.
+     */
+    oracleTimout?: anchor.BN;
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to
