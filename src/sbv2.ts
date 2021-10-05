@@ -1169,7 +1169,7 @@ export interface OracleQueueInitParams {
   /**
    *  Time period we should remove an oracle after if no response.
    */
-  oracleTimout?: anchor.BN;
+  oracleTimeout?: anchor.BN;
 }
 
 /**
@@ -1244,7 +1244,7 @@ export class OracleQueueAccount {
         reward: params.reward ?? new anchor.BN(0),
         minStake: params.minStake ?? new anchor.BN(0),
         feedProbationPeriod: params.feedProbationPeriod ?? 0,
-        oracleTimout: params.oracleTimout ?? 180,
+        oracleTimeout: params.oracleTimeout ?? 180,
       },
       {
         accounts: {

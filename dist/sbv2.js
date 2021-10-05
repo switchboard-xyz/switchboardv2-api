@@ -787,7 +787,7 @@ class OracleQueueAccount {
             reward: (_e = params.reward) !== null && _e !== void 0 ? _e : new anchor.BN(0),
             minStake: (_f = params.minStake) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             feedProbationPeriod: (_g = params.feedProbationPeriod) !== null && _g !== void 0 ? _g : 0,
-            oracleTimout: (_h = params.oracleTimout) !== null && _h !== void 0 ? _h : 180,
+            oracleTimeout: (_h = params.oracleTimeout) !== null && _h !== void 0 ? _h : 180,
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,

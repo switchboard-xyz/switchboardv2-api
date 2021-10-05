@@ -528,7 +528,7 @@ export interface OracleQueueInitParams {
     /**
      *  Time period we should remove an oracle after if no response.
      */
-    oracleTimout?: anchor.BN;
+    oracleTimeout?: anchor.BN;
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to
