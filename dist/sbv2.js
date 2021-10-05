@@ -330,9 +330,7 @@ class AggregatorAccount {
      * Produces a hash of all the jobs currently in the aggregator
      * @return hash of all the feed jobs.
      */
-    async produceJobsHash() {
-        // Remember, dont trust the hash listed. Hash exactly the job you will be performing.
-        const jobs = await this.loadJobs();
+    produceJobsHash(jobs) {
         const hash = crypto.createHash("sha256");
         for (const job of jobs) {
             hash.update(switchboard_api_1.OracleJob.encodeDelimited(job).finish());
@@ -510,7 +508,7 @@ class AggregatorAccount {
             oracleIdx: params.oracleIdx,
             error: params.error,
             value: params.value.toString(),
-            jobsHash: Buffer.from(""),
+            jobsHash: this.produceJobsHash(params.jobs).digest(),
             minResponse: params.minResponse.toString(),
             maxResponse: params.maxResponse.toString(),
             permissionBump,

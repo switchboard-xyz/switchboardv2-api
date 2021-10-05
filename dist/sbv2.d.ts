@@ -195,6 +195,10 @@ export interface AggregatorSaveResultParams {
      *  aggregator.
      */
     maxResponse: number;
+    /**
+     *  List of OracleJobs that were performed to produce this result.
+     */
+    jobs: Array<OracleJob>;
 }
 /**
  * Parameters required to open an aggregator round
@@ -295,7 +299,7 @@ export declare class AggregatorAccount {
      * Produces a hash of all the jobs currently in the aggregator
      * @return hash of all the feed jobs.
      */
-    produceJobsHash(): Promise<crypto.Hash>;
+    produceJobsHash(jobs: Array<OracleJob>): crypto.Hash;
     /**
      * Load and deserialize all jobs stored in this aggregator
      * @return Array<OracleJob>

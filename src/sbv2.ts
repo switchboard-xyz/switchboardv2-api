@@ -368,6 +368,10 @@ export interface AggregatorSaveResultParams {
    *  aggregator.
    */
   maxResponse: number;
+  /**
+   *  List of OracleJobs that were performed to produce this result.
+   */
+  jobs: Array<OracleJob>;
 }
 
 /**
@@ -550,10 +554,7 @@ export class AggregatorAccount {
    * Produces a hash of all the jobs currently in the aggregator
    * @return hash of all the feed jobs.
    */
-  async produceJobsHash(): Promise<crypto.Hash> {
-    // Remember, dont trust the hash listed. Hash exactly the job you will be performing.
-    const jobs = await this.loadJobs();
-
+  produceJobsHash(jobs: Array<OracleJob>): crypto.Hash {
     const hash = crypto.createHash("sha256");
     for (const job of jobs) {
       hash.update(OracleJob.encodeDelimited(job).finish());
@@ -791,7 +792,7 @@ export class AggregatorAccount {
         oracleIdx: params.oracleIdx,
         error: params.error,
         value: params.value.toString(),
-        jobsHash: Buffer.from(""),
+        jobsHash: this.produceJobsHash(params.jobs).digest(),
         minResponse: params.minResponse.toString(),
         maxResponse: params.maxResponse.toString(),
         permissionBump,
