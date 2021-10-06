@@ -699,7 +699,6 @@ class PermissionAccount {
      * @return PermissionAccount and PDA bump.
      */
     static async fromSeed(program, authority, granter, grantee) {
-        console.log(`SEED ${authority.toBase58()} ${granter.toBase58()} ${grantee.toBase58()}`);
         const [pubkey, bump] = await anchor.utils.publicKey.findProgramAddressSync([
             Buffer.from("PermissionAccountData"),
             authority.toBytes(),

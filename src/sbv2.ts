@@ -1097,10 +1097,6 @@ export class PermissionAccount {
     granter: PublicKey,
     grantee: PublicKey
   ): Promise<[PermissionAccount, number]> {
-    console.log(
-      `SEED ${authority.toBase58()} ${granter.toBase58()} ${grantee.toBase58()}`
-    );
-
     const [pubkey, bump] = await anchor.utils.publicKey.findProgramAddressSync(
       [
         Buffer.from("PermissionAccountData"),
