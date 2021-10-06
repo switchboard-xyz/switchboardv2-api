@@ -205,11 +205,6 @@ export interface AggregatorSaveResultParams {
  */
 export interface AggregatorOpenRoundParams {
     /**
-     *  The account validating that this aggregator has permission to use the given
-     *  oracle queue.
-     */
-    permissionAccount: PermissionAccount;
-    /**
      *  The oracle queue from which oracles are assigned this update.
      */
     oracleQueueAccount: OracleQueueAccount;
