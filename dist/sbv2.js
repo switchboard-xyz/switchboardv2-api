@@ -372,7 +372,7 @@ class AggregatorAccount {
         const aggregatorAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
         const size = program.account.aggregatorAccountData.size;
         await program.rpc.aggregatorInit({
-            id: ((_b = params.id) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
+            name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 128),
             batchSize: params.batchSize,
             minOracleResults: params.minRequiredOracleResults,
@@ -596,7 +596,7 @@ class JobAccount {
         const jobAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
         const size = 212 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
         await program.rpc.jobInit({
-            id: (_e = params.id) !== null && _e !== void 0 ? _e : Buffer.from(""),
+            name: (_e = params.name) !== null && _e !== void 0 ? _e : Buffer.from(""),
             expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             data: params.data,
             variables: (_h = (_g = params.variables) === null || _g === void 0 ? void 0 : _g.map((item) => Buffer.from(""))) !== null && _h !== void 0 ? _h : new Array(),
@@ -781,7 +781,7 @@ class OracleQueueAccount {
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         await program.rpc.oracleQueueInit({
-            id: ((_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
+            name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
             metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 64),
             slashingCurve: (_d = (_c = params.slashingCurve) === null || _c === void 0 ? void 0 : _c.slice(0, 256)) !== null && _d !== void 0 ? _d : null,
             reward: (_e = params.reward) !== null && _e !== void 0 ? _e : new anchor.BN(0),
@@ -967,7 +967,7 @@ class CrankAccount {
         const crankAccount = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
         await program.rpc.crankInit({
-            id: ((_a = params.id) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
+            name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
             metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 64),
         }, {
             accounts: {
@@ -1159,6 +1159,7 @@ class OracleAccount {
      * @return newly generated OracleAccount.
      */
     static async create(program, params) {
+        var _a, _b;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const size = program.account.oracleAccountData.size;
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
@@ -1166,6 +1167,8 @@ class OracleAccount {
         const wallet = await switchTokenMint.createAccount(program.provider.wallet.publicKey);
         const [oracleAccount, oracleBump] = await OracleAccount.fromSeed(program, wallet);
         await program.rpc.oracleInit({
+            name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
+            metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 1024),
             stateBump,
             oracleBump,
         }, {

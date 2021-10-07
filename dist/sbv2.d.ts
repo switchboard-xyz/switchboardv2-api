@@ -121,9 +121,9 @@ export declare class ProgramStateAccount {
  */
 export interface AggregatorInitParams {
     /**
-     *  ID of the aggregator to store on-chain.
+     *  Name of the aggregator to store on-chain.
      */
-    id?: Buffer;
+    name?: Buffer;
     /**
      *  Metadata of the aggregator to store on-chain.
      */
@@ -345,9 +345,9 @@ export declare class AggregatorAccount {
  */
 export interface JobInitParams {
     /**
-     *  An optional ID to apply to the job account.
+     *  An optional name to apply to the job account.
      */
-    id?: Buffer;
+    name?: Buffer;
     /**
      *  unix_timestamp of when funds can be withdrawn from this account.
      */
@@ -497,7 +497,7 @@ export interface OracleQueueInitParams {
     /**
      *  A name to assign to this OracleQueue
      */
-    id?: Buffer;
+    name?: Buffer;
     /**
      *  Buffer for queue metadata
      */
@@ -634,9 +634,9 @@ export declare class LeaseAccount {
  */
 export interface CrankInitParams {
     /**
-     *  Buffer specifying crank id
+     *  Buffer specifying crank name
      */
-    id?: Buffer;
+    name?: Buffer;
     /**
      *  Buffer specifying crank metadata
      */
@@ -730,6 +730,14 @@ export declare class CrankAccount {
  * Parameters for an OracleInit request.
  */
 export interface OracleInitParams {
+    /**
+     *  Buffer specifying oracle name
+     */
+    name?: Buffer;
+    /**
+     *  Buffer specifying oracle metadata
+     */
+    metadata?: Buffer;
     /**
      * Specifies the oracle queue to associate with this OracleAccount.
      */

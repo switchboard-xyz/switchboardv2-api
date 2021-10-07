@@ -293,9 +293,9 @@ export class ProgramStateAccount {
  */
 export interface AggregatorInitParams {
   /**
-   *  ID of the aggregator to store on-chain.
+   *  Name of the aggregator to store on-chain.
    */
-  id?: Buffer;
+  name?: Buffer;
   /**
    *  Metadata of the aggregator to store on-chain.
    */
@@ -602,7 +602,7 @@ export class AggregatorAccount {
     const size = program.account.aggregatorAccountData.size;
     await program.rpc.aggregatorInit(
       {
-        id: (params.id ?? Buffer.from("")).slice(0, 32),
+        name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 128),
         batchSize: params.batchSize,
         minOracleResults: params.minRequiredOracleResults,
@@ -824,9 +824,9 @@ export class AggregatorAccount {
  */
 export interface JobInitParams {
   /**
-   *  An optional ID to apply to the job account.
+   *  An optional name to apply to the job account.
    */
-  id?: Buffer;
+  name?: Buffer;
   /**
    *  unix_timestamp of when funds can be withdrawn from this account.
    */
@@ -920,7 +920,7 @@ export class JobAccount {
       212 + params.data.length + (params.variables?.join("")?.length ?? 0);
     await program.rpc.jobInit(
       {
-        id: params.id ?? Buffer.from(""),
+        name: params.name ?? Buffer.from(""),
         expiration: params.expiration ?? new anchor.BN(0),
         data: params.data,
         variables:
@@ -1139,7 +1139,7 @@ export interface OracleQueueInitParams {
   /**
    *  A name to assign to this OracleQueue
    */
-  id?: Buffer;
+  name?: Buffer;
   /**
    *  Buffer for queue metadata
    */
@@ -1238,7 +1238,7 @@ export class OracleQueueAccount {
     const size = program.account.oracleQueueAccountData.size;
     await program.rpc.oracleQueueInit(
       {
-        id: (params.id ?? Buffer.from("")).slice(0, 32),
+        name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
         slashingCurve: params.slashingCurve?.slice(0, 256) ?? null,
         reward: params.reward ?? new anchor.BN(0),
@@ -1441,9 +1441,9 @@ export class LeaseAccount {
  */
 export interface CrankInitParams {
   /**
-   *  Buffer specifying crank id
+   *  Buffer specifying crank name
    */
-  id?: Buffer;
+  name?: Buffer;
   /**
    *  Buffer specifying crank metadata
    */
@@ -1553,7 +1553,7 @@ export class CrankAccount {
     const size = program.account.crankAccountData.size;
     await program.rpc.crankInit(
       {
-        id: (params.id ?? Buffer.from("")).slice(0, 32),
+        name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
       },
       {
@@ -1741,6 +1741,14 @@ export class CrankAccount {
  */
 export interface OracleInitParams {
   /**
+   *  Buffer specifying oracle name
+   */
+  name?: Buffer;
+  /**
+   *  Buffer specifying oracle metadata
+   */
+  metadata?: Buffer;
+  /**
    * Specifies the oracle queue to associate with this OracleAccount.
    */
   queueAccount: OracleQueueAccount;
@@ -1826,6 +1834,8 @@ export class OracleAccount {
 
     await program.rpc.oracleInit(
       {
+        name: (params.name ?? Buffer.from("")).slice(0, 32),
+        metadata: (params.metadata ?? Buffer.from("")).slice(0, 1024),
         stateBump,
         oracleBump,
       },
