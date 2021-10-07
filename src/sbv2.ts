@@ -1733,7 +1733,7 @@ export class CrankAccount {
     let crank = await this.loadData();
     let items = crank.pqData
       .slice(0, crank.pqSize)
-      .sort((a: CrankRow, b: CrankRow) => a.nextTimestamp.lt(b.nextTimestamp))
+      .sort((a: CrankRow, b: CrankRow) => a.nextTimestamp.sub(b.nextTimestamp))
       .slice(0, n);
     return items;
   }
@@ -1746,7 +1746,7 @@ export class CrankAccount {
     let crank = await this.loadData();
     let items = crank.pqData
       .slice(0, crank.pqSize)
-      .sort((a: CrankRow, b: CrankRow) => a.nextTimestamp.lt(b.nextTimestamp))
+      .sort((a: CrankRow, b: CrankRow) => a.nextTimestamp.sub(b.nextTimestamp))
       .map((item: CrankRow) => item.pubkey)
       .slice(0, n);
     return items;

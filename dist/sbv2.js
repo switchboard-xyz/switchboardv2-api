@@ -1107,7 +1107,7 @@ class CrankAccount {
         let crank = await this.loadData();
         let items = crank.pqData
             .slice(0, crank.pqSize)
-            .sort((a, b) => a.nextTimestamp.lt(b.nextTimestamp))
+            .sort((a, b) => a.nextTimestamp.sub(b.nextTimestamp))
             .slice(0, n);
         return items;
     }
@@ -1120,7 +1120,7 @@ class CrankAccount {
         let crank = await this.loadData();
         let items = crank.pqData
             .slice(0, crank.pqSize)
-            .sort((a, b) => a.nextTimestamp.lt(b.nextTimestamp))
+            .sort((a, b) => a.nextTimestamp.sub(b.nextTimestamp))
             .map((item) => item.pubkey)
             .slice(0, n);
         return items;
