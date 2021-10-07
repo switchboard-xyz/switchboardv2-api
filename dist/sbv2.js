@@ -1199,11 +1199,13 @@ class OracleAccount {
         catch (_) {
             throw new Error("A requested pda account has not been initialized.");
         }
+        const oracle = await this.loadData();
         return await this.program.rpc.oracleHeartbeat({
             permissionBump,
         }, {
             accounts: {
                 oracle: this.publicKey,
+                tokenAccount: oracle.tokenAccount,
                 gcOracle: lastPubkey,
                 oracleQueue: queueAccount.publicKey,
                 permission: permissionAccount.publicKey,
