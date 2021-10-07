@@ -1727,6 +1727,19 @@ export class CrankAccount {
   /**
    * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
    * @param n The limit of pubkeys to return.
+   * @return Pubkey list of Aggregators and next timestamp to be popped, ordered by timestamp.
+   */
+  async peakNextWithTime(n: number): Promise<Array<CrankRow>> {
+    let crank = await this.loadData();
+    let items = crank.pqData
+      .slice(0, crank.pqSize)
+      .sort((a: CrankRow, b: CrankRow) => a.nextTimestamp < b.nextTimestamp)
+      .slice(0, n);
+    return items;
+  }
+  /**
+   * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
+   * @param n The limit of pubkeys to return.
    * @return Pubkey list of Aggregators next up to be popped.
    */
   async peakNext(n: number): Promise<Array<PublicKey>> {
