@@ -1835,7 +1835,7 @@ export class OracleAccount {
     await program.rpc.oracleInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
-        metadata: (params.metadata ?? Buffer.from("")).slice(0, 1024),
+        metadata: (params.metadata ?? Buffer.from("")).slice(0, 255),
         stateBump,
         oracleBump,
       },
