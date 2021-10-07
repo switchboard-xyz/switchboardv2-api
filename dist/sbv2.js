@@ -593,8 +593,9 @@ class JobAccount {
      */
     static async create(program, params) {
         var _a, _b, _c, _d, _e, _f, _g, _h;
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const jobAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
-        const size = 212 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
+        const size = 244 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
         await program.rpc.jobInit({
             name: (_e = params.name) !== null && _e !== void 0 ? _e : Buffer.from(""),
             expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
@@ -603,6 +604,7 @@ class JobAccount {
         }, {
             accounts: {
                 job: jobAccount.publicKey,
+                creator: payerKeypair.publicKey,
             },
             signers: [jobAccount],
             instructions: [

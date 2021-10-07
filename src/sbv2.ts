@@ -915,9 +915,12 @@ export class JobAccount {
     program: anchor.Program,
     params: JobInitParams
   ): Promise<JobAccount> {
+    const payerKeypair = Keypair.fromSecretKey(
+      (program.provider.wallet as any).payer.secretKey
+    );
     const jobAccount = params.keypair ?? anchor.web3.Keypair.generate();
     const size =
-      212 + params.data.length + (params.variables?.join("")?.length ?? 0);
+      244 + params.data.length + (params.variables?.join("")?.length ?? 0);
     await program.rpc.jobInit(
       {
         name: params.name ?? Buffer.from(""),
@@ -930,6 +933,7 @@ export class JobAccount {
       {
         accounts: {
           job: jobAccount.publicKey,
+          creator: payerKeypair.publicKey,
         },
         signers: [jobAccount],
         instructions: [
