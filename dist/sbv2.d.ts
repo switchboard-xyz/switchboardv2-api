@@ -767,6 +767,11 @@ export declare class OracleAccount {
      */
     static create(program: anchor.Program, params: OracleInitParams): Promise<OracleAccount>;
     /**
+     * Constructs OracleAccount from the static seed from which it was generated.
+     * @return OracleAccount and PDA bump tuple.
+     */
+    static fromSeed(program: anchor.Program, wallet: PublicKey): Promise<[OracleAccount, number]>;
+    /**
      * Inititates a heartbeat for an OracleAccount, signifying oracle is still healthy.
      * @return TransactionSignature.
      */

@@ -477,6 +477,7 @@ class AggregatorAccount {
      */
     async saveResult(oracleAccount, // TODO: move to params.
     params) {
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
         const aggregator = await this.loadData();
         const remainingAccounts = [];
         for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
@@ -518,8 +519,9 @@ class AggregatorAccount {
             accounts: {
                 aggregator: this.publicKey,
                 oracle: oracleAccount.publicKey,
+                oracleAuthority: payerKeypair.publicKey,
                 oracleQueue: queueAccount.publicKey,
-                authority: queue.authority,
+                queueAuthority: queue.authority,
                 permission: permissionAccount.publicKey,
                 lease: leaseAccount.publicKey,
                 escrow,
@@ -1157,31 +1159,45 @@ class OracleAccount {
      * @return newly generated OracleAccount.
      */
     static async create(program, params) {
-        const oracleAccount = anchor.web3.Keypair.generate();
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const size = program.account.oracleAccountData.size;
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const wallet = await switchTokenMint.createAccount(program.provider.wallet.publicKey);
+        const [oracleAccount, oracleBump] = await OracleAccount.fromSeed(program, wallet);
         await program.rpc.oracleInit({
             stateBump,
+            oracleBump,
         }, {
             accounts: {
                 oracle: oracleAccount.publicKey,
+                oracleAuthority: payerKeypair.publicKey,
                 queue: params.queueAccount.publicKey,
                 wallet,
                 programState: programStateAccount.publicKey,
                 systemProgram: web3_js_1.SystemProgram.programId,
                 payer: program.provider.wallet.publicKey,
             },
-            signers: [oracleAccount],
         });
-        return new OracleAccount({ program, keypair: oracleAccount });
+        return new OracleAccount({ program, publicKey: oracleAccount.publicKey });
+    }
+    /**
+     * Constructs OracleAccount from the static seed from which it was generated.
+     * @return OracleAccount and PDA bump tuple.
+     */
+    static async fromSeed(program, wallet) {
+        const [oraclePubkey, oracleBump] = await anchor.utils.publicKey.findProgramAddressSync([Buffer.from("OracleAccountData"), wallet.toBuffer()], program.programId);
+        return [
+            new OracleAccount({ program, publicKey: oraclePubkey }),
+            oracleBump,
+        ];
     }
     /**
      * Inititates a heartbeat for an OracleAccount, signifying oracle is still healthy.
      * @return TransactionSignature.
      */
     async heartbeat() {
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
         const queueAccount = new OracleQueueAccount({
             program: this.program,
             publicKey: (await this.loadData()).queuePubkey,
@@ -1204,6 +1220,7 @@ class OracleAccount {
         }, {
             accounts: {
                 oracle: this.publicKey,
+                oracleAuthority: payerKeypair.publicKey,
                 tokenAccount: oracle.tokenAccount,
                 gcOracle: lastPubkey,
                 oracleQueue: queueAccount.publicKey,

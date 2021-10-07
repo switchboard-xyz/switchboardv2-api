@@ -743,6 +743,9 @@ export class AggregatorAccount {
     oracleAccount: OracleAccount, // TODO: move to params.
     params: AggregatorSaveResultParams
   ): Promise<TransactionSignature> {
+    const payerKeypair = Keypair.fromSecretKey(
+      (this.program.provider.wallet as any).payer.secretKey
+    );
     const aggregator = await this.loadData();
     const remainingAccounts: Array<PublicKey> = [];
     for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
@@ -798,8 +801,9 @@ export class AggregatorAccount {
         accounts: {
           aggregator: this.publicKey,
           oracle: oracleAccount.publicKey,
+          oracleAuthority: payerKeypair.publicKey,
           oracleQueue: queueAccount.publicKey,
-          authority: queue.authority,
+          queueAuthority: queue.authority,
           permission: permissionAccount.publicKey,
           lease: leaseAccount.publicKey,
           escrow,
@@ -1804,7 +1808,9 @@ export class OracleAccount {
     program: anchor.Program,
     params: OracleInitParams
   ): Promise<OracleAccount> {
-    const oracleAccount = anchor.web3.Keypair.generate();
+    const payerKeypair = Keypair.fromSecretKey(
+      (program.provider.wallet as any).payer.secretKey
+    );
     const size = program.account.oracleAccountData.size;
     const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(
       program
@@ -1813,24 +1819,48 @@ export class OracleAccount {
     const wallet = await switchTokenMint.createAccount(
       program.provider.wallet.publicKey
     );
+    const [oracleAccount, oracleBump] = await OracleAccount.fromSeed(
+      program,
+      wallet
+    );
 
     await program.rpc.oracleInit(
       {
         stateBump,
+        oracleBump,
       },
       {
         accounts: {
           oracle: oracleAccount.publicKey,
+          oracleAuthority: payerKeypair.publicKey,
           queue: params.queueAccount.publicKey,
           wallet,
           programState: programStateAccount.publicKey,
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
         },
-        signers: [oracleAccount],
       }
     );
-    return new OracleAccount({ program, keypair: oracleAccount });
+    return new OracleAccount({ program, publicKey: oracleAccount.publicKey });
+  }
+
+  /**
+   * Constructs OracleAccount from the static seed from which it was generated.
+   * @return OracleAccount and PDA bump tuple.
+   */
+  static async fromSeed(
+    program: anchor.Program,
+    wallet: PublicKey
+  ): Promise<[OracleAccount, number]> {
+    const [oraclePubkey, oracleBump] =
+      await anchor.utils.publicKey.findProgramAddressSync(
+        [Buffer.from("OracleAccountData"), wallet.toBuffer()],
+        program.programId
+      );
+    return [
+      new OracleAccount({ program, publicKey: oraclePubkey }),
+      oracleBump,
+    ];
   }
 
   /**
@@ -1838,6 +1868,9 @@ export class OracleAccount {
    * @return TransactionSignature.
    */
   async heartbeat(): Promise<TransactionSignature> {
+    const payerKeypair = Keypair.fromSecretKey(
+      (this.program.provider.wallet as any).payer.secretKey
+    );
     const queueAccount = new OracleQueueAccount({
       program: this.program,
       publicKey: (await this.loadData()).queuePubkey,
@@ -1868,6 +1901,7 @@ export class OracleAccount {
       {
         accounts: {
           oracle: this.publicKey,
+          oracleAuthority: payerKeypair.publicKey,
           tokenAccount: oracle.tokenAccount,
           gcOracle: lastPubkey,
           oracleQueue: queueAccount.publicKey,
