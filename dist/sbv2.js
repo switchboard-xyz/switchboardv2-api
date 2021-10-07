@@ -871,8 +871,7 @@ class LeaseAccount {
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(program, params.oracleQueueAccount, params.aggregatorAccount);
-        // TODO: check on chain
-        const escrow = await switchTokenMint.createAccount(leaseAccount.publicKey);
+        const escrow = await switchTokenMint.createAccount(programStateAccount.publicKey);
         // const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: PublicKey = new PublicKey(
         // "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         // );
