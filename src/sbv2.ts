@@ -1746,6 +1746,7 @@ export class CrankAccount {
    */
   async peakNextReady(n: number): Promise<Array<PublicKey>> {
     let now = new anchor.BN(Math.floor(Date.now()));
+    console.log(now);
     let crank = await this.loadData();
     let items = crank.pqData
       .slice(0, crank.pqSize)
