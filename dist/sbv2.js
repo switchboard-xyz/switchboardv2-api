@@ -1118,11 +1118,12 @@ class CrankAccount {
      * @return Pubkey list of Aggregator pubkeys.
      */
     async peakNextReady(n) {
+        const now = Math.floor(+new Date() / 1000);
         let crank = await this.loadData();
         let items = crank.pqData
             .slice(0, crank.pqSize)
             .sort((a, b) => a.nextTimestamp.sub(b.nextTimestamp))
-            // .filter((row: CrankRow) => row.nextTimestamp.gt(now))
+            .filter((row) => now > row.nextTimestamp.toNumber())
             .map((item) => item.pubkey)
             .slice(0, n);
         return items;
