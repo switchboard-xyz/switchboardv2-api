@@ -726,6 +726,13 @@ export declare class CrankAccount {
      */
     peakNextWithTime(n: number): Promise<Array<CrankRow>>;
     /**
+     * Get an array of the next readily updateable aggregator pubkeys to be popped
+     * from the crank, limited by n
+     * @param n The limit of pubkeys to return.
+     * @return Pubkey list of Aggregator pubkeys.
+     */
+    peakNextReady(n: number): Promise<Array<PublicKey>>;
+    /**
      * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
      * @param n The limit of pubkeys to return.
      * @return Pubkey list of Aggregators next up to be popped.

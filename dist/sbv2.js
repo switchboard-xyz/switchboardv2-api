@@ -1112,6 +1112,23 @@ class CrankAccount {
         return items;
     }
     /**
+     * Get an array of the next readily updateable aggregator pubkeys to be popped
+     * from the crank, limited by n
+     * @param n The limit of pubkeys to return.
+     * @return Pubkey list of Aggregator pubkeys.
+     */
+    async peakNextReady(n) {
+        let now = new anchor.BN(Math.floor(Date.now() / 1000));
+        let crank = await this.loadData();
+        let items = crank.pqData
+            .slice(0, crank.pqSize)
+            .sort((a, b) => a.nextTimestamp.sub(b.nextTimestamp))
+            .filter((row) => row.nextTimestamp.gt(now))
+            .map((item) => item.pubkey)
+            .slice(0, n);
+        return items;
+    }
+    /**
      * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
      * @param n The limit of pubkeys to return.
      * @return Pubkey list of Aggregators next up to be popped.
