@@ -1152,10 +1152,6 @@ export interface OracleQueueInitParams {
    */
   metadata?: Buffer;
   /**
-   *  Slashing mechanisms for oracles on this queue.
-   */
-  slashingCurve?: Buffer;
-  /**
    *  Rewards to provide oracles and round openers on this queue.
    */
   reward: anchor.BN;
@@ -1177,6 +1173,10 @@ export interface OracleQueueInitParams {
    *  Time period we should remove an oracle after if no response.
    */
   oracleTimeout?: anchor.BN;
+  /**
+   *  Whether slashing is enabled on this queue.
+   */
+  slashingEnabled?: boolean;
   /**
    *  The tolerated variance amount oracle results can have from the
    *  accepted round result before being slashed.
@@ -1254,11 +1254,11 @@ export class OracleQueueAccount {
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
-        slashingCurve: params.slashingCurve?.slice(0, 256) ?? null,
         reward: params.reward ?? new anchor.BN(0),
         minStake: params.minStake ?? new anchor.BN(0),
         feedProbationPeriod: params.feedProbationPeriod ?? 0,
         oracleTimeout: params.oracleTimeout ?? 180,
+        slashingEnabled: params.slashingEnabled ?? false,
         varianceToleranceMultiplier: (
           params.varianceToleranceMultiplier ?? 2
         ).toString(),

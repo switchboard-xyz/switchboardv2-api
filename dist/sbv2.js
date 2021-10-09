@@ -782,18 +782,18 @@ class OracleQueueAccount {
      * @return newly generated OracleQueueAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         await program.rpc.oracleQueueInit({
             name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
             metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 64),
-            slashingCurve: (_d = (_c = params.slashingCurve) === null || _c === void 0 ? void 0 : _c.slice(0, 256)) !== null && _d !== void 0 ? _d : null,
-            reward: (_e = params.reward) !== null && _e !== void 0 ? _e : new anchor.BN(0),
-            minStake: (_f = params.minStake) !== null && _f !== void 0 ? _f : new anchor.BN(0),
-            feedProbationPeriod: (_g = params.feedProbationPeriod) !== null && _g !== void 0 ? _g : 0,
-            oracleTimeout: (_h = params.oracleTimeout) !== null && _h !== void 0 ? _h : 180,
-            varianceToleranceMultiplier: ((_j = params.varianceToleranceMultiplier) !== null && _j !== void 0 ? _j : 2).toString(),
+            reward: (_c = params.reward) !== null && _c !== void 0 ? _c : new anchor.BN(0),
+            minStake: (_d = params.minStake) !== null && _d !== void 0 ? _d : new anchor.BN(0),
+            feedProbationPeriod: (_e = params.feedProbationPeriod) !== null && _e !== void 0 ? _e : 0,
+            oracleTimeout: (_f = params.oracleTimeout) !== null && _f !== void 0 ? _f : 180,
+            slashingEnabled: (_g = params.slashingEnabled) !== null && _g !== void 0 ? _g : false,
+            varianceToleranceMultiplier: ((_h = params.varianceToleranceMultiplier) !== null && _h !== void 0 ? _h : 2).toString(),
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
