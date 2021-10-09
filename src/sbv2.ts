@@ -1318,6 +1318,24 @@ export interface LeaseInitParams {
 }
 
 /**
+ * Parameters for extending a LeaseAccount
+ */
+export interface LeaseExtendParams {
+  /**
+   *  Token amount to load into the lease escrow
+   */
+  loadAmount: anchor.BN;
+  /**
+   *  The funding wallet of the lease.
+   */
+  funder: PublicKey;
+  /**
+   *  The authority of the funding wallet
+   */
+  funderAuthority: Keypair;
+}
+
+/**
  * A Switchboard account representing a lease for managing funds for oracle payouts
  * for fulfilling feed updates.
  */
@@ -1445,6 +1463,49 @@ export class LeaseAccount {
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           escrow,
           owner: params.funderAuthority.publicKey,
+        },
+        signers: [params.funderAuthority],
+      }
+    );
+    return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
+  }
+
+  /**
+   * Adds fund to a LeaseAccount. Note that funds can always be withdrawn by
+   * the withdraw authority if one was set on lease initialization.
+   * @param program Switchboard program representation holding connection and IDL.
+   * @param params.
+   */
+  async extend(program: anchor.Program, params: LeaseExtendParams) {
+    const lease = await this.loadData();
+    const escrow = lease.escrow;
+    const queue = lease.queue;
+    const aggregator = lease.aggregator;
+    const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(
+      program
+    );
+    const switchTokenMint = await programStateAccount.getTokenMint();
+    const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(
+      program,
+      new OracleQueueAccount({ program, publicKey: queue }),
+      new AggregatorAccount({ program, publicKey: aggregator })
+    );
+    await program.rpc.leaseExtend(
+      {
+        loadAmount: params.loadAmount,
+        stateBump,
+        leaseBump,
+      },
+      {
+        accounts: {
+          lease: leaseAccount.publicKey,
+          aggregator,
+          queue,
+          funder: params.funder,
+          owner: params.funderAuthority.publicKey,
+          tokenProgram: spl.TOKEN_PROGRAM_ID,
+          escrow,
+          programState: programStateAccount.publicKey,
         },
         signers: [params.funderAuthority],
       }
