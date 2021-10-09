@@ -1,20 +1,14 @@
-import {
-  Cluster,
-  clusterApiUrl,
-  Connection,
-  PublicKey,
-  Keypair,
-  sendAndConfirmTransaction,
-  Transaction,
-  TransactionInstruction,
-  TransactionSignature,
-  SystemProgram,
-} from "@solana/web3.js";
 import * as anchor from "@project-serum/anchor";
-import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import * as crypto from "crypto";
 import * as spl from "@solana/spl-token";
+import {
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  TransactionSignature,
+} from "@solana/web3.js";
+import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
+import * as crypto from "crypto";
 
 /**
  * Switchboard precisioned representation of numbers.
@@ -467,7 +461,7 @@ export class AggregatorAccount {
    * @return The name of the aggregator.
    */
   static getName(aggregator: any): string {
-    return Buffer.from(aggregator.id).toString("utf8");
+    return Buffer.from(aggregator.name).toString("utf8");
   }
 
   /**
