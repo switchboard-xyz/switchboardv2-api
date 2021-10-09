@@ -506,11 +506,12 @@ class AggregatorAccount {
         const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, queueAccount, this);
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(this.program);
         const escrow = (await leaseAccount.loadData()).escrow;
+        const digest = this.produceJobsHash(params.jobs).digest();
         return await this.program.rpc.aggregatorSaveResult({
             oracleIdx: params.oracleIdx,
             error: params.error,
             value: params.value.toString(),
-            jobsHash: this.produceJobsHash(params.jobs).digest(),
+            jobsHash: digest,
             minResponse: params.minResponse.toString(),
             maxResponse: params.maxResponse.toString(),
             feedPermissionBump,
