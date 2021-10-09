@@ -763,12 +763,19 @@ export class AggregatorAccount {
       publicKey: queuePubkey,
     });
     const queue = await queueAccount.loadData();
-    const [permissionAccount, permissionBump] =
+    const [feedPermissionAccount, feedPermissionBump] =
       await PermissionAccount.fromSeed(
         this.program,
         queue.authority,
         queuePubkey,
         this.publicKey
+      );
+    const [oraclePermissionAccount, oraclePermissionBump] =
+      await PermissionAccount.fromSeed(
+        this.program,
+        queue.authority,
+        queuePubkey,
+        oracleAccount.publicKey
       );
     const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(
       this.program,
@@ -787,7 +794,8 @@ export class AggregatorAccount {
         jobsHash: this.produceJobsHash(params.jobs).digest(),
         minResponse: params.minResponse.toString(),
         maxResponse: params.maxResponse.toString(),
-        permissionBump,
+        feedPermissionBump,
+        oraclePermissionBump,
         leaseBump,
         stateBump,
       },
@@ -798,7 +806,8 @@ export class AggregatorAccount {
           oracleAuthority: payerKeypair.publicKey,
           oracleQueue: queueAccount.publicKey,
           queueAuthority: queue.authority,
-          permission: permissionAccount.publicKey,
+          feedPermission: feedPermissionAccount.publicKey,
+          oraclePermission: oraclePermissionAccount.publicKey,
           lease: leaseAccount.publicKey,
           escrow,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
@@ -1168,6 +1177,13 @@ export interface OracleQueueInitParams {
    *  Time period we should remove an oracle after if no response.
    */
   oracleTimeout?: anchor.BN;
+  /**
+   *  The tolerated variance amount oracle results can have from the
+   *  accepted round result before being slashed.
+   *  slashBound = varianceToleranceMultiplier * stdDeviation
+   *  Default: 2
+   */
+  varianceToleranceMultiplier?: number;
 }
 
 /**
@@ -1243,6 +1259,9 @@ export class OracleQueueAccount {
         minStake: params.minStake ?? new anchor.BN(0),
         feedProbationPeriod: params.feedProbationPeriod ?? 0,
         oracleTimeout: params.oracleTimeout ?? 180,
+        varianceToleranceMultiplier: (
+          params.varianceToleranceMultiplier ?? 2
+        ).toString(),
       },
       {
         accounts: {

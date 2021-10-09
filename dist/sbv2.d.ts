@@ -1,10 +1,10 @@
 /// <reference types="node" />
-import { PublicKey, Keypair, TransactionSignature } from "@solana/web3.js";
 import * as anchor from "@project-serum/anchor";
-import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import * as crypto from "crypto";
 import * as spl from "@solana/spl-token";
+import { Keypair, PublicKey, TransactionSignature } from "@solana/web3.js";
+import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
+import * as crypto from "crypto";
 /**
  * Switchboard precisioned representation of numbers.
  * @param connection Solana network connection object.
@@ -528,6 +528,13 @@ export interface OracleQueueInitParams {
      *  Time period we should remove an oracle after if no response.
      */
     oracleTimeout?: anchor.BN;
+    /**
+     *  The tolerated variance amount oracle results can have from the
+     *  accepted round result before being slashed.
+     *  slashBound = varianceToleranceMultiplier * stdDeviation
+     *  Default: 2
+     */
+    varianceToleranceMultiplier?: number;
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to

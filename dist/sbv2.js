@@ -23,12 +23,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = void 0;
-const web3_js_1 = require("@solana/web3.js");
 const anchor = __importStar(require("@project-serum/anchor"));
-const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
-const crypto = __importStar(require("crypto"));
 const spl = __importStar(require("@solana/spl-token"));
+const web3_js_1 = require("@solana/web3.js");
+const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const big_js_1 = __importDefault(require("big.js"));
+const crypto = __importStar(require("crypto"));
 /**
  * Switchboard precisioned representation of numbers.
  * @param connection Solana network connection object.
@@ -257,7 +257,7 @@ class AggregatorAccount {
      * @return The name of the aggregator.
      */
     static getName(aggregator) {
-        return Buffer.from(aggregator.id).toString("utf8");
+        return Buffer.from(aggregator.name).toString("utf8");
     }
     /**
      * Load and parse AggregatorAccount state based on the program IDL.
@@ -501,7 +501,8 @@ class AggregatorAccount {
             publicKey: queuePubkey,
         });
         const queue = await queueAccount.loadData();
-        const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, this.publicKey);
+        const [feedPermissionAccount, feedPermissionBump] = await PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, this.publicKey);
+        const [oraclePermissionAccount, oraclePermissionBump] = await PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, oracleAccount.publicKey);
         const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, queueAccount, this);
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(this.program);
         const escrow = (await leaseAccount.loadData()).escrow;
@@ -512,7 +513,8 @@ class AggregatorAccount {
             jobsHash: this.produceJobsHash(params.jobs).digest(),
             minResponse: params.minResponse.toString(),
             maxResponse: params.maxResponse.toString(),
-            permissionBump,
+            feedPermissionBump,
+            oraclePermissionBump,
             leaseBump,
             stateBump,
         }, {
@@ -522,7 +524,8 @@ class AggregatorAccount {
                 oracleAuthority: payerKeypair.publicKey,
                 oracleQueue: queueAccount.publicKey,
                 queueAuthority: queue.authority,
-                permission: permissionAccount.publicKey,
+                feedPermission: feedPermissionAccount.publicKey,
+                oraclePermission: oraclePermissionAccount.publicKey,
                 lease: leaseAccount.publicKey,
                 escrow,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
@@ -779,7 +782,7 @@ class OracleQueueAccount {
      * @return newly generated OracleQueueAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         await program.rpc.oracleQueueInit({
@@ -790,6 +793,7 @@ class OracleQueueAccount {
             minStake: (_f = params.minStake) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             feedProbationPeriod: (_g = params.feedProbationPeriod) !== null && _g !== void 0 ? _g : 0,
             oracleTimeout: (_h = params.oracleTimeout) !== null && _h !== void 0 ? _h : 180,
+            varianceToleranceMultiplier: ((_j = params.varianceToleranceMultiplier) !== null && _j !== void 0 ? _j : 2).toString(),
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
