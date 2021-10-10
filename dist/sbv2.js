@@ -368,9 +368,11 @@ class AggregatorAccount {
      * @return newly generated AggregatorAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b, _c, _d, _e, _f, _g;
         const aggregatorAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
         const size = program.account.aggregatorAccountData.size;
+        const [stateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
+        const state = await stateAccount.loadData();
         await program.rpc.aggregatorInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 128),
@@ -381,9 +383,12 @@ class AggregatorAccount {
             varianceThreshold: ((_d = params.varianceThreshold) !== null && _d !== void 0 ? _d : 0).toString(),
             forceReportPeriod: (_e = params.forceReportPeriod) !== null && _e !== void 0 ? _e : new anchor.BN(0),
             expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
+            authorWallet: (_g = params.authorWallet) !== null && _g !== void 0 ? _g : state.tokenVault,
+            stateBump,
         }, {
             accounts: {
                 aggregator: aggregatorAccount.publicKey,
+                programState: stateAccount.publicKey,
             },
             signers: [aggregatorAccount],
             instructions: [
@@ -596,19 +601,24 @@ class JobAccount {
      * @return newly generated JobAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const jobAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
-        const size = 244 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
+        const size = 276 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
+        const [stateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
+        const state = await stateAccount.loadData();
         await program.rpc.jobInit({
             name: (_e = params.name) !== null && _e !== void 0 ? _e : Buffer.from(""),
             expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             data: params.data,
             variables: (_h = (_g = params.variables) === null || _g === void 0 ? void 0 : _g.map((item) => Buffer.from(""))) !== null && _h !== void 0 ? _h : new Array(),
+            authorWallet: (_j = params.authorWallet) !== null && _j !== void 0 ? _j : state.tokenVault,
+            stateBump,
         }, {
             accounts: {
                 job: jobAccount.publicKey,
-                creator: payerKeypair.publicKey,
+                authorWallet: payerKeypair.publicKey,
+                programState: stateAccount.publicKey,
             },
             signers: [jobAccount],
             instructions: [

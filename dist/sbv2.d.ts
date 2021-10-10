@@ -168,6 +168,11 @@ export interface AggregatorInitParams {
      *  Optional pre-existing keypair to use for aggregator initialization.
      */
     keypair?: Keypair;
+    /**
+     *  An optional wallet for receiving kickbacks from job usage in feeds.
+     *  Defaults to token vault.
+     */
+    authorWallet?: PublicKey;
 }
 /**
  * Parameters for which oracles must submit for responding to update requests.
@@ -364,6 +369,11 @@ export interface JobInitParams {
      *  A pre-generated keypair to use.
      */
     keypair?: Keypair;
+    /**
+     *  An optional wallet for receiving kickbacks from job usage in feeds.
+     *  Defaults to token vault.
+     */
+    authorWallet?: PublicKey;
 }
 /**
  * A Switchboard account representing a job for an oracle to perform, stored as
