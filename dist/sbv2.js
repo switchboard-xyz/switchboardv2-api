@@ -884,6 +884,8 @@ class LeaseAccount {
         const escrow = await switchTokenMint.createAccount(payerKeypair.publicKey);
         await switchTokenMint.setAuthority(escrow, leaseAccount.publicKey, "CloseAccount", null, [payerKeypair]);
         await switchTokenMint.setAuthority(escrow, programStateAccount.publicKey, "AccountOwner", payerKeypair.publicKey, [payerKeypair]);
+        const info = switchTokenMint.getAccountInfo(escrow);
+        console.log(info);
         // const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: PublicKey = new PublicKey(
         // "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         // );
