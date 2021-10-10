@@ -1437,7 +1437,7 @@ export class LeaseAccount {
       escrow,
       leaseAccount.publicKey,
       "CloseAccount",
-      PublicKey.default,
+      payerKeypair.publicKey,
       [payerKeypair]
     );
     await switchTokenMint.setAuthority(
