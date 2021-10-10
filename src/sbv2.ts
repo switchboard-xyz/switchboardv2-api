@@ -1420,6 +1420,9 @@ export class LeaseAccount {
     program: anchor.Program,
     params: LeaseInitParams
   ): Promise<LeaseAccount> {
+    const payerKeypair = Keypair.fromSecretKey(
+      (program.provider.wallet as any).payer.secretKey
+    );
     const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(
       program
     );
@@ -1429,8 +1432,20 @@ export class LeaseAccount {
       params.oracleQueueAccount,
       params.aggregatorAccount
     );
-    const escrow = await switchTokenMint.createAccount(
-      programStateAccount.publicKey
+    const escrow = await switchTokenMint.createAccount(payerKeypair.publicKey);
+    await switchTokenMint.setAuthority(
+      escrow,
+      leaseAccount.publicKey,
+      "CloseAccount",
+      null,
+      [payerKeypair]
+    );
+    await switchTokenMint.setAuthority(
+      escrow,
+      programStateAccount.publicKey,
+      "AccountOwner",
+      payerKeypair.publicKey,
+      [payerKeypair]
     );
     // const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: PublicKey = new PublicKey(
     // "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
