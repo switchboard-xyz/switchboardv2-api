@@ -1433,6 +1433,7 @@ export class LeaseAccount {
       params.aggregatorAccount
     );
     const escrow = await switchTokenMint.createAccount(payerKeypair.publicKey);
+    // Set lease to be the close authority.
     await switchTokenMint.setAuthority(
       escrow,
       leaseAccount.publicKey,
@@ -1440,6 +1441,7 @@ export class LeaseAccount {
       payerKeypair.publicKey,
       [payerKeypair]
     );
+    // Set program to be escrow authority.
     await switchTokenMint.setAuthority(
       escrow,
       programStateAccount.publicKey,

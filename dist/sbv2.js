@@ -882,7 +882,9 @@ class LeaseAccount {
         const switchTokenMint = await programStateAccount.getTokenMint();
         const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(program, params.oracleQueueAccount, params.aggregatorAccount);
         const escrow = await switchTokenMint.createAccount(payerKeypair.publicKey);
+        // Set lease to be the close authority.
         await switchTokenMint.setAuthority(escrow, leaseAccount.publicKey, "CloseAccount", payerKeypair.publicKey, [payerKeypair]);
+        // Set program to be escrow authority.
         await switchTokenMint.setAuthority(escrow, programStateAccount.publicKey, "AccountOwner", payerKeypair.publicKey, [payerKeypair]);
         // const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: PublicKey = new PublicKey(
         // "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
