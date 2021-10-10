@@ -383,11 +383,11 @@ class AggregatorAccount {
             varianceThreshold: ((_d = params.varianceThreshold) !== null && _d !== void 0 ? _d : 0).toString(),
             forceReportPeriod: (_e = params.forceReportPeriod) !== null && _e !== void 0 ? _e : new anchor.BN(0),
             expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
-            authorWallet: (_g = params.authorWallet) !== null && _g !== void 0 ? _g : state.tokenVault,
             stateBump,
         }, {
             accounts: {
                 aggregator: aggregatorAccount.publicKey,
+                authorWallet: (_g = params.authorWallet) !== null && _g !== void 0 ? _g : state.tokenVault,
                 programState: stateAccount.publicKey,
             },
             signers: [aggregatorAccount],
@@ -612,12 +612,11 @@ class JobAccount {
             expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             data: params.data,
             variables: (_h = (_g = params.variables) === null || _g === void 0 ? void 0 : _g.map((item) => Buffer.from(""))) !== null && _h !== void 0 ? _h : new Array(),
-            authorWallet: (_j = params.authorWallet) !== null && _j !== void 0 ? _j : state.tokenVault,
             stateBump,
         }, {
             accounts: {
                 job: jobAccount.publicKey,
-                authorWallet: payerKeypair.publicKey,
+                authorWallet: (_j = params.authorWallet) !== null && _j !== void 0 ? _j : state.tokenVault,
                 programState: stateAccount.publicKey,
             },
             signers: [jobAccount],

@@ -614,12 +614,12 @@ export class AggregatorAccount {
         varianceThreshold: (params.varianceThreshold ?? 0).toString(),
         forceReportPeriod: params.forceReportPeriod ?? new anchor.BN(0),
         expiration: params.expiration ?? new anchor.BN(0),
-        authorWallet: params.authorWallet ?? state.tokenVault,
         stateBump,
       },
       {
         accounts: {
           aggregator: aggregatorAccount.publicKey,
+          authorWallet: params.authorWallet ?? state.tokenVault,
           programState: stateAccount.publicKey,
         },
         signers: [aggregatorAccount],
@@ -954,13 +954,12 @@ export class JobAccount {
         variables:
           params.variables?.map((item) => Buffer.from("")) ??
           new Array<Buffer>(),
-        authorWallet: params.authorWallet ?? state.tokenVault,
         stateBump,
       },
       {
         accounts: {
           job: jobAccount.publicKey,
-          authorWallet: payerKeypair.publicKey,
+          authorWallet: params.authorWallet ?? state.tokenVault,
           programState: stateAccount.publicKey,
         },
         signers: [jobAccount],
