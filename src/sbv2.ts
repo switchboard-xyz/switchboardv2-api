@@ -231,6 +231,7 @@ export class ProgramStateAccount {
       {
         accounts: {
           state: stateAccount.publicKey,
+          authority: program.provider.wallet.publicKey,
           mintAuthority: mintAuthority.publicKey,
           tokenMint: mint.publicKey,
           vault: tokenVault,
