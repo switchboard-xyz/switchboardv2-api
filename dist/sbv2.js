@@ -23,12 +23,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = void 0;
-const web3_js_1 = require("@solana/web3.js");
 const anchor = __importStar(require("@project-serum/anchor"));
-const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
-const crypto = __importStar(require("crypto"));
 const spl = __importStar(require("@solana/spl-token"));
+const web3_js_1 = require("@solana/web3.js");
+const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const big_js_1 = __importDefault(require("big.js"));
+const crypto = __importStar(require("crypto"));
 /**
  * Switchboard precisioned representation of numbers.
  * @param connection Solana network connection object.
@@ -78,8 +78,8 @@ class SwitchboardDecimal {
      * @return Big representation
      */
     toBig() {
-        const scale = new big_js_1.default(`1e-${this.scale}`);
-        return new big_js_1.default(this.mantissa.toString()).times(scale);
+        const scale = new big_js_1.default(10).pow(this.scale);
+        return new big_js_1.default(this.mantissa.toString()).div(scale);
     }
 }
 exports.SwitchboardDecimal = SwitchboardDecimal;
@@ -164,6 +164,7 @@ class ProgramStateAccount {
         }, {
             accounts: {
                 state: stateAccount.publicKey,
+                authority: program.provider.wallet.publicKey,
                 mintAuthority: mintAuthority.publicKey,
                 tokenMint: mint.publicKey,
                 vault: tokenVault,
@@ -257,7 +258,7 @@ class AggregatorAccount {
      * @return The name of the aggregator.
      */
     static getName(aggregator) {
-        return Buffer.from(aggregator.id).toString("utf8");
+        return Buffer.from(aggregator.name).toString("utf8");
     }
     /**
      * Load and parse AggregatorAccount state based on the program IDL.
@@ -333,7 +334,9 @@ class AggregatorAccount {
     produceJobsHash(jobs) {
         const hash = crypto.createHash("sha256");
         for (const job of jobs) {
-            hash.update(switchboard_api_1.OracleJob.encodeDelimited(job).finish());
+            const jobHasher = crypto.createHash("sha256");
+            jobHasher.update(switchboard_api_1.OracleJob.encodeDelimited(job).finish());
+            hash.update(jobHasher.digest());
         }
         return hash;
     }
@@ -354,6 +357,19 @@ class AggregatorAccount {
         });
         return jobs;
     }
+    async loadHashes(aggregator) {
+        const coder = new anchor.AccountsCoder(this.program.idl);
+        aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
+        const jobAccountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, aggregator.jobPubkeysData.slice(0, aggregator.jobPubkeysSize));
+        if (jobAccountDatas === null) {
+            throw new Error("Failed to load feed jobs.");
+        }
+        const jobs = jobAccountDatas.map((item) => {
+            let decoded = coder.decode("JobAccountData", item.account.data);
+            return decoded.hash;
+        });
+        return jobs;
+    }
     /**
      * Get the size of an AggregatorAccount on chain.
      * @return size.
@@ -368,9 +384,11 @@ class AggregatorAccount {
      * @return newly generated AggregatorAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b, _c, _d, _e, _f, _g;
         const aggregatorAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
         const size = program.account.aggregatorAccountData.size;
+        const [stateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
+        const state = await stateAccount.loadData();
         await program.rpc.aggregatorInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 128),
@@ -381,9 +399,12 @@ class AggregatorAccount {
             varianceThreshold: ((_d = params.varianceThreshold) !== null && _d !== void 0 ? _d : 0).toString(),
             forceReportPeriod: (_e = params.forceReportPeriod) !== null && _e !== void 0 ? _e : new anchor.BN(0),
             expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
+            stateBump,
         }, {
             accounts: {
                 aggregator: aggregatorAccount.publicKey,
+                authorWallet: (_g = params.authorWallet) !== null && _g !== void 0 ? _g : state.tokenVault,
+                programState: stateAccount.publicKey,
             },
             signers: [aggregatorAccount],
             instructions: [
@@ -510,18 +531,21 @@ class AggregatorAccount {
             publicKey: queuePubkey,
         });
         const queue = await queueAccount.loadData();
-        const [permissionAccount, permissionBump] = await PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, this.publicKey);
+        const [feedPermissionAccount, feedPermissionBump] = await PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, this.publicKey);
+        const [oraclePermissionAccount, oraclePermissionBump] = await PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, oracleAccount.publicKey);
         const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(this.program, queueAccount, this);
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(this.program);
         const escrow = (await leaseAccount.loadData()).escrow;
+        const digest = this.produceJobsHash(params.jobs).digest();
         return await this.program.rpc.aggregatorSaveResult({
             oracleIdx: params.oracleIdx,
             error: params.error,
             value: params.value.toString(),
-            jobsHash: this.produceJobsHash(params.jobs).digest(),
+            jobsChecksum: digest,
             minResponse: params.minResponse.toString(),
             maxResponse: params.maxResponse.toString(),
-            permissionBump,
+            feedPermissionBump,
+            oraclePermissionBump,
             leaseBump,
             stateBump,
         }, {
@@ -531,7 +555,8 @@ class AggregatorAccount {
                 oracleAuthority: payerKeypair.publicKey,
                 oracleQueue: queueAccount.publicKey,
                 queueAuthority: queue.authority,
-                permission: permissionAccount.publicKey,
+                feedPermission: feedPermissionAccount.publicKey,
+                oraclePermission: oraclePermissionAccount.publicKey,
                 lease: leaseAccount.publicKey,
                 escrow,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
@@ -601,17 +626,23 @@ class JobAccount {
      * @return newly generated JobAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const jobAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
-        const size = 212 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
+        const size = 276 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
+        const [stateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
+        const state = await stateAccount.loadData();
         await program.rpc.jobInit({
             name: (_e = params.name) !== null && _e !== void 0 ? _e : Buffer.from(""),
             expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             data: params.data,
             variables: (_h = (_g = params.variables) === null || _g === void 0 ? void 0 : _g.map((item) => Buffer.from(""))) !== null && _h !== void 0 ? _h : new Array(),
+            stateBump,
         }, {
             accounts: {
                 job: jobAccount.publicKey,
+                authorWallet: (_j = params.authorWallet) !== null && _j !== void 0 ? _j : state.tokenVault,
+                programState: stateAccount.publicKey,
             },
             signers: [jobAccount],
             instructions: [
@@ -792,11 +823,12 @@ class OracleQueueAccount {
         await program.rpc.oracleQueueInit({
             name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
             metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 64),
-            slashingCurve: (_d = (_c = params.slashingCurve) === null || _c === void 0 ? void 0 : _c.slice(0, 256)) !== null && _d !== void 0 ? _d : null,
-            reward: (_e = params.reward) !== null && _e !== void 0 ? _e : new anchor.BN(0),
-            minStake: (_f = params.minStake) !== null && _f !== void 0 ? _f : new anchor.BN(0),
-            feedProbationPeriod: (_g = params.feedProbationPeriod) !== null && _g !== void 0 ? _g : 0,
-            oracleTimeout: (_h = params.oracleTimeout) !== null && _h !== void 0 ? _h : 180,
+            reward: (_c = params.reward) !== null && _c !== void 0 ? _c : new anchor.BN(0),
+            minStake: (_d = params.minStake) !== null && _d !== void 0 ? _d : new anchor.BN(0),
+            feedProbationPeriod: (_e = params.feedProbationPeriod) !== null && _e !== void 0 ? _e : 0,
+            oracleTimeout: (_f = params.oracleTimeout) !== null && _f !== void 0 ? _f : 180,
+            slashingEnabled: (_g = params.slashingEnabled) !== null && _g !== void 0 ? _g : false,
+            varianceToleranceMultiplier: ((_h = params.varianceToleranceMultiplier) !== null && _h !== void 0 ? _h : 2).toString(),
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
@@ -879,10 +911,15 @@ class LeaseAccount {
      */
     static async create(program, params) {
         var _a;
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(program, params.oracleQueueAccount, params.aggregatorAccount);
-        const escrow = await switchTokenMint.createAccount(programStateAccount.publicKey);
+        const escrow = await switchTokenMint.createAccount(payerKeypair.publicKey);
+        // Set lease to be the close authority.
+        await switchTokenMint.setAuthority(escrow, leaseAccount.publicKey, "CloseAccount", payerKeypair.publicKey, [payerKeypair]);
+        // Set program to be escrow authority.
+        await switchTokenMint.setAuthority(escrow, programStateAccount.publicKey, "AccountOwner", payerKeypair.publicKey, [payerKeypair]);
         // const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: PublicKey = new PublicKey(
         // "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         // );
@@ -913,6 +950,39 @@ class LeaseAccount {
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
                 escrow,
                 owner: params.funderAuthority.publicKey,
+            },
+            signers: [params.funderAuthority],
+        });
+        return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
+    }
+    /**
+     * Adds fund to a LeaseAccount. Note that funds can always be withdrawn by
+     * the withdraw authority if one was set on lease initialization.
+     * @param program Switchboard program representation holding connection and IDL.
+     * @param params.
+     */
+    async extend(program, params) {
+        const lease = await this.loadData();
+        const escrow = lease.escrow;
+        const queue = lease.queue;
+        const aggregator = lease.aggregator;
+        const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
+        const switchTokenMint = await programStateAccount.getTokenMint();
+        const [leaseAccount, leaseBump] = await LeaseAccount.fromSeed(program, new OracleQueueAccount({ program, publicKey: queue }), new AggregatorAccount({ program, publicKey: aggregator }));
+        await program.rpc.leaseExtend({
+            loadAmount: params.loadAmount,
+            stateBump,
+            leaseBump,
+        }, {
+            accounts: {
+                lease: leaseAccount.publicKey,
+                aggregator,
+                queue,
+                funder: params.funder,
+                owner: params.funderAuthority.publicKey,
+                tokenProgram: spl.TOKEN_PROGRAM_ID,
+                escrow,
+                programState: programStateAccount.publicKey,
             },
             signers: [params.funderAuthority],
         });
@@ -1108,13 +1178,43 @@ class CrankAccount {
     /**
      * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
      * @param n The limit of pubkeys to return.
+     * @return Pubkey list of Aggregators and next timestamp to be popped, ordered by timestamp.
+     */
+    async peakNextWithTime(n) {
+        let crank = await this.loadData();
+        let items = crank.pqData
+            .slice(0, crank.pqSize)
+            .sort((a, b) => a.nextTimestamp.sub(b.nextTimestamp))
+            .slice(0, n);
+        return items;
+    }
+    /**
+     * Get an array of the next readily updateable aggregator pubkeys to be popped
+     * from the crank, limited by n
+     * @param n The limit of pubkeys to return.
+     * @return Pubkey list of Aggregator pubkeys.
+     */
+    async peakNextReady(n) {
+        const now = Math.floor(+new Date() / 1000);
+        let crank = await this.loadData();
+        let items = crank.pqData
+            .slice(0, crank.pqSize)
+            .sort((a, b) => a.nextTimestamp.sub(b.nextTimestamp))
+            .filter((row) => now > row.nextTimestamp.toNumber())
+            .map((item) => item.pubkey)
+            .slice(0, n);
+        return items;
+    }
+    /**
+     * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
+     * @param n The limit of pubkeys to return.
      * @return Pubkey list of Aggregators next up to be popped.
      */
     async peakNext(n) {
         let crank = await this.loadData();
         let items = crank.pqData
             .slice(0, crank.pqSize)
-            .sort((a, b) => a.nextTimestamp < b.nextTimestamp)
+            .sort((a, b) => a.nextTimestamp.sub(b.nextTimestamp))
             .map((item) => item.pubkey)
             .slice(0, n);
         return items;
@@ -1177,7 +1277,7 @@ class OracleAccount {
         const [oracleAccount, oracleBump] = await OracleAccount.fromSeed(program, wallet);
         await program.rpc.oracleInit({
             name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
-            metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 256),
+            metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 128),
             stateBump,
             oracleBump,
         }, {

@@ -1,10 +1,10 @@
 /// <reference types="node" />
-import { PublicKey, Keypair, TransactionSignature } from "@solana/web3.js";
 import * as anchor from "@project-serum/anchor";
-import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import * as crypto from "crypto";
 import * as spl from "@solana/spl-token";
+import { Keypair, PublicKey, TransactionSignature } from "@solana/web3.js";
+import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
+import * as crypto from "crypto";
 /**
  * Switchboard precisioned representation of numbers.
  * @param connection Solana network connection object.
@@ -168,6 +168,11 @@ export interface AggregatorInitParams {
      *  Optional pre-existing keypair to use for aggregator initialization.
      */
     keypair?: Keypair;
+    /**
+     *  An optional wallet for receiving kickbacks from job usage in feeds.
+     *  Defaults to token vault.
+     */
+    authorWallet?: PublicKey;
 }
 /**
  * Parameters for which oracles must submit for responding to update requests.
@@ -184,17 +189,17 @@ export interface AggregatorSaveResultParams {
     /**
      *  Value the oracle is responding with for this update.
      */
-    value: number;
+    value: Big;
     /**
      *  The minimum value this oracle has seen this round for the jobs listed in the
      *  aggregator.
      */
-    minResponse: number;
+    minResponse: Big;
     /**
      *  The maximum value this oracle has seen this round for the jobs listed in the
      *  aggregator.
      */
-    maxResponse: number;
+    maxResponse: Big;
     /**
      *  List of OracleJobs that were performed to produce this result.
      */
@@ -300,6 +305,7 @@ export declare class AggregatorAccount {
      * @return Array<OracleJob>
      */
     loadJobs(aggregator?: any): Promise<Array<OracleJob>>;
+    loadHashes(aggregator?: any): Promise<Array<Buffer>>;
     /**
      * Get the size of an AggregatorAccount on chain.
      * @return size.
@@ -365,6 +371,11 @@ export interface JobInitParams {
      *  A pre-generated keypair to use.
      */
     keypair?: Keypair;
+    /**
+     *  An optional wallet for receiving kickbacks from job usage in feeds.
+     *  Defaults to token vault.
+     */
+    authorWallet?: PublicKey;
 }
 /**
  * A Switchboard account representing a job for an oracle to perform, stored as
@@ -504,10 +515,6 @@ export interface OracleQueueInitParams {
      */
     metadata?: Buffer;
     /**
-     *  Slashing mechanisms for oracles on this queue.
-     */
-    slashingCurve?: Buffer;
-    /**
      *  Rewards to provide oracles and round openers on this queue.
      */
     reward: anchor.BN;
@@ -529,6 +536,17 @@ export interface OracleQueueInitParams {
      *  Time period we should remove an oracle after if no response.
      */
     oracleTimeout?: anchor.BN;
+    /**
+     *  Whether slashing is enabled on this queue.
+     */
+    slashingEnabled?: boolean;
+    /**
+     *  The tolerated variance amount oracle results can have from the
+     *  accepted round result before being slashed.
+     *  slashBound = varianceToleranceMultiplier * stdDeviation
+     *  Default: 2
+     */
+    varianceToleranceMultiplier?: number;
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to
@@ -592,6 +610,23 @@ export interface LeaseInitParams {
     withdrawAuthority?: PublicKey;
 }
 /**
+ * Parameters for extending a LeaseAccount
+ */
+export interface LeaseExtendParams {
+    /**
+     *  Token amount to load into the lease escrow
+     */
+    loadAmount: anchor.BN;
+    /**
+     *  The funding wallet of the lease.
+     */
+    funder: PublicKey;
+    /**
+     *  The authority of the funding wallet
+     */
+    funderAuthority: Keypair;
+}
+/**
  * A Switchboard account representing a lease for managing funds for oracle payouts
  * for fulfilling feed updates.
  */
@@ -629,6 +664,13 @@ export declare class LeaseAccount {
      * @return newly generated LeaseAccount.
      */
     static create(program: anchor.Program, params: LeaseInitParams): Promise<LeaseAccount>;
+    /**
+     * Adds fund to a LeaseAccount. Note that funds can always be withdrawn by
+     * the withdraw authority if one was set on lease initialization.
+     * @param program Switchboard program representation holding connection and IDL.
+     * @param params.
+     */
+    extend(program: anchor.Program, params: LeaseExtendParams): Promise<LeaseAccount>;
 }
 /**
  * Parameters for initializing a CrankAccount
@@ -720,6 +762,19 @@ export declare class CrankAccount {
      * @return TransactionSignature
      */
     pop(params: CrankPopParams): Promise<TransactionSignature>;
+    /**
+     * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
+     * @param n The limit of pubkeys to return.
+     * @return Pubkey list of Aggregators and next timestamp to be popped, ordered by timestamp.
+     */
+    peakNextWithTime(n: number): Promise<Array<CrankRow>>;
+    /**
+     * Get an array of the next readily updateable aggregator pubkeys to be popped
+     * from the crank, limited by n
+     * @param n The limit of pubkeys to return.
+     * @return Pubkey list of Aggregator pubkeys.
+     */
+    peakNextReady(n: number): Promise<Array<PublicKey>>;
     /**
      * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
      * @param n The limit of pubkeys to return.
