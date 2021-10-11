@@ -1253,7 +1253,7 @@ class OracleAccount {
         const [oracleAccount, oracleBump] = await OracleAccount.fromSeed(program, wallet);
         await program.rpc.oracleInit({
             name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
-            metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 256),
+            metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 128),
             stateBump,
             oracleBump,
         }, {
