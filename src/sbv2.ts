@@ -1996,7 +1996,6 @@ export class OracleAccount {
       program
     );
 
-    console.log("1");
     const switchTokenMint = await programStateAccount.getTokenMint();
     const wallet = await switchTokenMint.createAccount(
       program.provider.wallet.publicKey

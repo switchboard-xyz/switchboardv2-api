@@ -1263,7 +1263,6 @@ class OracleAccount {
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const size = program.account.oracleAccountData.size;
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
-        console.log("1");
         const switchTokenMint = await programStateAccount.getTokenMint();
         const wallet = await switchTokenMint.createAccount(program.provider.wallet.publicKey);
         const [oracleAccount, oracleBump] = await OracleAccount.fromSeed(program, wallet);
