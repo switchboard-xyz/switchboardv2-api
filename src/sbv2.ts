@@ -733,6 +733,18 @@ export class AggregatorAccount {
     );
   }
 
+  async getOracleIndex(
+    oraclePubkey: PublicKey,
+  ): Promise<number> {
+    const aggregator = await this.loadData();
+    for (let i = 0; i < aggregator.oracleRequestBatchSize; i++) {
+      if (aggregator.currentRound.oraclePubkeysData[i].equals(oraclePubkey)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   /**
    * RPC for an oracle to save a result to an aggregator round.
    * @param oracleAccount The oracle account submitting a result.
