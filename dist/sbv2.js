@@ -78,8 +78,8 @@ class SwitchboardDecimal {
      * @return Big representation
      */
     toBig() {
-        const scale = new big_js_1.default(`1e-${this.scale}`);
-        return new big_js_1.default(this.mantissa.toString()).times(scale);
+        const scale = new big_js_1.default(10).pow(this.scale);
+        return new big_js_1.default(this.mantissa.toString()).div(scale);
     }
 }
 exports.SwitchboardDecimal = SwitchboardDecimal;

@@ -189,17 +189,17 @@ export interface AggregatorSaveResultParams {
     /**
      *  Value the oracle is responding with for this update.
      */
-    value: number;
+    value: Big;
     /**
      *  The minimum value this oracle has seen this round for the jobs listed in the
      *  aggregator.
      */
-    minResponse: number;
+    minResponse: Big;
     /**
      *  The maximum value this oracle has seen this round for the jobs listed in the
      *  aggregator.
      */
-    maxResponse: number;
+    maxResponse: Big;
     /**
      *  List of OracleJobs that were performed to produce this result.
      */
