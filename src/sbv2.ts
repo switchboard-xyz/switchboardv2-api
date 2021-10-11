@@ -1967,6 +1967,7 @@ export class OracleAccount {
     program: anchor.Program,
     params: OracleInitParams
   ): Promise<OracleAccount> {
+    console.log("1");
     const payerKeypair = Keypair.fromSecretKey(
       (program.provider.wallet as any).payer.secretKey
     );
@@ -1974,6 +1975,8 @@ export class OracleAccount {
     const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(
       program
     );
+
+    console.log("1");
     const switchTokenMint = await programStateAccount.getTokenMint();
     const wallet = await switchTokenMint.createAccount(
       program.provider.wallet.publicKey
@@ -1983,6 +1986,7 @@ export class OracleAccount {
       wallet
     );
 
+    console.log("1");
     await program.rpc.oracleInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
@@ -2002,6 +2006,7 @@ export class OracleAccount {
         },
       }
     );
+    console.log("1");
     return new OracleAccount({ program, publicKey: oracleAccount.publicKey });
   }
 
