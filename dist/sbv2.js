@@ -532,7 +532,7 @@ class AggregatorAccount {
             oracleIdx: params.oracleIdx,
             error: params.error,
             value: params.value.toString(),
-            jobsHash: digest,
+            jobsChecksum: digest,
             minResponse: params.minResponse.toString(),
             maxResponse: params.maxResponse.toString(),
             feedPermissionBump,
@@ -1266,7 +1266,6 @@ class OracleAccount {
         const switchTokenMint = await programStateAccount.getTokenMint();
         const wallet = await switchTokenMint.createAccount(program.provider.wallet.publicKey);
         const [oracleAccount, oracleBump] = await OracleAccount.fromSeed(program, wallet);
-        console.log("1");
         await program.rpc.oracleInit({
             name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
             metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 128),

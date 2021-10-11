@@ -826,7 +826,7 @@ export class AggregatorAccount {
         oracleIdx: params.oracleIdx,
         error: params.error,
         value: params.value.toString(),
-        jobsHash: digest,
+        jobsChecksum: digest,
         minResponse: params.minResponse.toString(),
         maxResponse: params.maxResponse.toString(),
         feedPermissionBump,
@@ -2005,7 +2005,6 @@ export class OracleAccount {
       wallet
     );
 
-    console.log("1");
     await program.rpc.oracleInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
