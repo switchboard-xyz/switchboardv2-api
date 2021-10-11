@@ -2024,7 +2024,6 @@ export class OracleAccount {
         },
       }
     );
-    console.log("1");
     return new OracleAccount({ program, publicKey: oracleAccount.publicKey });
   }
 

@@ -1282,7 +1282,6 @@ class OracleAccount {
                 payer: program.provider.wallet.publicKey,
             },
         });
-        console.log("1");
         return new OracleAccount({ program, publicKey: oracleAccount.publicKey });
     }
     /**
