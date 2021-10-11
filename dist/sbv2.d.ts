@@ -305,6 +305,7 @@ export declare class AggregatorAccount {
      * @return Array<OracleJob>
      */
     loadJobs(aggregator?: any): Promise<Array<OracleJob>>;
+    loadHashes(aggregator?: any): Promise<Array<Buffer>>;
     /**
      * Get the size of an AggregatorAccount on chain.
      * @return size.

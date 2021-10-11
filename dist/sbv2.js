@@ -334,7 +334,9 @@ class AggregatorAccount {
     produceJobsHash(jobs) {
         const hash = crypto.createHash("sha256");
         for (const job of jobs) {
-            hash.update(switchboard_api_1.OracleJob.encodeDelimited(job).finish());
+            const jobHasher = crypto.createHash("sha256");
+            jobHasher.update(switchboard_api_1.OracleJob.encodeDelimited(job).finish());
+            hash.update(jobHasher.digest());
         }
         return hash;
     }
@@ -352,6 +354,19 @@ class AggregatorAccount {
         const jobs = jobAccountDatas.map((item) => {
             let decoded = coder.decode("JobAccountData", item.account.data);
             return switchboard_api_1.OracleJob.decodeDelimited(decoded.data);
+        });
+        return jobs;
+    }
+    async loadHashes(aggregator) {
+        const coder = new anchor.AccountsCoder(this.program.idl);
+        aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
+        const jobAccountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, aggregator.jobPubkeysData.slice(0, aggregator.jobPubkeysSize));
+        if (jobAccountDatas === null) {
+            throw new Error("Failed to load feed jobs.");
+        }
+        const jobs = jobAccountDatas.map((item) => {
+            let decoded = coder.decode("JobAccountData", item.account.data);
+            return decoded.hash;
         });
         return jobs;
     }
@@ -1245,12 +1260,15 @@ class OracleAccount {
      */
     static async create(program, params) {
         var _a, _b;
+        console.log("1");
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const size = program.account.oracleAccountData.size;
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
+        console.log("1");
         const switchTokenMint = await programStateAccount.getTokenMint();
         const wallet = await switchTokenMint.createAccount(program.provider.wallet.publicKey);
         const [oracleAccount, oracleBump] = await OracleAccount.fromSeed(program, wallet);
+        console.log("1");
         await program.rpc.oracleInit({
             name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
             metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 128),
@@ -1267,6 +1285,7 @@ class OracleAccount {
                 payer: program.provider.wallet.publicKey,
             },
         });
+        console.log("1");
         return new OracleAccount({ program, publicKey: oracleAccount.publicKey });
     }
     /**

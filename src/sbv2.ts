@@ -552,7 +552,9 @@ export class AggregatorAccount {
   produceJobsHash(jobs: Array<OracleJob>): crypto.Hash {
     const hash = crypto.createHash("sha256");
     for (const job of jobs) {
-      hash.update(OracleJob.encodeDelimited(job).finish());
+      const jobHasher = crypto.createHash("sha256");
+      jobHasher.update(OracleJob.encodeDelimited(job).finish());
+      hash.update(jobHasher.digest());
     }
     return hash;
   }
@@ -576,6 +578,25 @@ export class AggregatorAccount {
     const jobs = jobAccountDatas.map((item) => {
       let decoded = coder.decode("JobAccountData", item.account.data);
       return OracleJob.decodeDelimited(decoded.data);
+    });
+    return jobs;
+  }
+
+  async loadHashes(aggregator?: any): Promise<Array<Buffer>> {
+    const coder = new anchor.AccountsCoder(this.program.idl);
+
+    aggregator = aggregator ?? (await this.loadData());
+
+    const jobAccountDatas = await anchor.utils.rpc.getMultipleAccounts(
+      this.program.provider.connection,
+      aggregator.jobPubkeysData.slice(0, aggregator.jobPubkeysSize)
+    );
+    if (jobAccountDatas === null) {
+      throw new Error("Failed to load feed jobs.");
+    }
+    const jobs = jobAccountDatas.map((item) => {
+      let decoded = coder.decode("JobAccountData", item.account.data);
+      return decoded.hash;
     });
     return jobs;
   }
