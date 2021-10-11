@@ -1260,7 +1260,6 @@ class OracleAccount {
      */
     static async create(program, params) {
         var _a, _b;
-        console.log("1");
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const size = program.account.oracleAccountData.size;
         const [programStateAccount, stateBump] = await ProgramStateAccount.fromSeed(program);
