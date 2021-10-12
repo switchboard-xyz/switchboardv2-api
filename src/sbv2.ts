@@ -1308,6 +1308,8 @@ export class OracleQueueAccount {
         varianceToleranceMultiplier: (
           params.varianceToleranceMultiplier ?? 2
         ).toString(),
+        consecutiveFeedFailureLimit: new anchor.BN(1000),
+        consecutiveOracleFailureLimit: new anchor.BN(1000),
       },
       {
         accounts: {

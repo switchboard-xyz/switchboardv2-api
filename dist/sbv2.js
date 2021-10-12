@@ -820,6 +820,8 @@ class OracleQueueAccount {
             oracleTimeout: (_f = params.oracleTimeout) !== null && _f !== void 0 ? _f : 180,
             slashingEnabled: (_g = params.slashingEnabled) !== null && _g !== void 0 ? _g : false,
             varianceToleranceMultiplier: ((_h = params.varianceToleranceMultiplier) !== null && _h !== void 0 ? _h : 2).toString(),
+            consecutiveFeedFailureLimit: new anchor.BN(1000),
+            consecutiveOracleFailureLimit: new anchor.BN(1000),
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
