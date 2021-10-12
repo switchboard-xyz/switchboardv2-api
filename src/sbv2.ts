@@ -761,9 +761,7 @@ export class AggregatorAccount {
     );
   }
 
-  async getOracleIndex(
-    oraclePubkey: PublicKey,
-  ): Promise<number> {
+  async getOracleIndex(oraclePubkey: PublicKey): Promise<number> {
     const aggregator = await this.loadData();
     for (let i = 0; i < aggregator.oracleRequestBatchSize; i++) {
       if (aggregator.currentRound.oraclePubkeysData[i].equals(oraclePubkey)) {
@@ -1330,14 +1328,10 @@ export class OracleQueueAccount {
           params.varianceToleranceMultiplier ?? 2
         ).toString(),
         authority: params.authority,
-        oracleTimeout: params.oracleTimeout ?? null,
-<<<<<<< HEAD
         consecutiveFeedFailureLimit:
           params.consecutiveFeedFailureLimit ?? new anchor.BN(1000),
         consecutiveOracleFailureLimit:
           params.consecutiveOracleFailureLimit ?? new anchor.BN(1000),
-=======
->>>>>>> 164c8a4d1434f3d38a8397ea696faec387e32dda
       },
       {
         accounts: {
