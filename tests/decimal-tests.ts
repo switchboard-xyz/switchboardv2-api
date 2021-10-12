@@ -9,6 +9,12 @@ describe("Decimal tests", () => {
   it('Converts a SwitchboardDecimal to a Big', async () => {
 	  let sbd = new sbv2.SwitchboardDecimal(new anchor.BN(8675309), 3);
 	  assert(sbd.toBig().toNumber() === 8675.309);
+
+    sbd = new sbv2.SwitchboardDecimal(new anchor.BN(-5000), 3);
+    assert(sbd.toBig().toNumber() === -5);
+
+    sbd = new sbv2.SwitchboardDecimal(new anchor.BN(0), 0);
+    assert(sbd.toBig().toNumber() === 0);
   });
 
   it('Converts a Big to a SwitchboardDecimal', async () => {
