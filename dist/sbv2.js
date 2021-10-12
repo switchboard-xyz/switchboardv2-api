@@ -809,6 +809,7 @@ class OracleQueueAccount {
      */
     static async create(program, params) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         var _a, _b, _c, _d, _e, _f, _g, _h;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
@@ -822,6 +823,8 @@ class OracleQueueAccount {
             slashingEnabled: (_g = params.slashingEnabled) !== null && _g !== void 0 ? _g : false,
             varianceToleranceMultiplier: ((_h = params.varianceToleranceMultiplier) !== null && _h !== void 0 ? _h : 2).toString(),
 =======
+=======
+>>>>>>> 164c8a4d1434f3d38a8397ea696faec387e32dda
         var _a, _b, _c, _d, _e, _f;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
@@ -833,7 +836,10 @@ class OracleQueueAccount {
             minStake: (_e = params.minStake) !== null && _e !== void 0 ? _e : new anchor.BN(0),
             authority: params.authority,
             oracleTimeout: (_f = params.oracleTimeout) !== null && _f !== void 0 ? _f : null,
+<<<<<<< HEAD
 >>>>>>> 164c8a4 (added frontend for the timeout parameter)
+=======
+>>>>>>> 164c8a4d1434f3d38a8397ea696faec387e32dda
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
