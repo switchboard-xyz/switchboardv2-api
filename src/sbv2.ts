@@ -1230,6 +1230,15 @@ export interface OracleQueueInitParams {
    *  Default: 2
    */
   varianceToleranceMultiplier?: number;
+  /**
+   *  Consecutive failure limit for a feed before feed permission is revoked.
+   */
+  consecutiveFeedFailureLimit?: anchor.BN;
+  /**
+   *  TODO: implement
+   *  Consecutive failure limit for an oracle before oracle permission is revoked.
+   */
+  consecutiveOracleFailureLimit?: anchor.BN;
 }
 
 /**
@@ -1308,8 +1317,10 @@ export class OracleQueueAccount {
         varianceToleranceMultiplier: (
           params.varianceToleranceMultiplier ?? 2
         ).toString(),
-        consecutiveFeedFailureLimit: new anchor.BN(1000),
-        consecutiveOracleFailureLimit: new anchor.BN(1000),
+        consecutiveFeedFailureLimit:
+          params.consecutiveFeedFailureLimit ?? new anchor.BN(1000),
+        consecutiveOracleFailureLimit:
+          params.consecutiveOracleFailureLimit ?? new anchor.BN(1000),
       },
       {
         accounts: {

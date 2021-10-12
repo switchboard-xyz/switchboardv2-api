@@ -546,6 +546,15 @@ export interface OracleQueueInitParams {
      *  Default: 2
      */
     varianceToleranceMultiplier?: number;
+    /**
+     *  Consecutive failure limit for a feed before feed permission is revoked.
+     */
+    consecutiveFeedFailureLimit?: anchor.BN;
+    /**
+     *  TODO: implement
+     *  Consecutive failure limit for an oracle before oracle permission is revoked.
+     */
+    consecutiveOracleFailureLimit?: anchor.BN;
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to
