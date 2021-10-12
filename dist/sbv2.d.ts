@@ -532,6 +532,8 @@ export interface OracleQueueInitParams {
      */
     authority: PublicKey;
     /**
+<<<<<<< HEAD
+<<<<<<< HEAD
      *  Time period we should remove an oracle after if no response.
      */
     oracleTimeout?: anchor.BN;
@@ -546,15 +548,16 @@ export interface OracleQueueInitParams {
      *  Default: 2
      */
     varianceToleranceMultiplier?: number;
-    /**
-     *  Consecutive failure limit for a feed before feed permission is revoked.
+=======
+     * The number of seconds between heartbeats before a Oracle times out
      */
-    consecutiveFeedFailureLimit?: anchor.BN;
-    /**
-     *  TODO: implement
-     *  Consecutive failure limit for an oracle before oracle permission is revoked.
+    oracleTimeout?: anchor.BN;
+>>>>>>> 164c8a4 (added frontend for the timeout parameter)
+=======
+     * The number of seconds between heartbeats before a Oracle times out
      */
-    consecutiveOracleFailureLimit?: anchor.BN;
+    oracleTimeout?: anchor.BN;
+>>>>>>> 164c8a4d1434f3d38a8397ea696faec387e32dda
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to

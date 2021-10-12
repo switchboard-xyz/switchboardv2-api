@@ -1317,10 +1317,15 @@ export class OracleQueueAccount {
         varianceToleranceMultiplier: (
           params.varianceToleranceMultiplier ?? 2
         ).toString(),
+        authority: params.authority,
+        oracleTimeout: params.oracleTimeout ?? null,
+<<<<<<< HEAD
         consecutiveFeedFailureLimit:
           params.consecutiveFeedFailureLimit ?? new anchor.BN(1000),
         consecutiveOracleFailureLimit:
           params.consecutiveOracleFailureLimit ?? new anchor.BN(1000),
+=======
+>>>>>>> 164c8a4d1434f3d38a8397ea696faec387e32dda
       },
       {
         accounts: {
