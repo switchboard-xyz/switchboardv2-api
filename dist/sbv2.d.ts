@@ -84,7 +84,7 @@ export declare class ProgramStateAccount {
      * Constructs ProgramStateAccount from the static seed from which it was generated.
      * @return ProgramStateAccount and PDA bump tuple.
      */
-    static fromSeed(program: anchor.Program): Promise<[ProgramStateAccount, number]>;
+    static fromSeed(program: anchor.Program): [ProgramStateAccount, number];
     /**
      * Load and parse ProgramStateAccount state based on the program IDL.
      * @return ProgramStateAccount data parsed in accordance with the
@@ -494,7 +494,7 @@ export declare class PermissionAccount {
      * @param grantee The grantee pubkey to be incorporated into the account seed.
      * @return PermissionAccount and PDA bump.
      */
-    static fromSeed(program: anchor.Program, authority: PublicKey, granter: PublicKey, grantee: PublicKey): Promise<[PermissionAccount, number]>;
+    static fromSeed(program: anchor.Program, authority: PublicKey, granter: PublicKey, grantee: PublicKey): [PermissionAccount, number];
     /**
      * Sets the permission in the PermissionAccount
      * @param params.
@@ -654,7 +654,7 @@ export declare class LeaseAccount {
      * @param target The target pubkey to be incorporated into the account seed.
      * @return LeaseAccount and PDA bump.
      */
-    static fromSeed(program: anchor.Program, queueAccount: OracleQueueAccount, aggregatorAccount: AggregatorAccount): Promise<[LeaseAccount, number]>;
+    static fromSeed(program: anchor.Program, queueAccount: OracleQueueAccount, aggregatorAccount: AggregatorAccount): [LeaseAccount, number];
     /**
      * Load and parse LeaseAccount data based on the program IDL.
      * @return LeaseAccount data parsed in accordance with the
@@ -843,7 +843,7 @@ export declare class OracleAccount {
      * Constructs OracleAccount from the static seed from which it was generated.
      * @return OracleAccount and PDA bump tuple.
      */
-    static fromSeed(program: anchor.Program, wallet: PublicKey): Promise<[OracleAccount, number]>;
+    static fromSeed(program: anchor.Program, wallet: PublicKey): [OracleAccount, number];
     /**
      * Inititates a heartbeat for an OracleAccount, signifying oracle is still healthy.
      * @return TransactionSignature.
