@@ -511,6 +511,39 @@ export class AggregatorAccount {
   }
 
   /**
+   * Speciifies if the aggregator settings recommend reporting a new value
+   * @param value The value which we are evaluating
+   * @param aggregator The loaded aggegator schema
+   * @returns boolean
+   */
+  async shouldReportValue(value: Big, aggregator?: any): Promise<boolean> {
+    aggregator = aggregator ?? (await this.loadData());
+    if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
+      return true;
+    }
+    const timestamp: anchor.BN = new anchor.BN(Math.round(Date.now() / 1000));
+    const varianceThreshold: Big = SwitchboardDecimal.from(
+      aggregator.varianceTheshold
+    ).toBig();
+    const latestResult: Big = SwitchboardDecimal.from(
+      aggregator.latestConfirmedRound.result
+    ).toBig();
+    const forceReportPeriod: anchor.BN = aggregator.forceReportPeriod;
+    const lastTimestamp: anchor.BN =
+      aggregator.latestConfirmedRound.roundOpenTimestamp;
+    if (lastTimestamp.add(aggregator.forceReportPeriod).lt(timestamp)) {
+      return true;
+    }
+    if (value.lt(latestResult.minus(varianceThreshold))) {
+      return true;
+    }
+    if (value.gt(latestResult.add(varianceThreshold))) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Get the individual oracle results of the latest confirmed round.
    * @param aggregator Optional parameter representing the already loaded
    * aggregator info.
