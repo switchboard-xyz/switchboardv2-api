@@ -516,8 +516,10 @@ export class AggregatorAccount {
    * @param aggregator The loaded aggegator schema
    * @returns boolean
    */
-  async shouldReportValue(value: Big, aggregator?: any): Promise<boolean> {
-    aggregator = aggregator ?? (await this.loadData());
+  static async shouldReportValue(
+    value: Big,
+    aggregator: any
+  ): Promise<boolean> {
     if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
       return true;
     }
@@ -1745,7 +1747,7 @@ export class CrankAccount {
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
-        maxRows: (params.maxRows ?? null),
+        maxRows: params.maxRows ?? null,
       },
       {
         accounts: {

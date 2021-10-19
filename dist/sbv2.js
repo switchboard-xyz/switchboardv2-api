@@ -306,9 +306,8 @@ class AggregatorAccount {
      * @param aggregator The loaded aggegator schema
      * @returns boolean
      */
-    async shouldReportValue(value, aggregator) {
+    static async shouldReportValue(value, aggregator) {
         var _a, _b;
-        aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
         if (((_b = (_a = aggregator.latestConfirmedRound) === null || _a === void 0 ? void 0 : _a.numSuccess) !== null && _b !== void 0 ? _b : 0) === 0) {
             return true;
         }
@@ -1079,7 +1078,7 @@ class CrankAccount {
         await program.rpc.crankInit({
             name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
             metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 64),
-            maxRows: ((_c = params.maxRows) !== null && _c !== void 0 ? _c : null),
+            maxRows: (_c = params.maxRows) !== null && _c !== void 0 ? _c : null,
         }, {
             accounts: {
                 crank: crankAccount.publicKey,

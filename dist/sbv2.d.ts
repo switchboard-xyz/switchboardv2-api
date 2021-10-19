@@ -291,7 +291,7 @@ export declare class AggregatorAccount {
      * @param aggregator The loaded aggegator schema
      * @returns boolean
      */
-    shouldReportValue(value: Big, aggregator?: any): Promise<boolean>;
+    static shouldReportValue(value: Big, aggregator: any): Promise<boolean>;
     /**
      * Get the individual oracle results of the latest confirmed round.
      * @param aggregator Optional parameter representing the already loaded
