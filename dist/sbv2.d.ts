@@ -704,6 +704,10 @@ export interface CrankInitParams {
      *  OracleQueueAccount for which this crank is associated
      */
     queueAccount: OracleQueueAccount;
+    /**
+     * Optional max number of rows
+     */
+    maxRows?: number;
 }
 /**
  * Parameters for popping an element from a CrankAccount.
