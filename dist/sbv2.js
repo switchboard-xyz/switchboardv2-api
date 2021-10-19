@@ -312,7 +312,10 @@ class AggregatorAccount {
             return true;
         }
         const timestamp = new anchor.BN(Math.round(Date.now() / 1000));
-        const varianceThreshold = SwitchboardDecimal.from(aggregator.varianceTheshold).toBig();
+        if (aggregator.startAfter.ge(timestamp)) {
+            return false;
+        }
+        const varianceThreshold = SwitchboardDecimal.from(aggregator.varianceThreshold).toBig();
         const latestResult = SwitchboardDecimal.from(aggregator.latestConfirmedRound.result).toBig();
         const forceReportPeriod = aggregator.forceReportPeriod;
         const lastTimestamp = aggregator.latestConfirmedRound.roundOpenTimestamp;
