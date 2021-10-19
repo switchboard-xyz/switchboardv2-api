@@ -1605,6 +1605,10 @@ export interface CrankInitParams {
    *  OracleQueueAccount for which this crank is associated
    */
   queueAccount: OracleQueueAccount;
+  /**
+   * Optional max number of rows
+   */
+  maxRows?: number;
 }
 
 /**
@@ -1708,6 +1712,7 @@ export class CrankAccount {
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
+        maxRows: (params.maxRows ?? null),
       },
       {
         accounts: {
