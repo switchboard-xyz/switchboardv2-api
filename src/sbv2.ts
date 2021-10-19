@@ -524,7 +524,7 @@ export class AggregatorAccount {
       return true;
     }
     const timestamp: anchor.BN = new anchor.BN(Math.round(Date.now() / 1000));
-    if (aggregator.startAfter.ge(timestamp)) {
+    if (aggregator.startAfter.gt(timestamp)) {
       return false;
     }
     const varianceThreshold: Big = SwitchboardDecimal.from(

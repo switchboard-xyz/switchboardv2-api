@@ -312,7 +312,7 @@ class AggregatorAccount {
             return true;
         }
         const timestamp = new anchor.BN(Math.round(Date.now() / 1000));
-        if (aggregator.startAfter.ge(timestamp)) {
+        if (aggregator.startAfter.gt(timestamp)) {
             return false;
         }
         const varianceThreshold = SwitchboardDecimal.from(aggregator.varianceThreshold).toBig();
