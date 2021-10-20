@@ -50,7 +50,7 @@ export class SwitchboardDecimal {
     // SwitchboardDecimal does.
     // TODO: will this always work?
     let scale = big.c.length - big.e - 1;
-    assert.ok(scale >= 0, `${big.c.length}, ${big.e}`);
+    assert.ok(scale >= 0, `${big.toNumber()} ${big.c.length}, ${big.e}`);
 
     // Set sign for the coefficient (mantissa)
     mantissa = mantissa.mul(new anchor.BN(big.s, 10));
