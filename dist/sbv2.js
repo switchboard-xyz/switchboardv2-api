@@ -353,7 +353,7 @@ class AggregatorAccount {
         for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
             if (aggregator.latestConfirmedRound.mediansFulfilled[i] === true) {
                 results.push({
-                    pubkey: new OracleAccount({
+                    oracleAccount: new OracleAccount({
                         program: this.program,
                         publicKey: aggregator.latestConfirmedRound.oraclePubkeysData[i],
                     }),

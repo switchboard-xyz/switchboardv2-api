@@ -568,11 +568,11 @@ export class AggregatorAccount {
     if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
       throw new Error("Aggregator currently holds no value.");
     }
-    const results = [];
+    const results: Array<{ oracleAccount: OracleAccount; value: Big }> = [];
     for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
       if (aggregator.latestConfirmedRound.mediansFulfilled[i] === true) {
         results.push({
-          pubkey: new OracleAccount({
+          oracleAccount: new OracleAccount({
             program: this.program,
             publicKey: aggregator.latestConfirmedRound.oraclePubkeysData[i],
           }),
