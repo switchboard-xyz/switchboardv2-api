@@ -55,10 +55,7 @@ export class SwitchboardDecimal {
     mantissa = mantissa.mul(new anchor.BN(big.s, 10));
 
     const result = new SwitchboardDecimal(mantissa, scale);
-    assert.ok(
-      big.eq(result.toBig()),
-      `${big.toString()} v ${result.toBig().toString()}`
-    );
+    assert.ok(big.sub(result.toBig()).abs().lt(new Big(0.00005)));
     return result;
   }
 
