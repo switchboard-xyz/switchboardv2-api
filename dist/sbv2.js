@@ -66,7 +66,7 @@ class SwitchboardDecimal {
         // SwitchboardDecimal does.
         let scale = big.c.length - big.e - 1;
         while (scale < 0) {
-            mantissa.mul(new anchor.BN(10, 10));
+            mantissa = mantissa.mul(new anchor.BN(10, 10));
             scale += 1;
         }
         assert_1.default.ok(scale >= 0, `${big.c.length}, ${big.e}`);
