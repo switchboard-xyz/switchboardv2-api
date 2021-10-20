@@ -54,11 +54,11 @@ class SwitchboardDecimal {
      * @return a SwitchboardDecimal
      */
     static fromBig(big) {
-        let c = big.c
+        let mantissa = big.c
             .map((n) => new anchor.BN(n, 10))
             .reduce((res, n) => {
             res = res.mul(new anchor.BN(10, 10));
-            res = res.add(new anchor.BN(n, 10));
+            res = res.add(n);
             return res;
         });
         // Set the scale. Big.exponenet sets scale from the opposite side
@@ -66,8 +66,8 @@ class SwitchboardDecimal {
         // TODO: will this always work?
         let scale = big.c.length - big.e - 1;
         // Set sign for the coefficient (mantissa)
-        c = c.mul(new anchor.BN(big.s, 10));
-        return new SwitchboardDecimal(c, scale);
+        mantissa = mantissa.mul(new anchor.BN(big.s, 10));
+        return new SwitchboardDecimal(mantissa, scale);
     }
     /**
      * SwitchboardDecimal equality comparator.
