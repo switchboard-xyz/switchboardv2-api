@@ -47,6 +47,7 @@ export class SwitchboardDecimal {
 
     // Set the scale. Big.exponenet sets scale from the opposite side
     // SwitchboardDecimal does.
+    // TODO: will this always work?
     let scale = big.c.length - big.e - 1;
 
     // Set sign for the coefficient (mantissa)
@@ -668,7 +669,9 @@ export class AggregatorAccount {
         minOracleResults: params.minRequiredOracleResults,
         minJobResults: params.minRequiredJobResults,
         minUpdateDelaySeconds: params.minUpdateDelaySeconds,
-        varianceThreshold: (params.varianceThreshold ?? 0).toString(),
+        varianceThreshold: SwitchboardDecimal.fromBig(
+          new Big(params.varianceThreshold ?? 0)
+        ),
         forceReportPeriod: params.forceReportPeriod ?? new anchor.BN(0),
         expiration: params.expiration ?? new anchor.BN(0),
         stateBump,
@@ -869,10 +872,10 @@ export class AggregatorAccount {
       {
         oracleIdx: params.oracleIdx,
         error: params.error,
-        value: params.value.toString(),
+        value: SwitchboardDecimal.fromBig(params.value),
         jobsChecksum: digest,
-        minResponse: params.minResponse.toString(),
-        maxResponse: params.maxResponse.toString(),
+        minResponse: SwitchboardDecimal.fromBig(params.minResponse),
+        maxResponse: SwitchboardDecimal.fromBig(params.maxResponse),
         feedPermissionBump,
         oraclePermissionBump,
         leaseBump,
@@ -1355,9 +1358,9 @@ export class OracleQueueAccount {
         feedProbationPeriod: params.feedProbationPeriod ?? 0,
         oracleTimeout: params.oracleTimeout ?? 180,
         slashingEnabled: params.slashingEnabled ?? false,
-        varianceToleranceMultiplier: (
-          params.varianceToleranceMultiplier ?? 2
-        ).toString(),
+        varianceToleranceMultiplier: SwitchboardDecimal.fromBig(
+          new Big(params.varianceToleranceMultiplier ?? 2)
+        ),
         authority: params.authority,
         consecutiveFeedFailureLimit:
           params.consecutiveFeedFailureLimit ?? new anchor.BN(1000),

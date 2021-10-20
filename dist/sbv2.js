@@ -63,6 +63,7 @@ class SwitchboardDecimal {
         });
         // Set the scale. Big.exponenet sets scale from the opposite side
         // SwitchboardDecimal does.
+        // TODO: will this always work?
         let scale = big.c.length - big.e - 1;
         // Set sign for the coefficient (mantissa)
         c = c.mul(new anchor.BN(big.s, 10));
@@ -429,7 +430,7 @@ class AggregatorAccount {
             minOracleResults: params.minRequiredOracleResults,
             minJobResults: params.minRequiredJobResults,
             minUpdateDelaySeconds: params.minUpdateDelaySeconds,
-            varianceThreshold: ((_d = params.varianceThreshold) !== null && _d !== void 0 ? _d : 0).toString(),
+            varianceThreshold: SwitchboardDecimal.fromBig(new big_js_1.default((_d = params.varianceThreshold) !== null && _d !== void 0 ? _d : 0)),
             forceReportPeriod: (_e = params.forceReportPeriod) !== null && _e !== void 0 ? _e : new anchor.BN(0),
             expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             stateBump,
@@ -573,10 +574,10 @@ class AggregatorAccount {
         return await this.program.rpc.aggregatorSaveResult({
             oracleIdx: params.oracleIdx,
             error: params.error,
-            value: params.value.toString(),
+            value: SwitchboardDecimal.fromBig(params.value),
             jobsChecksum: digest,
-            minResponse: params.minResponse.toString(),
-            maxResponse: params.maxResponse.toString(),
+            minResponse: SwitchboardDecimal.fromBig(params.minResponse),
+            maxResponse: SwitchboardDecimal.fromBig(params.maxResponse),
             feedPermissionBump,
             oraclePermissionBump,
             leaseBump,
@@ -861,7 +862,7 @@ class OracleQueueAccount {
             feedProbationPeriod: (_e = params.feedProbationPeriod) !== null && _e !== void 0 ? _e : 0,
             oracleTimeout: (_f = params.oracleTimeout) !== null && _f !== void 0 ? _f : 180,
             slashingEnabled: (_g = params.slashingEnabled) !== null && _g !== void 0 ? _g : false,
-            varianceToleranceMultiplier: ((_h = params.varianceToleranceMultiplier) !== null && _h !== void 0 ? _h : 2).toString(),
+            varianceToleranceMultiplier: SwitchboardDecimal.fromBig(new big_js_1.default((_h = params.varianceToleranceMultiplier) !== null && _h !== void 0 ? _h : 2)),
             authority: params.authority,
             consecutiveFeedFailureLimit: (_j = params.consecutiveFeedFailureLimit) !== null && _j !== void 0 ? _j : new anchor.BN(1000),
             consecutiveOracleFailureLimit: (_k = params.consecutiveOracleFailureLimit) !== null && _k !== void 0 ? _k : new anchor.BN(1000),
