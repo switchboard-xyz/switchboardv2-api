@@ -39,14 +39,17 @@ export class SwitchboardDecimal {
   public static fromBig(big: Big): SwitchboardDecimal {
     let c: anchor.BN = big.c
       .map((n) => new anchor.BN(n, 10))
-      .reduce((res: anchor.BN, n) => {
+      .reduce((res: anchor.BN, n: anchor.BN) => {
         res = res.mul(new anchor.BN(10, 10));
         res = res.add(new anchor.BN(n, 10));
         return res;
       });
 
+    // Set the scale. Big.exponenet sets scale from the opposite side
+    // SwitchboardDecimal does.
     let scale = big.c.length - big.e - 1;
 
+    // Set sign for the coefficient (mantissa)
     c = c.mul(new anchor.BN(big.s, 10));
 
     return new SwitchboardDecimal(c, scale);

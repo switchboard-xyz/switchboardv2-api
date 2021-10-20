@@ -61,7 +61,10 @@ class SwitchboardDecimal {
             res = res.add(new anchor.BN(n, 10));
             return res;
         });
+        // Set the scale. Big.exponenet sets scale from the opposite side
+        // SwitchboardDecimal does.
         let scale = big.c.length - big.e - 1;
+        // Set sign for the coefficient (mantissa)
         c = c.mul(new anchor.BN(big.s, 10));
         return new SwitchboardDecimal(c, scale);
     }
