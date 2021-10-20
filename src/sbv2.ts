@@ -9,6 +9,7 @@ import {
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
+import assert from "assert/strict";
 
 /**
  * Switchboard precisioned representation of numbers.
@@ -53,7 +54,9 @@ export class SwitchboardDecimal {
     // Set sign for the coefficient (mantissa)
     mantissa = mantissa.mul(new anchor.BN(big.s, 10));
 
-    return new SwitchboardDecimal(mantissa, scale);
+    const result = new SwitchboardDecimal(mantissa, scale);
+    assert.ok(big === result.toBig());
+    return result;
   }
 
   /**
