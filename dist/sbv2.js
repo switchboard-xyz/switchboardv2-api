@@ -73,7 +73,7 @@ class SwitchboardDecimal {
         // Set sign for the coefficient (mantissa)
         mantissa = mantissa.mul(new anchor.BN(big.s, 10));
         const result = new SwitchboardDecimal(mantissa, scale);
-        assert_1.default.ok(big.sub(result.toBig()).abs().lt(new big_js_1.default(0.00005)));
+        assert_1.default.ok(big.sub(result.toBig()).abs().lt(new big_js_1.default(0.00005)), `${result.toBig()} ${big}`);
         return result;
     }
     /**
