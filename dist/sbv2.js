@@ -29,7 +29,7 @@ const web3_js_1 = require("@solana/web3.js");
 const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
-const strict_1 = __importDefault(require("assert/strict"));
+const assert_1 = __importDefault(require("assert"));
 /**
  * Switchboard precisioned representation of numbers.
  * @param connection Solana network connection object.
@@ -69,7 +69,7 @@ class SwitchboardDecimal {
         // Set sign for the coefficient (mantissa)
         mantissa = mantissa.mul(new anchor.BN(big.s, 10));
         const result = new SwitchboardDecimal(mantissa, scale);
-        strict_1.default.ok(big === result.toBig());
+        assert_1.default.ok(big === result.toBig());
         return result;
     }
     /**

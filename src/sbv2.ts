@@ -9,7 +9,7 @@ import {
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
-import assert from "assert/strict";
+import assert from "assert";
 
 /**
  * Switchboard precisioned representation of numbers.
