@@ -13,9 +13,6 @@ import assert from "assert";
 
 /**
  * Switchboard precisioned representation of numbers.
- * @param connection Solana network connection object.
- * @param address The address of the bundle auth account to parse.
- * @return BundleAuth
  */
 export class SwitchboardDecimal {
   public constructor(

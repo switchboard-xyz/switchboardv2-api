@@ -7,9 +7,6 @@ import Big from "big.js";
 import * as crypto from "crypto";
 /**
  * Switchboard precisioned representation of numbers.
- * @param connection Solana network connection object.
- * @param address The address of the bundle auth account to parse.
- * @return BundleAuth
  */
 export declare class SwitchboardDecimal {
     readonly mantissa: anchor.BN;
