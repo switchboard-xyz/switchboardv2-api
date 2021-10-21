@@ -348,7 +348,7 @@ export declare class AggregatorAccount {
      * @param params
      * @return TransactionSignature
      */
-    saveResult(oracleAccount: OracleAccount, // TODO: move to params.
+    saveResult(aggregator: any, oracleAccount: OracleAccount, // TODO: move to params.
     params: AggregatorSaveResultParams): Promise<TransactionSignature>;
 }
 /**
