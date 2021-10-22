@@ -441,6 +441,7 @@ class AggregatorAccount {
         }, {
             accounts: {
                 aggregator: aggregatorAccount.publicKey,
+                queue: params.queueAccount.publicKey,
                 authorWallet: (_g = params.authorWallet) !== null && _g !== void 0 ? _g : state.tokenVault,
                 programState: stateAccount.publicKey,
             },

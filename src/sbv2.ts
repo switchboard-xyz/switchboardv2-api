@@ -320,6 +320,10 @@ export interface AggregatorInitParams {
    */
   minUpdateDelaySeconds: number;
   /**
+   *  The queue to which this aggregator will be linked
+   */
+  queueAccount: OracleQueueAccount;
+  /**
    *  unix_timestamp for which no feed update will occur before.
    */
   startAfter?: number;
@@ -687,6 +691,7 @@ export class AggregatorAccount {
       {
         accounts: {
           aggregator: aggregatorAccount.publicKey,
+          queue: params.queueAccount.publicKey,
           authorWallet: params.authorWallet ?? state.tokenVault,
           programState: stateAccount.publicKey,
         },
