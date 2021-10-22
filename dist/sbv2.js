@@ -1158,35 +1158,34 @@ class CrankAccount {
      */
     async pop(params) {
         var _a, _b;
-        let crank = await this.loadData();
-        const queueAccount = new OracleQueueAccount({
-            program: this.program,
-            publicKey: crank.queuePubkey,
-        });
-        const queueAuthority = (await queueAccount.loadData()).authority;
-        const peakAggKeys = await this.peakNext(6);
-        let remainingAccounts = [];
+        const next = await this.peakNextReady(5);
+        const remainingAccounts = [];
         const leaseBumpsMap = new Map();
         const permissionBumpsMap = new Map();
-        for (const feedKey of peakAggKeys) {
+        const leasePubkeys = [];
+        for (const row of next) {
             const aggregatorAccount = new AggregatorAccount({
                 program: this.program,
-                publicKey: feedKey,
+                publicKey: row,
             });
             const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(this.program, new OracleQueueAccount({
                 program: this.program,
-                publicKey: crank.queuePubkey,
+                publicKey: params.queuePubkey,
             }), aggregatorAccount);
-            const escrow = (await leaseAccount.loadData()).escrow;
-            const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, feedKey);
+            const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, params.queueAuthority, params.queuePubkey, row);
+            leasePubkeys.push(leaseAccount.publicKey);
             remainingAccounts.push(aggregatorAccount.publicKey);
             remainingAccounts.push(leaseAccount.publicKey);
-            remainingAccounts.push(escrow);
             remainingAccounts.push(permissionAccount.publicKey);
-            leaseBumpsMap.set(feedKey.toBase58(), leaseBump);
-            permissionBumpsMap.set(feedKey.toBase58(), permissionBump);
+            leaseBumpsMap.set(row.toBase58(), leaseBump);
+            permissionBumpsMap.set(row.toBase58(), permissionBump);
         }
-        // TODO: this sort might need fixing to align
+        const coder = new anchor.AccountsCoder(this.program.idl);
+        const leaseAccountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, leasePubkeys);
+        leaseAccountDatas.map((item) => {
+            let decoded = coder.decode("LeaseAccountData", item.account.data);
+            remainingAccounts.push(decoded.escrow);
+        });
         remainingAccounts.sort((a, b) => a.toBuffer().compare(b.toBuffer()));
         const leaseBumps = [];
         const permissionBumps = [];
@@ -1203,8 +1202,8 @@ class CrankAccount {
         }, {
             accounts: {
                 crank: this.publicKey,
-                oracleQueue: crank.queuePubkey,
-                queueAuthority,
+                oracleQueue: params.queuePubkey,
+                queueAuthority: params.queueAuthority,
                 programState: programStateAccount.publicKey,
                 payoutWallet: params.payoutWallet,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,

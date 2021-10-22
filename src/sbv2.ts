@@ -1695,6 +1695,14 @@ export interface CrankPopParams {
    * Specifies the wallet to reward for turning the crank.
    */
   payoutWallet: PublicKey;
+  /**
+   * The pubkey of the linked oracle queue.
+   */
+  queuePubkey: PublicKey;
+  /**
+   * The pubkey of the linked oracle queue authority.
+   */
+  queueAuthority: PublicKey;
 }
 
 /**
@@ -1880,44 +1888,47 @@ export class CrankAccount {
    * @return TransactionSignature
    */
   async pop(params: CrankPopParams): Promise<TransactionSignature> {
-    let crank = await this.loadData();
-    const queueAccount = new OracleQueueAccount({
-      program: this.program,
-      publicKey: crank.queuePubkey,
-    });
-    const queueAuthority = (await queueAccount.loadData()).authority;
-    const peakAggKeys = await this.peakNext(6);
-    let remainingAccounts: Array<PublicKey> = [];
+    const next = await this.peakNextReady(5);
+    const remainingAccounts: Array<PublicKey> = [];
     const leaseBumpsMap: Map<string, number> = new Map();
     const permissionBumpsMap: Map<string, number> = new Map();
-    for (const feedKey of peakAggKeys) {
+    const leasePubkeys = [];
+    for (const row of next) {
       const aggregatorAccount = new AggregatorAccount({
         program: this.program,
-        publicKey: feedKey,
+        publicKey: row,
       });
       const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
         this.program,
         new OracleQueueAccount({
           program: this.program,
-          publicKey: crank.queuePubkey,
+          publicKey: params.queuePubkey,
         }),
         aggregatorAccount
       );
-      const escrow = (await leaseAccount.loadData()).escrow;
       const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
         this.program,
-        queueAuthority,
-        queueAccount.publicKey,
-        feedKey
+        params.queueAuthority,
+        params.queuePubkey,
+        row
       );
+      leasePubkeys.push(leaseAccount.publicKey);
       remainingAccounts.push(aggregatorAccount.publicKey);
       remainingAccounts.push(leaseAccount.publicKey);
-      remainingAccounts.push(escrow);
       remainingAccounts.push(permissionAccount.publicKey);
-      leaseBumpsMap.set(feedKey.toBase58(), leaseBump);
-      permissionBumpsMap.set(feedKey.toBase58(), permissionBump);
+      leaseBumpsMap.set(row.toBase58(), leaseBump);
+      permissionBumpsMap.set(row.toBase58(), permissionBump);
     }
-    // TODO: this sort might need fixing to align
+    const coder = new anchor.AccountsCoder(this.program.idl);
+
+    const leaseAccountDatas = await anchor.utils.rpc.getMultipleAccounts(
+      this.program.provider.connection,
+      leasePubkeys
+    );
+    leaseAccountDatas.map((item) => {
+      let decoded = coder.decode("LeaseAccountData", item.account.data);
+      remainingAccounts.push(decoded.escrow);
+    });
     remainingAccounts.sort((a: PublicKey, b: PublicKey) =>
       a.toBuffer().compare(b.toBuffer())
     );
@@ -1940,8 +1951,8 @@ export class CrankAccount {
       {
         accounts: {
           crank: this.publicKey,
-          oracleQueue: crank.queuePubkey,
-          queueAuthority,
+          oracleQueue: params.queuePubkey,
+          queueAuthority: params.queueAuthority,
           programState: programStateAccount.publicKey,
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,

@@ -718,6 +718,14 @@ export interface CrankPopParams {
      * Specifies the wallet to reward for turning the crank.
      */
     payoutWallet: PublicKey;
+    /**
+     * The pubkey of the linked oracle queue.
+     */
+    queuePubkey: PublicKey;
+    /**
+     * The pubkey of the linked oracle queue authority.
+     */
+    queueAuthority: PublicKey;
 }
 /**
  * Parameters for pushing an element into a CrankAccount.
