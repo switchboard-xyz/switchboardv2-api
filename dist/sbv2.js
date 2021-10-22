@@ -1199,7 +1199,7 @@ class CrankAccount {
         }
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const promises = [];
-        for (let i = 0; i < next.length; ++i) {
+        for (let i = 0; i < 2; ++i) {
             promises.push(this.program.rpc.crankPop({
                 stateBump,
                 leaseBumps: Buffer.from(leaseBumps),

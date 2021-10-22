@@ -1946,7 +1946,7 @@ export class CrankAccount {
       this.program
     );
     const promises: Array<Promise<TransactionSignature>> = [];
-    for (let i = 0; i < next.length; ++i) {
+    for (let i = 0; i < 2; ++i) {
       promises.push(
         this.program.rpc.crankPop(
           {
