@@ -726,6 +726,11 @@ export interface CrankPopParams {
      * The pubkey of the linked oracle queue authority.
      */
     queueAuthority: PublicKey;
+    /**
+     * Array of pubkeys to attempt to pop. If discluded, this will be loaded
+     * from the crank upon calling.
+     */
+    readyPubkeys?: Array<PublicKey>;
 }
 /**
  * Parameters for pushing an element into a CrankAccount.

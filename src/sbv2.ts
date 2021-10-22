@@ -1703,6 +1703,11 @@ export interface CrankPopParams {
    * The pubkey of the linked oracle queue authority.
    */
   queueAuthority: PublicKey;
+  /**
+   * Array of pubkeys to attempt to pop. If discluded, this will be loaded
+   * from the crank upon calling.
+   */
+  readyPubkeys?: Array<PublicKey>;
 }
 
 /**
@@ -1888,7 +1893,7 @@ export class CrankAccount {
    * @return TransactionSignature
    */
   async pop(params: CrankPopParams): Promise<TransactionSignature> {
-    const next = await this.peakNextReady(5);
+    const next = params.readyPubkeys ?? (await this.peakNextReady(5));
     if (next.length === 0) {
       throw new Error("Crank is not ready to be turned.");
     }

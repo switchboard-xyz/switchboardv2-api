@@ -1157,8 +1157,8 @@ class CrankAccount {
      * @return TransactionSignature
      */
     async pop(params) {
-        var _a, _b;
-        const next = await this.peakNextReady(5);
+        var _a, _b, _c;
+        const next = (_a = params.readyPubkeys) !== null && _a !== void 0 ? _a : (await this.peakNextReady(5));
         if (next.length === 0) {
             throw new Error("Crank is not ready to be turned.");
         }
@@ -1194,8 +1194,8 @@ class CrankAccount {
         const permissionBumps = [];
         // Map bumps to the index of their corresponding feeds.
         for (const key of remainingAccounts) {
-            leaseBumps.push((_a = leaseBumpsMap.get(key.toBase58())) !== null && _a !== void 0 ? _a : 0);
-            permissionBumps.push((_b = permissionBumpsMap.get(key.toBase58())) !== null && _b !== void 0 ? _b : 0);
+            leaseBumps.push((_b = leaseBumpsMap.get(key.toBase58())) !== null && _b !== void 0 ? _b : 0);
+            permissionBumps.push((_c = permissionBumpsMap.get(key.toBase58())) !== null && _c !== void 0 ? _c : 0);
         }
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         // const promises: Array<Promise<TransactionSignature>> = [];
