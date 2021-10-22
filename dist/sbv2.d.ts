@@ -790,7 +790,7 @@ export declare class CrankAccount {
      * @param params
      * @return TransactionSignature
      */
-    pop(params: CrankPopParams): Promise<Array<TransactionSignature>>;
+    pop(params: CrankPopParams): Promise<TransactionSignature>;
     /**
      * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
      * @param n The limit of pubkeys to return.

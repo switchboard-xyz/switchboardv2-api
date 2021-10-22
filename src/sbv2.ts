@@ -1887,7 +1887,7 @@ export class CrankAccount {
    * @param params
    * @return TransactionSignature
    */
-  async pop(params: CrankPopParams): Promise<Array<TransactionSignature>> {
+  async pop(params: CrankPopParams): Promise<TransactionSignature> {
     const next = await this.peakNextReady(5);
     if (next.length === 0) {
       throw new Error("Crank is not ready to be turned.");
@@ -1945,32 +1945,31 @@ export class CrankAccount {
     const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
       this.program
     );
-    const promises: Array<Promise<TransactionSignature>> = [];
-    for (let i = 0; i < 2; ++i) {
-      promises.push(
-        this.program.rpc.crankPop(
-          {
-            stateBump,
-            leaseBumps: Buffer.from(leaseBumps),
-            permissionBumps: Buffer.from(permissionBumps),
-          },
-          {
-            accounts: {
-              crank: this.publicKey,
-              oracleQueue: params.queuePubkey,
-              queueAuthority: params.queueAuthority,
-              programState: programStateAccount.publicKey,
-              payoutWallet: params.payoutWallet,
-              tokenProgram: spl.TOKEN_PROGRAM_ID,
-            },
-            remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
-              return { isSigner: false, isWritable: true, pubkey };
-            }),
-          }
-        )
-      );
-    }
-    return Promise.all(promises);
+    // const promises: Array<Promise<TransactionSignature>> = [];
+    // for (let i = 0; i < 2; ++i) {
+    // promises.push(
+    return this.program.rpc.crankPop(
+      {
+        stateBump,
+        leaseBumps: Buffer.from(leaseBumps),
+        permissionBumps: Buffer.from(permissionBumps),
+      },
+      {
+        accounts: {
+          crank: this.publicKey,
+          oracleQueue: params.queuePubkey,
+          queueAuthority: params.queueAuthority,
+          programState: programStateAccount.publicKey,
+          payoutWallet: params.payoutWallet,
+          tokenProgram: spl.TOKEN_PROGRAM_ID,
+        },
+        remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
+          return { isSigner: false, isWritable: true, pubkey };
+        }),
+      }
+    );
+    // }
+    // return Promise.all(promises);
   }
 
   /**
