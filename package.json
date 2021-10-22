@@ -1,6 +1,6 @@
 {
   "name": "@switchboard-xyz/switchboard-v2",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "description": "API wrapper for intergating with the Switchboardv2 program",
   "repository": {
     "type": "git",
@@ -41,6 +41,7 @@
     "@switchboard-xyz/switchboard-api": "^0.2.150",
     "@types/big.js": "^6.0.2",
     "@types/long": "^4.0.1",
+    "assert": "^2.0.0",
     "big.js": "^6.1.1",
     "bs58": "^4.0.1",
     "buffer-layout": "^1.2.0",

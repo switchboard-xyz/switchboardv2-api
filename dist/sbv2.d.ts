@@ -7,9 +7,6 @@ import Big from "big.js";
 import * as crypto from "crypto";
 /**
  * Switchboard precisioned representation of numbers.
- * @param connection Solana network connection object.
- * @param address The address of the bundle auth account to parse.
- * @return BundleAuth
  */
 export declare class SwitchboardDecimal {
     readonly mantissa: anchor.BN;
@@ -84,7 +81,7 @@ export declare class ProgramStateAccount {
      * Constructs ProgramStateAccount from the static seed from which it was generated.
      * @return ProgramStateAccount and PDA bump tuple.
      */
-    static fromSeed(program: anchor.Program): Promise<[ProgramStateAccount, number]>;
+    static fromSeed(program: anchor.Program): [ProgramStateAccount, number];
     /**
      * Load and parse ProgramStateAccount state based on the program IDL.
      * @return ProgramStateAccount data parsed in accordance with the
@@ -145,6 +142,10 @@ export interface AggregatorInitParams {
      *  Minimum number of seconds required between aggregator rounds.
      */
     minUpdateDelaySeconds: number;
+    /**
+     *  The queue to which this aggregator will be linked
+     */
+    queueAccount: OracleQueueAccount;
     /**
      *  unix_timestamp for which no feed update will occur before.
      */
@@ -286,6 +287,13 @@ export declare class AggregatorAccount {
      */
     getLatestFeedTimestamp(aggregator?: any): Promise<anchor.BN>;
     /**
+     * Speciifies if the aggregator settings recommend reporting a new value
+     * @param value The value which we are evaluating
+     * @param aggregator The loaded aggegator schema
+     * @returns boolean
+     */
+    static shouldReportValue(value: Big, aggregator: any): Promise<boolean>;
+    /**
      * Get the individual oracle results of the latest confirmed round.
      * @param aggregator Optional parameter representing the already loaded
      * aggregator info.
@@ -344,7 +352,7 @@ export declare class AggregatorAccount {
      * @param params
      * @return TransactionSignature
      */
-    saveResult(oracleAccount: OracleAccount, // TODO: move to params.
+    saveResult(aggregator: any, oracleAccount: OracleAccount, // TODO: move to params.
     params: AggregatorSaveResultParams): Promise<TransactionSignature>;
 }
 /**
@@ -494,7 +502,7 @@ export declare class PermissionAccount {
      * @param grantee The grantee pubkey to be incorporated into the account seed.
      * @return PermissionAccount and PDA bump.
      */
-    static fromSeed(program: anchor.Program, authority: PublicKey, granter: PublicKey, grantee: PublicKey): Promise<[PermissionAccount, number]>;
+    static fromSeed(program: anchor.Program, authority: PublicKey, granter: PublicKey, grantee: PublicKey): [PermissionAccount, number];
     /**
      * Sets the permission in the PermissionAccount
      * @param params.
@@ -654,7 +662,7 @@ export declare class LeaseAccount {
      * @param target The target pubkey to be incorporated into the account seed.
      * @return LeaseAccount and PDA bump.
      */
-    static fromSeed(program: anchor.Program, queueAccount: OracleQueueAccount, aggregatorAccount: AggregatorAccount): Promise<[LeaseAccount, number]>;
+    static fromSeed(program: anchor.Program, queueAccount: OracleQueueAccount, aggregatorAccount: AggregatorAccount): [LeaseAccount, number];
     /**
      * Load and parse LeaseAccount data based on the program IDL.
      * @return LeaseAccount data parsed in accordance with the
@@ -697,6 +705,10 @@ export interface CrankInitParams {
      *  OracleQueueAccount for which this crank is associated
      */
     queueAccount: OracleQueueAccount;
+    /**
+     * Optional max number of rows
+     */
+    maxRows?: number;
 }
 /**
  * Parameters for popping an element from a CrankAccount.
@@ -843,7 +855,7 @@ export declare class OracleAccount {
      * Constructs OracleAccount from the static seed from which it was generated.
      * @return OracleAccount and PDA bump tuple.
      */
-    static fromSeed(program: anchor.Program, wallet: PublicKey): Promise<[OracleAccount, number]>;
+    static fromSeed(program: anchor.Program, wallet: PublicKey): [OracleAccount, number];
     /**
      * Inititates a heartbeat for an OracleAccount, signifying oracle is still healthy.
      * @return TransactionSignature.
