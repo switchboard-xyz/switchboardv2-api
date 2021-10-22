@@ -1198,23 +1198,27 @@ class CrankAccount {
             permissionBumps.push((_b = permissionBumpsMap.get(key.toBase58())) !== null && _b !== void 0 ? _b : 0);
         }
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
-        return await this.program.rpc.crankPop({
-            stateBump,
-            leaseBumps: Buffer.from(leaseBumps),
-            permissionBumps: Buffer.from(permissionBumps),
-        }, {
-            accounts: {
-                crank: this.publicKey,
-                oracleQueue: params.queuePubkey,
-                queueAuthority: params.queueAuthority,
-                programState: programStateAccount.publicKey,
-                payoutWallet: params.payoutWallet,
-                tokenProgram: spl.TOKEN_PROGRAM_ID,
-            },
-            remainingAccounts: remainingAccounts.map((pubkey) => {
-                return { isSigner: false, isWritable: true, pubkey };
-            }),
-        });
+        const promises = [];
+        for (let i = 0; i < next.length; ++i) {
+            promises.push(this.program.rpc.crankPop({
+                stateBump,
+                leaseBumps: Buffer.from(leaseBumps),
+                permissionBumps: Buffer.from(permissionBumps),
+            }, {
+                accounts: {
+                    crank: this.publicKey,
+                    oracleQueue: params.queuePubkey,
+                    queueAuthority: params.queueAuthority,
+                    programState: programStateAccount.publicKey,
+                    payoutWallet: params.payoutWallet,
+                    tokenProgram: spl.TOKEN_PROGRAM_ID,
+                },
+                remainingAccounts: remainingAccounts.map((pubkey) => {
+                    return { isSigner: false, isWritable: true, pubkey };
+                }),
+            }));
+        }
+        return Promise.all(promises);
     }
     /**
      * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
