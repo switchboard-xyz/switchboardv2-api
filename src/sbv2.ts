@@ -1709,6 +1709,10 @@ export interface CrankPopParams {
    * from the crank upon calling.
    */
   readyPubkeys?: Array<PublicKey>;
+  /**
+   * Nonce to allow consecutive crank pops with the same blockhash.
+   */
+  nonce?: number;
 }
 
 /**
@@ -1957,6 +1961,7 @@ export class CrankAccount {
         stateBump,
         leaseBumps: Buffer.from(leaseBumps),
         permissionBumps: Buffer.from(permissionBumps),
+        nonce: params.nonce,
       },
       {
         accounts: {

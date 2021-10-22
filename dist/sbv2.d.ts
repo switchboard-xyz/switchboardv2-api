@@ -731,6 +731,10 @@ export interface CrankPopParams {
      * from the crank upon calling.
      */
     readyPubkeys?: Array<PublicKey>;
+    /**
+     * Nonce to allow consecutive crank pops with the same blockhash.
+     */
+    nonce?: number;
 }
 /**
  * Parameters for pushing an element into a CrankAccount.

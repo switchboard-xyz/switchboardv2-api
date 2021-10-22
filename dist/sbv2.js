@@ -1203,6 +1203,7 @@ class CrankAccount {
             stateBump,
             leaseBumps: Buffer.from(leaseBumps),
             permissionBumps: Buffer.from(permissionBumps),
+            nonce: params.nonce,
         }, {
             accounts: {
                 crank: this.publicKey,
