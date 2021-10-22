@@ -1159,6 +1159,9 @@ class CrankAccount {
     async pop(params) {
         var _a, _b;
         const next = await this.peakNextReady(5);
+        if (next.length === 0) {
+            throw new Error("Crank is not ready to be turned.");
+        }
         const remainingAccounts = [];
         const leaseBumpsMap = new Map();
         const permissionBumpsMap = new Map();

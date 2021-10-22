@@ -1889,6 +1889,9 @@ export class CrankAccount {
    */
   async pop(params: CrankPopParams): Promise<TransactionSignature> {
     const next = await this.peakNextReady(5);
+    if (next.length === 0) {
+      throw new Error("Crank is not ready to be turned.");
+    }
     const remainingAccounts: Array<PublicKey> = [];
     const leaseBumpsMap: Map<string, number> = new Map();
     const permissionBumpsMap: Map<string, number> = new Map();
