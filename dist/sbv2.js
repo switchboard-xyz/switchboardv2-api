@@ -551,7 +551,7 @@ class AggregatorAccount {
         for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
             remainingAccounts.push(aggregator.currentRound.oraclePubkeysData[i]);
         }
-        const queuePubkey = aggregator.currentRound.oracleQueuePubkey;
+        const queuePubkey = aggregator.queuePubkey;
         const queueAccount = new OracleQueueAccount({
             program: this.program,
             publicKey: queuePubkey,
