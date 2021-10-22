@@ -4,6 +4,7 @@ import {
   Keypair,
   PublicKey,
   SystemProgram,
+  Transaction,
   TransactionSignature,
 } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
@@ -1883,6 +1884,92 @@ export class CrankAccount {
           escrow: lease.escrow,
           programState: programStateAccount.publicKey,
         },
+      }
+    );
+  }
+
+  /**
+   * Pops an aggregator from the crank.
+   * @param params
+   * @return TransactionSignature
+   */
+  async popTxn(params: CrankPopParams): Promise<Transaction> {
+    const next = params.readyPubkeys ?? (await this.peakNextReady(5));
+    if (next.length === 0) {
+      throw new Error("Crank is not ready to be turned.");
+    }
+    const remainingAccounts: Array<PublicKey> = [];
+    const leaseBumpsMap: Map<string, number> = new Map();
+    const permissionBumpsMap: Map<string, number> = new Map();
+    const leasePubkeys = [];
+    for (const row of next) {
+      const aggregatorAccount = new AggregatorAccount({
+        program: this.program,
+        publicKey: row,
+      });
+      const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
+        this.program,
+        new OracleQueueAccount({
+          program: this.program,
+          publicKey: params.queuePubkey,
+        }),
+        aggregatorAccount
+      );
+      const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
+        this.program,
+        params.queueAuthority,
+        params.queuePubkey,
+        row
+      );
+      leasePubkeys.push(leaseAccount.publicKey);
+      remainingAccounts.push(aggregatorAccount.publicKey);
+      remainingAccounts.push(leaseAccount.publicKey);
+      remainingAccounts.push(permissionAccount.publicKey);
+      leaseBumpsMap.set(row.toBase58(), leaseBump);
+      permissionBumpsMap.set(row.toBase58(), permissionBump);
+    }
+    const coder = new anchor.AccountsCoder(this.program.idl);
+
+    const leaseAccountDatas = await anchor.utils.rpc.getMultipleAccounts(
+      this.program.provider.connection,
+      leasePubkeys
+    );
+    leaseAccountDatas.map((item) => {
+      let decoded = coder.decode("LeaseAccountData", item.account.data);
+      remainingAccounts.push(decoded.escrow);
+    });
+    remainingAccounts.sort((a: PublicKey, b: PublicKey) =>
+      a.toBuffer().compare(b.toBuffer())
+    );
+    const leaseBumps: Array<number> = [];
+    const permissionBumps: Array<number> = [];
+    // Map bumps to the index of their corresponding feeds.
+    for (const key of remainingAccounts) {
+      leaseBumps.push(leaseBumpsMap.get(key.toBase58()) ?? 0);
+      permissionBumps.push(permissionBumpsMap.get(key.toBase58()) ?? 0);
+    }
+    const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
+      this.program
+    );
+    // const promises: Array<Promise<TransactionSignature>> = [];
+    return this.program.transaction.crankPop(
+      {
+        stateBump,
+        leaseBumps: Buffer.from(leaseBumps),
+        permissionBumps: Buffer.from(permissionBumps),
+      },
+      {
+        accounts: {
+          crank: this.publicKey,
+          oracleQueue: params.queuePubkey,
+          queueAuthority: params.queueAuthority,
+          programState: programStateAccount.publicKey,
+          payoutWallet: params.payoutWallet,
+          tokenProgram: spl.TOKEN_PROGRAM_ID,
+        },
+        remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
+          return { isSigner: false, isWritable: true, pubkey };
+        }),
       }
     );
   }

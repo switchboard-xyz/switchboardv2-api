@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
-import { Keypair, PublicKey, TransactionSignature } from "@solana/web3.js";
+import { Keypair, PublicKey, Transaction, TransactionSignature } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
@@ -790,6 +790,12 @@ export declare class CrankAccount {
      * @return TransactionSignature
      */
     push(params: CrankPushParams): Promise<TransactionSignature>;
+    /**
+     * Pops an aggregator from the crank.
+     * @param params
+     * @return TransactionSignature
+     */
+    popTxn(params: CrankPopParams): Promise<Transaction>;
     /**
      * Pops an aggregator from the crank.
      * @param params
