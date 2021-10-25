@@ -2129,6 +2129,7 @@ export class OracleAccount {
     await switchTokenMint.setAuthority(
       wallet,
       programStateAccount.publicKey,
+      "AccountOwner",
       payerKeypair,
       []
     );
