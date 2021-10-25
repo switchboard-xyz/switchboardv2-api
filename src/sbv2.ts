@@ -2126,6 +2126,12 @@ export class OracleAccount {
     const wallet = await switchTokenMint.createAccount(
       program.provider.wallet.publicKey
     );
+    await switchTokenMint.setAuthority(
+      wallet,
+      programStateAccount.publicKey,
+      payerKeypair,
+      []
+    );
     const [oracleAccount, oracleBump] = OracleAccount.fromSeed(program, wallet);
 
     await program.rpc.oracleInit(
