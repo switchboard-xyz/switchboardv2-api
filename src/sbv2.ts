@@ -1021,8 +1021,8 @@ export class JobAccount {
    * Switchboard IDL.
    */
   static decode(program: anchor.Program, buf: Buffer): any {
-    const typesCoder = new anchor.TypesCoder(program.idl);
-    return typesCoder.decode("JobAccountData", buf);
+    const coder = new anchor.Coder(program.idl);
+    return coder.accounts.decode("JobAccountData", buf);
   }
 
   /**
