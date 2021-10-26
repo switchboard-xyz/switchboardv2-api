@@ -669,6 +669,9 @@ export class AggregatorAccount {
     program: anchor.Program,
     params: AggregatorInitParams
   ): Promise<AggregatorAccount> {
+    const payerKeypair = Keypair.fromSecretKey(
+      (program.provider.wallet as any).payer.secretKey
+    );
     const aggregatorAccount = params.keypair ?? anchor.web3.Keypair.generate();
     const size = program.account.aggregatorAccountData.size;
     const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
@@ -692,11 +695,12 @@ export class AggregatorAccount {
       {
         accounts: {
           aggregator: aggregatorAccount.publicKey,
+          authority: payerKeypair.publicKey,
           queue: params.queueAccount.publicKey,
           authorWallet: params.authorWallet ?? state.tokenVault,
           programState: stateAccount.publicKey,
         },
-        signers: [aggregatorAccount],
+        signers: [],
         instructions: [
           anchor.web3.SystemProgram.createAccount({
             fromPubkey: program.provider.wallet.publicKey,

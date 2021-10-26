@@ -423,6 +423,7 @@ class AggregatorAccount {
      */
     static async create(program, params) {
         var _a, _b, _c, _d, _e, _f, _g;
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const aggregatorAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
         const size = program.account.aggregatorAccountData.size;
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
@@ -441,11 +442,12 @@ class AggregatorAccount {
         }, {
             accounts: {
                 aggregator: aggregatorAccount.publicKey,
+                authority: payerKeypair.publicKey,
                 queue: params.queueAccount.publicKey,
                 authorWallet: (_g = params.authorWallet) !== null && _g !== void 0 ? _g : state.tokenVault,
                 programState: stateAccount.publicKey,
             },
-            signers: [aggregatorAccount],
+            signers: [],
             instructions: [
                 anchor.web3.SystemProgram.createAccount({
                     fromPubkey: program.provider.wallet.publicKey,
