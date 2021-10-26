@@ -1826,7 +1826,7 @@ export class CrankAccount {
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
-        maxRows: params.maxRows,
+        maxRows: params.maxRows ?? null,
       },
       {
         accounts: {
