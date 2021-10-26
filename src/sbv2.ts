@@ -352,6 +352,11 @@ export interface AggregatorInitParams {
    *  Defaults to token vault.
    */
   authorWallet?: PublicKey;
+  /**
+   *  If included, this keypair will be the aggregator authority rather than
+   *  the aggregator keypair.
+   */
+  authority?: PublicKey;
 }
 
 /**
@@ -673,6 +678,7 @@ export class AggregatorAccount {
       (program.provider.wallet as any).payer.secretKey
     );
     const aggregatorAccount = params.keypair ?? anchor.web3.Keypair.generate();
+    const authority = params.authority ?? aggregatorAccount.publicKey;
     const size = program.account.aggregatorAccountData.size;
     const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
     const state = await stateAccount.loadData();
@@ -695,7 +701,7 @@ export class AggregatorAccount {
       {
         accounts: {
           aggregator: aggregatorAccount.publicKey,
-          authority: payerKeypair.publicKey,
+          authority,
           queue: params.queueAccount.publicKey,
           authorWallet: params.authorWallet ?? state.tokenVault,
           programState: stateAccount.publicKey,
@@ -723,15 +729,20 @@ export class AggregatorAccount {
    * @param job JobAccount specifying another job for this aggregator to fulfill on update
    * @return TransactionSignature
    */
-  async addJob(job: JobAccount): Promise<TransactionSignature> {
+  async addJob(
+    job: JobAccount,
+    authority?: Keypair
+  ): Promise<TransactionSignature> {
+    authority = authority ?? this.keypair;
     return await this.program.rpc.aggregatorAddJob(
       {},
       {
         accounts: {
           aggregator: this.publicKey,
+          authority: authority.publicKey,
           job: job.publicKey,
         },
-        signers: [this.keypair],
+        signers: [authority],
       }
     );
   }
@@ -741,15 +752,20 @@ export class AggregatorAccount {
    * @param job JobAccount to be removed from the aggregator
    * @return TransactionSignature
    */
-  async removeJob(job: JobAccount): Promise<TransactionSignature> {
+  async removeJob(
+    job: JobAccount,
+    authority?: Keypair
+  ): Promise<TransactionSignature> {
+    authority = authority ?? this.keypair;
     return await this.program.rpc.aggregatorRemoveJob(
       {},
       {
         accounts: {
           aggregator: this.publicKey,
+          authority: authority.publicKey,
           job: job.publicKey,
         },
-        signers: [this.keypair],
+        signers: [authority],
       }
     );
   }

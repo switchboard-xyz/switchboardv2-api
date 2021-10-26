@@ -174,6 +174,11 @@ export interface AggregatorInitParams {
      *  Defaults to token vault.
      */
     authorWallet?: PublicKey;
+    /**
+     *  If included, this keypair will be the aggregator authority rather than
+     *  the aggregator keypair.
+     */
+    authority?: PublicKey;
 }
 /**
  * Parameters for which oracles must submit for responding to update requests.
@@ -331,13 +336,13 @@ export declare class AggregatorAccount {
      * @param job JobAccount specifying another job for this aggregator to fulfill on update
      * @return TransactionSignature
      */
-    addJob(job: JobAccount): Promise<TransactionSignature>;
+    addJob(job: JobAccount, authority?: Keypair): Promise<TransactionSignature>;
     /**
      * RPC to remove a job from an aggregtor.
      * @param job JobAccount to be removed from the aggregator
      * @return TransactionSignature
      */
-    removeJob(job: JobAccount): Promise<TransactionSignature>;
+    removeJob(job: JobAccount, authority?: Keypair): Promise<TransactionSignature>;
     /**
      * Opens a new round for the aggregator and will provide an incentivize reward
      * to the caller

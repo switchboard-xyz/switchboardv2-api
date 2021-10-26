@@ -422,29 +422,30 @@ class AggregatorAccount {
      * @return newly generated AggregatorAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f, _g;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const aggregatorAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
+        const authority = (_b = params.authority) !== null && _b !== void 0 ? _b : aggregatorAccount.publicKey;
         const size = program.account.aggregatorAccountData.size;
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const state = await stateAccount.loadData();
         await program.rpc.aggregatorInit({
-            name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
-            metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 128),
+            name: ((_c = params.name) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 32),
+            metadata: ((_d = params.metadata) !== null && _d !== void 0 ? _d : Buffer.from("")).slice(0, 128),
             batchSize: params.batchSize,
             minOracleResults: params.minRequiredOracleResults,
             minJobResults: params.minRequiredJobResults,
             minUpdateDelaySeconds: params.minUpdateDelaySeconds,
-            varianceThreshold: Object.assign({}, SwitchboardDecimal.fromBig(new big_js_1.default((_d = params.varianceThreshold) !== null && _d !== void 0 ? _d : 0))),
-            forceReportPeriod: (_e = params.forceReportPeriod) !== null && _e !== void 0 ? _e : new anchor.BN(0),
-            expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
+            varianceThreshold: Object.assign({}, SwitchboardDecimal.fromBig(new big_js_1.default((_e = params.varianceThreshold) !== null && _e !== void 0 ? _e : 0))),
+            forceReportPeriod: (_f = params.forceReportPeriod) !== null && _f !== void 0 ? _f : new anchor.BN(0),
+            expiration: (_g = params.expiration) !== null && _g !== void 0 ? _g : new anchor.BN(0),
             stateBump,
         }, {
             accounts: {
                 aggregator: aggregatorAccount.publicKey,
-                authority: payerKeypair.publicKey,
+                authority,
                 queue: params.queueAccount.publicKey,
-                authorWallet: (_g = params.authorWallet) !== null && _g !== void 0 ? _g : state.tokenVault,
+                authorWallet: (_h = params.authorWallet) !== null && _h !== void 0 ? _h : state.tokenVault,
                 programState: stateAccount.publicKey,
             },
             signers: [],
@@ -465,13 +466,15 @@ class AggregatorAccount {
      * @param job JobAccount specifying another job for this aggregator to fulfill on update
      * @return TransactionSignature
      */
-    async addJob(job) {
+    async addJob(job, authority) {
+        authority = authority !== null && authority !== void 0 ? authority : this.keypair;
         return await this.program.rpc.aggregatorAddJob({}, {
             accounts: {
                 aggregator: this.publicKey,
+                authority: authority.publicKey,
                 job: job.publicKey,
             },
-            signers: [this.keypair],
+            signers: [authority],
         });
     }
     /**
@@ -479,13 +482,15 @@ class AggregatorAccount {
      * @param job JobAccount to be removed from the aggregator
      * @return TransactionSignature
      */
-    async removeJob(job) {
+    async removeJob(job, authority) {
+        authority = authority !== null && authority !== void 0 ? authority : this.keypair;
         return await this.program.rpc.aggregatorRemoveJob({}, {
             accounts: {
                 aggregator: this.publicKey,
+                authority: authority.publicKey,
                 job: job.publicKey,
             },
-            signers: [this.keypair],
+            signers: [authority],
         });
     }
     /**

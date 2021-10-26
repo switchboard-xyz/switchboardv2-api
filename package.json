@@ -39,6 +39,7 @@
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.29.2",
     "@switchboard-xyz/switchboard-api": "^0.2.150",
+    "@switchboard-xyz/switchboard-v2": "github:switchboard-xyz/switchboardv2-api",
     "@types/big.js": "^6.0.2",
     "@types/long": "^4.0.1",
     "assert": "^2.0.0",
