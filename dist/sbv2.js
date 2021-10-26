@@ -448,7 +448,7 @@ class AggregatorAccount {
                 authorWallet: (_h = params.authorWallet) !== null && _h !== void 0 ? _h : state.tokenVault,
                 programState: stateAccount.publicKey,
             },
-            signers: [],
+            signers: [aggregatorAccount],
             instructions: [
                 anchor.web3.SystemProgram.createAccount({
                     fromPubkey: program.provider.wallet.publicKey,

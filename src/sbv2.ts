@@ -706,7 +706,7 @@ export class AggregatorAccount {
           authorWallet: params.authorWallet ?? state.tokenVault,
           programState: stateAccount.publicKey,
         },
-        signers: [],
+        signers: [aggregatorAccount],
         instructions: [
           anchor.web3.SystemProgram.createAccount({
             fromPubkey: program.provider.wallet.publicKey,
