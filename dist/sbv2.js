@@ -1164,7 +1164,7 @@ class CrankAccount {
      * @return TransactionSignature
      */
     async popTxn(params) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         const next = (_a = params.readyPubkeys) !== null && _a !== void 0 ? _a : (await this.peakNextReady(5));
         if (next.length === 0) {
             throw new Error("Crank is not ready to be turned.");
@@ -1210,7 +1210,7 @@ class CrankAccount {
             stateBump,
             leaseBumps: Buffer.from(leaseBumps),
             permissionBumps: Buffer.from(permissionBumps),
-            nonce: params.nonce,
+            nonce: (_d = params.nonce) !== null && _d !== void 0 ? _d : null,
         }, {
             accounts: {
                 crank: this.publicKey,

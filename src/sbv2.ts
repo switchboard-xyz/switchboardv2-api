@@ -1981,7 +1981,7 @@ export class CrankAccount {
         stateBump,
         leaseBumps: Buffer.from(leaseBumps),
         permissionBumps: Buffer.from(permissionBumps),
-        nonce: params.nonce,
+        nonce: params.nonce ?? null,
       },
       {
         accounts: {
