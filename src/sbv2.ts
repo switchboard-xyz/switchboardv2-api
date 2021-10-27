@@ -1151,7 +1151,7 @@ export class PermissionAccount {
   keypair?: Keypair;
 
   /**
-   * AggregatorAccount constructor
+   * PermissionAccount constructor
    * @param params initialization params.
    */
   public constructor(params: AccountParams) {

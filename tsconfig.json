@@ -2,8 +2,8 @@
   "ts-node": {
     "compilerOptions": {
       "module": "commonjs",
-      "target": "es2019",
-      "lib": ["ES2019"],
+      "target": "ES2019",
+      "strictFunctionTypes": true,
       "noImplicitReturns": true,
       "noImplicitAny": true
     }
@@ -12,7 +12,7 @@
     "declaration": true,
     "moduleResolution": "node",
     "module": "commonjs",
-    "target": "es2019",
+    "target": "ES2019",
     "esModuleInterop": true,
     "allowJs": true,
     "checkJs": false,
