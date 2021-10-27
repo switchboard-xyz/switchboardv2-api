@@ -551,7 +551,7 @@ class AggregatorAccount {
      * @param params
      * @return TransactionSignature
      */
-    async saveResult(aggregator, oracleAccount, // TODO: move to params.
+    async saveResultTxn(aggregator, oracleAccount, // TODO: move to params.
     params) {
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
         const remainingAccounts = [];
@@ -578,7 +578,7 @@ class AggregatorAccount {
         const [oraclePermissionAccount, oraclePermissionBump] = PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, oracleAccount.publicKey);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const digest = this.produceJobsHash(params.jobs).digest();
-        return await this.program.rpc.aggregatorSaveResult({
+        return this.program.transaction.aggregatorSaveResult({
             oracleIdx: params.oracleIdx,
             error: params.error,
             value: Object.assign({}, SwitchboardDecimal.fromBig(params.value)),

@@ -848,11 +848,11 @@ export class AggregatorAccount {
    * @param params
    * @return TransactionSignature
    */
-  async saveResult(
+  async saveResultTxn(
     aggregator: any,
     oracleAccount: OracleAccount, // TODO: move to params.
     params: AggregatorSaveResultParams
-  ): Promise<TransactionSignature> {
+  ): Promise<Transaction> {
     const payerKeypair = Keypair.fromSecretKey(
       (this.program.provider.wallet as any).payer.secretKey
     );
@@ -912,7 +912,7 @@ export class AggregatorAccount {
       this.program
     );
     const digest = this.produceJobsHash(params.jobs).digest();
-    return await this.program.rpc.aggregatorSaveResult(
+    return this.program.transaction.aggregatorSaveResult(
       {
         oracleIdx: params.oracleIdx,
         error: params.error,
