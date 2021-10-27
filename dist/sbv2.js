@@ -551,7 +551,7 @@ class AggregatorAccount {
      * @param params
      * @return TransactionSignature
      */
-    async saveResult(aggregator, oracleAccount, // TODO: move to params.
+    async saveResultTxn(aggregator, oracleAccount, // TODO: move to params.
     params) {
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
         const remainingAccounts = [];
@@ -578,7 +578,7 @@ class AggregatorAccount {
         const [oraclePermissionAccount, oraclePermissionBump] = PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, oracleAccount.publicKey);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const digest = this.produceJobsHash(params.jobs).digest();
-        return await this.program.rpc.aggregatorSaveResult({
+        return this.program.transaction.aggregatorSaveResult({
             oracleIdx: params.oracleIdx,
             error: params.error,
             value: Object.assign({}, SwitchboardDecimal.fromBig(params.value)),
@@ -1164,7 +1164,7 @@ class CrankAccount {
      * @return TransactionSignature
      */
     async popTxn(params) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         const next = (_a = params.readyPubkeys) !== null && _a !== void 0 ? _a : (await this.peakNextReady(5));
         if (next.length === 0) {
             throw new Error("Crank is not ready to be turned.");
@@ -1210,7 +1210,7 @@ class CrankAccount {
             stateBump,
             leaseBumps: Buffer.from(leaseBumps),
             permissionBumps: Buffer.from(permissionBumps),
-            nonce: params.nonce,
+            nonce: (_d = params.nonce) !== null && _d !== void 0 ? _d : null,
         }, {
             accounts: {
                 crank: this.publicKey,
