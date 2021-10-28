@@ -569,6 +569,10 @@ export interface OracleQueueInitParams {
      *  Consecutive failure limit for an oracle before oracle permission is revoked.
      */
     consecutiveOracleFailureLimit?: anchor.BN;
+    /**
+     * For testing: the minimum update delay time for Aggregators
+     */
+    minimumDelaySeconds?: number;
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to

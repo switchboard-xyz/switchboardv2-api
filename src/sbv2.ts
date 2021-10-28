@@ -1333,6 +1333,11 @@ export interface OracleQueueInitParams {
    *  Consecutive failure limit for an oracle before oracle permission is revoked.
    */
   consecutiveOracleFailureLimit?: anchor.BN;
+
+  /**
+   * the minimum update delay time for Aggregators
+   */
+  minimumDelaySeconds?: number;
 }
 
 /**
@@ -1419,6 +1424,8 @@ export class OracleQueueAccount {
           params.consecutiveFeedFailureLimit ?? new anchor.BN(1000),
         consecutiveOracleFailureLimit:
           params.consecutiveOracleFailureLimit ?? new anchor.BN(1000),
+        minimumDelaySeconds:
+          params.minimumDelaySeconds ?? 5,
       },
       {
         accounts: {
