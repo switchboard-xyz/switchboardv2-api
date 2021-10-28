@@ -570,7 +570,7 @@ export interface OracleQueueInitParams {
      */
     consecutiveOracleFailureLimit?: anchor.BN;
     /**
-     * For testing: the minimum update delay time for Aggregators
+     * the minimum update delay time for Aggregators
      */
     minimumDelaySeconds?: number;
 }
