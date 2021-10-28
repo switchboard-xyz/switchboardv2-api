@@ -714,7 +714,7 @@ var SwitchboardPermission;
  */
 class PermissionAccount {
     /**
-     * AggregatorAccount constructor
+     * PermissionAccount constructor
      * @param params initialization params.
      */
     constructor(params) {

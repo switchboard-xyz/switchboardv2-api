@@ -478,7 +478,7 @@ export declare class PermissionAccount {
     publicKey: PublicKey;
     keypair?: Keypair;
     /**
-     * AggregatorAccount constructor
+     * PermissionAccount constructor
      * @param params initialization params.
      */
     constructor(params: AccountParams);

@@ -1858,7 +1858,6 @@ export class CrankAccount {
     return new CrankAccount({ program, keypair: crankAccount });
   }
 
-  // TODO: Add permission for the crank addition. Could just be permission for feed on queue
   /**
    * Pushes a new aggregator onto the crank.
    * @param aggregator The Aggregator account to push on the crank.
