@@ -873,7 +873,7 @@ class OracleQueueAccount {
             authority: params.authority,
             consecutiveFeedFailureLimit: (_j = params.consecutiveFeedFailureLimit) !== null && _j !== void 0 ? _j : new anchor.BN(1000),
             consecutiveOracleFailureLimit: (_k = params.consecutiveOracleFailureLimit) !== null && _k !== void 0 ? _k : new anchor.BN(1000),
-            minimumDelayTime: (_l = params.minimumDelayTime) !== null && _l !== void 0 ? _l : 5,
+            minimumDelaySeconds: (_l = params.minimumDelaySeconds) !== null && _l !== void 0 ? _l : 5,
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,

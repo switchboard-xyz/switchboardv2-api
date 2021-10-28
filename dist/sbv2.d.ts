@@ -572,7 +572,7 @@ export interface OracleQueueInitParams {
     /**
      * For testing: the minimum update delay time for Aggregators
      */
-    minimumDelayTime?: number;
+    minimumDelaySeconds?: number;
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to
