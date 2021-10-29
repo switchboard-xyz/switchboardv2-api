@@ -919,7 +919,6 @@ class OracleQueueAccount {
                 buffer: buffer.publicKey,
             },
             signers: [oracleQueueAccount, buffer, payerKeypair],
-            instructions: [],
         });
         return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
     }
@@ -1174,7 +1173,6 @@ class CrankAccount {
                 buffer: buffer.publicKey,
             },
             signers: [payerKeypair],
-            instructions: [],
         });
         return new CrankAccount({ program, keypair: crankAccount });
     }
