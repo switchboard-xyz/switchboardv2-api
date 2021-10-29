@@ -604,10 +604,6 @@ export declare class OracleQueueAccount {
      */
     size(): number;
     /**
-     * Loads the queue's buffer pubkey
-     */
-    bufferFromSeed(): [PublicKey, number];
-    /**
      * Create and initialize the OracleQueueAccount.
      * @param program Switchboard program representation holding connection and IDL.
      * @param params.
@@ -800,10 +796,6 @@ export declare class CrankAccount {
      * @return size.
      */
     size(): number;
-    /**
-     * Loads the crank's buffer pubkey
-     */
-    bufferFromSeed(): [PublicKey, number];
     /**
      * Create and initialize the CrankAccount.
      * @param program Switchboard program representation holding connection and IDL.

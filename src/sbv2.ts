@@ -827,7 +827,7 @@ export class AggregatorAccount {
           programState: stateAccount.publicKey,
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
-          dataBuffer: params.oracleQueueAccount.bufferFromSeed()[0],
+          dataBuffer: queue.dataBuffer,
         },
       }
     );
@@ -1397,11 +1397,8 @@ export class OracleQueueAccount {
     );
     const queueData = [];
     const buffer =
-      (
-        await this.program.provider.connection.getAccountInfo(
-          this.bufferFromSeed()[0]
-        )
-      )?.data ?? Buffer.from("");
+      (await this.program.provider.connection.getAccountInfo(queue.dataBuffer))
+        ?.data ?? Buffer.from("");
     const rowSize = 32;
     for (let i = 0; i < buffer.length; i += rowSize) {
       if (buffer.length - i < rowSize) {
@@ -1421,16 +1418,6 @@ export class OracleQueueAccount {
    */
   size(): number {
     return this.program.account.oracleQueueAccountData.size;
-  }
-
-  /**
-   * Loads the queue's buffer pubkey
-   */
-  bufferFromSeed(): [PublicKey, number] {
-    return anchor.utils.publicKey.findProgramAddressSync(
-      [Buffer.from("BUFFER"), this.publicKey.toBytes()],
-      this.program.programId
-    );
   }
 
   /**
@@ -1863,11 +1850,8 @@ export class CrankAccount {
     );
     const pqData = [];
     const buffer =
-      (
-        await this.program.provider.connection.getAccountInfo(
-          this.bufferFromSeed()[0]
-        )
-      )?.data ?? Buffer.from("");
+      (await this.program.provider.connection.getAccountInfo(crank.dataBuffer))
+        ?.data ?? Buffer.from("");
     const rowSize = 40;
     for (let i = 0; i < crank.pqSize * rowSize; i += rowSize) {
       if (buffer.length - i < rowSize) {
@@ -1887,16 +1871,6 @@ export class CrankAccount {
    */
   size(): number {
     return this.program.account.crankAccountData.size;
-  }
-
-  /**
-   * Loads the crank's buffer pubkey
-   */
-  bufferFromSeed(): [PublicKey, number] {
-    return anchor.utils.publicKey.findProgramAddressSync(
-      [Buffer.from("BUFFER"), this.publicKey.toBytes()],
-      this.program.programId
-    );
   }
 
   /**
@@ -2000,7 +1974,7 @@ export class CrankAccount {
           lease: leaseAccount.publicKey,
           escrow: lease.escrow,
           programState: programStateAccount.publicKey,
-          dataBuffer: this.bufferFromSeed()[0],
+          dataBuffer: crank.dataBuffer,
         },
       }
     );
@@ -2050,11 +2024,19 @@ export class CrankAccount {
     }
     const coder = new anchor.AccountsCoder(this.program.idl);
 
-    const leaseAccountDatas = await anchor.utils.rpc.getMultipleAccounts(
+    const accountDatas = await anchor.utils.rpc.getMultipleAccounts(
       this.program.provider.connection,
-      leasePubkeys
+      [this.publicKey, queueAccount.publicKey].concat(leasePubkeys)
     );
-    leaseAccountDatas.map((item) => {
+    const crank = coder.decode(
+      "CrankAccountData",
+      accountDatas[0].account.data
+    );
+    const queue = coder.decode(
+      "OracleQueueAccountData",
+      accountDatas[1].account.data
+    );
+    accountDatas.slice(2).map((item) => {
       let decoded = coder.decode("LeaseAccountData", item.account.data);
       remainingAccounts.push(decoded.escrow);
     });
@@ -2087,8 +2069,8 @@ export class CrankAccount {
           programState: programStateAccount.publicKey,
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
-          crankDataBuffer: this.bufferFromSeed()[0],
-          queueDataBuffer: queueAccount.bufferFromSeed()[0],
+          crankDataBuffer: crank.dataBuffer,
+          queueDataBuffer: queue.dataBuffer,
         },
         remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
           return { isSigner: false, isWritable: true, pubkey };
@@ -2336,7 +2318,7 @@ export class OracleAccount {
           gcOracle: lastPubkey,
           oracleQueue: queueAccount.publicKey,
           permission: permissionAccount.publicKey,
-          dataBuffer: queueAccount.bufferFromSeed()[0],
+          dataBuffer: queue.dataBuffer,
         },
         signers: [this.keypair],
       }

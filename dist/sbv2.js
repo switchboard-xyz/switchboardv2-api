@@ -533,7 +533,7 @@ class AggregatorAccount {
                 programState: stateAccount.publicKey,
                 payoutWallet: params.payoutWallet,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
-                dataBuffer: params.oracleQueueAccount.bufferFromSeed()[0],
+                dataBuffer: queue.dataBuffer,
             },
         });
     }
@@ -847,7 +847,7 @@ class OracleQueueAccount {
         var _a, _b;
         const queue = await this.program.account.oracleQueueAccountData.fetch(this.publicKey);
         const queueData = [];
-        const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(this.bufferFromSeed()[0]))) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : Buffer.from("");
+        const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(queue.dataBuffer))) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : Buffer.from("");
         const rowSize = 32;
         for (let i = 0; i < buffer.length; i += rowSize) {
             if (buffer.length - i < rowSize) {
@@ -866,12 +866,6 @@ class OracleQueueAccount {
      */
     size() {
         return this.program.account.oracleQueueAccountData.size;
-    }
-    /**
-     * Loads the queue's buffer pubkey
-     */
-    bufferFromSeed() {
-        return anchor.utils.publicKey.findProgramAddressSync([Buffer.from("BUFFER"), this.publicKey.toBytes()], this.program.programId);
     }
     /**
      * Create and initialize the OracleQueueAccount.
@@ -1109,7 +1103,7 @@ class CrankAccount {
         var _a, _b;
         const crank = await this.program.account.crankAccountData.fetch(this.publicKey);
         const pqData = [];
-        const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(this.bufferFromSeed()[0]))) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : Buffer.from("");
+        const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(crank.dataBuffer))) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : Buffer.from("");
         const rowSize = 40;
         for (let i = 0; i < crank.pqSize * rowSize; i += rowSize) {
             if (buffer.length - i < rowSize) {
@@ -1128,12 +1122,6 @@ class CrankAccount {
      */
     size() {
         return this.program.account.crankAccountData.size;
-    }
-    /**
-     * Loads the crank's buffer pubkey
-     */
-    bufferFromSeed() {
-        return anchor.utils.publicKey.findProgramAddressSync([Buffer.from("BUFFER"), this.publicKey.toBytes()], this.program.programId);
     }
     /**
      * Create and initialize the CrankAccount.
@@ -1215,7 +1203,7 @@ class CrankAccount {
                 lease: leaseAccount.publicKey,
                 escrow: lease.escrow,
                 programState: programStateAccount.publicKey,
-                dataBuffer: this.bufferFromSeed()[0],
+                dataBuffer: crank.dataBuffer,
             },
         });
     }
@@ -1253,8 +1241,10 @@ class CrankAccount {
             permissionBumpsMap.set(row.toBase58(), permissionBump);
         }
         const coder = new anchor.AccountsCoder(this.program.idl);
-        const leaseAccountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, leasePubkeys);
-        leaseAccountDatas.map((item) => {
+        const accountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, [this.publicKey, queueAccount.publicKey].concat(leasePubkeys));
+        const crank = coder.decode("CrankAccountData", accountDatas[0].account.data);
+        const queue = coder.decode("OracleQueueAccountData", accountDatas[1].account.data);
+        accountDatas.slice(2).map((item) => {
             let decoded = coder.decode("LeaseAccountData", item.account.data);
             remainingAccounts.push(decoded.escrow);
         });
@@ -1281,8 +1271,8 @@ class CrankAccount {
                 programState: programStateAccount.publicKey,
                 payoutWallet: params.payoutWallet,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
-                crankDataBuffer: this.bufferFromSeed()[0],
-                queueDataBuffer: queueAccount.bufferFromSeed()[0],
+                crankDataBuffer: crank.dataBuffer,
+                queueDataBuffer: queue.dataBuffer,
             },
             remainingAccounts: remainingAccounts.map((pubkey) => {
                 return { isSigner: false, isWritable: true, pubkey };
@@ -1460,7 +1450,7 @@ class OracleAccount {
                 gcOracle: lastPubkey,
                 oracleQueue: queueAccount.publicKey,
                 permission: permissionAccount.publicKey,
-                dataBuffer: queueAccount.bufferFromSeed()[0],
+                dataBuffer: queue.dataBuffer,
             },
             signers: [this.keypair],
         });
