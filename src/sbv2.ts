@@ -1464,7 +1464,7 @@ export class OracleQueueAccount {
       await program.provider.connection.getRecentBlockhashAndContext()
     ).value.blockhash;
     tx.recentBlockhash = recentBlockhash;
-    tx.sign(oracleQueueAccount, buffer);
+    tx.sign(payerKeypair, oracleQueueAccount, buffer);
     await program.provider.send(tx);
     await program.rpc.oracleQueueInit(
       {
@@ -1953,7 +1953,7 @@ export class CrankAccount {
         programId: program.programId,
       })
     );
-    tx.sign(crankAccount, buffer);
+    tx.sign(payerKeypair, crankAccount, buffer);
     const recentBlockhash = (
       await program.provider.connection.getRecentBlockhashAndContext()
     ).value.blockhash;

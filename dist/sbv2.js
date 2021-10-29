@@ -896,7 +896,7 @@ class OracleQueueAccount {
         }));
         const recentBlockhash = (await program.provider.connection.getRecentBlockhashAndContext()).value.blockhash;
         tx.recentBlockhash = recentBlockhash;
-        tx.sign(oracleQueueAccount, buffer);
+        tx.sign(payerKeypair, oracleQueueAccount, buffer);
         await program.provider.send(tx);
         await program.rpc.oracleQueueInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
@@ -1174,7 +1174,7 @@ class CrankAccount {
             lamports: await program.provider.connection.getMinimumBalanceForRentExemption(crankSize),
             programId: program.programId,
         }));
-        tx.sign(crankAccount, buffer);
+        tx.sign(payerKeypair, crankAccount, buffer);
         const recentBlockhash = (await program.provider.connection.getRecentBlockhashAndContext()).value.blockhash;
         tx.recentBlockhash = recentBlockhash;
         await program.provider.send(tx);
