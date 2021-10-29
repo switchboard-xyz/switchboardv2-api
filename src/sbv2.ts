@@ -690,9 +690,8 @@ export class AggregatorAccount {
         minOracleResults: params.minRequiredOracleResults,
         minJobResults: params.minRequiredJobResults,
         minUpdateDelaySeconds: params.minUpdateDelaySeconds,
-        varianceThreshold: Object.assign(
-          {},
-          SwitchboardDecimal.fromBig(new Big(params.varianceThreshold ?? 0))
+        varianceThreshold: SwitchboardDecimal.fromBig(
+          new Big(params.varianceThreshold ?? 0)
         ),
         forceReportPeriod: params.forceReportPeriod ?? new anchor.BN(0),
         expiration: params.expiration ?? new anchor.BN(0),
@@ -927,16 +926,10 @@ export class AggregatorAccount {
       {
         oracleIdx: params.oracleIdx,
         error: params.error,
-        value: Object.assign({}, SwitchboardDecimal.fromBig(params.value)),
+        value: SwitchboardDecimal.fromBig(params.value),
         jobsChecksum: digest,
-        minResponse: Object.assign(
-          {},
-          SwitchboardDecimal.fromBig(params.minResponse)
-        ),
-        maxResponse: Object.assign(
-          {},
-          SwitchboardDecimal.fromBig(params.maxResponse)
-        ),
+        minResponse: SwitchboardDecimal.fromBig(params.minResponse),
+        maxResponse: SwitchboardDecimal.fromBig(params.maxResponse),
         feedPermissionBump,
         oraclePermissionBump,
         leaseBump,
@@ -1447,11 +1440,8 @@ export class OracleQueueAccount {
         feedProbationPeriod: params.feedProbationPeriod ?? 0,
         oracleTimeout: params.oracleTimeout ?? 180,
         slashingEnabled: params.slashingEnabled ?? false,
-        varianceToleranceMultiplier: Object.assign(
-          {},
-          SwitchboardDecimal.fromBig(
-            new Big(params.varianceToleranceMultiplier ?? 2)
-          )
+        varianceToleranceMultiplier: SwitchboardDecimal.fromBig(
+          new Big(params.varianceToleranceMultiplier ?? 2)
         ),
         authority: params.authority,
         consecutiveFeedFailureLimit:
