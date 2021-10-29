@@ -894,8 +894,7 @@ class OracleQueueAccount {
             lamports: await program.provider.connection.getMinimumBalanceForRentExemption(queueSize),
             programId: program.programId,
         }));
-        tx.addSignature(oracleQueueAccount.publicKey, new Buffer(oracleQueueAccount.secretKey));
-        tx.addSignature(buffer.publicKey, new Buffer(buffer.secretKey));
+        tx.sign(oracleQueueAccount, buffer);
         await program.provider.send(tx);
         await program.rpc.oracleQueueInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
@@ -1173,8 +1172,7 @@ class CrankAccount {
             lamports: await program.provider.connection.getMinimumBalanceForRentExemption(crankSize),
             programId: program.programId,
         }));
-        tx.addSignature(crankAccount.publicKey, new Buffer(crankAccount.secretKey));
-        tx.addSignature(buffer.publicKey, new Buffer(buffer.secretKey));
+        tx.sign(crankAccount, buffer);
         await program.provider.send(tx);
         await program.rpc.crankInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),

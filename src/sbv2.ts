@@ -1460,11 +1460,7 @@ export class OracleQueueAccount {
         programId: program.programId,
       })
     );
-    tx.addSignature(
-      oracleQueueAccount.publicKey,
-      new Buffer(oracleQueueAccount.secretKey)
-    );
-    tx.addSignature(buffer.publicKey, new Buffer(buffer.secretKey));
+    tx.sign(oracleQueueAccount, buffer);
     await program.provider.send(tx);
     await program.rpc.oracleQueueInit(
       {
@@ -1953,8 +1949,7 @@ export class CrankAccount {
         programId: program.programId,
       })
     );
-    tx.addSignature(crankAccount.publicKey, new Buffer(crankAccount.secretKey));
-    tx.addSignature(buffer.publicKey, new Buffer(buffer.secretKey));
+    tx.sign(crankAccount, buffer);
     await program.provider.send(tx);
     await program.rpc.crankInit(
       {
