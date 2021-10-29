@@ -911,6 +911,13 @@ class OracleQueueAccount {
                     lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
                     programId: program.programId,
                 }),
+                anchor.web3.SystemProgram.createAccount({
+                    fromPubkey: program.provider.wallet.publicKey,
+                    newAccountPubkey: buffer.publicKey,
+                    space: queueSize,
+                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(queueSize),
+                    programId: program.programId,
+                }),
             ],
         });
         return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
@@ -1156,6 +1163,13 @@ class CrankAccount {
                     newAccountPubkey: crankAccount.publicKey,
                     space: size,
                     lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
+                    programId: program.programId,
+                }),
+                anchor.web3.SystemProgram.createAccount({
+                    fromPubkey: program.provider.wallet.publicKey,
+                    newAccountPubkey: buffer.publicKey,
+                    space: crankSize,
+                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(crankSize),
                     programId: program.programId,
                 }),
             ],
