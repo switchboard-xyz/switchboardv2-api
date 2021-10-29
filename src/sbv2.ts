@@ -1444,12 +1444,9 @@ export class OracleQueueAccount {
     params: OracleQueueInitParams
   ): Promise<OracleQueueAccount> {
     const oracleQueueAccount = anchor.web3.Keypair.generate();
+    const buffer = anchor.web3.Keypair.generate();
     const size = program.account.oracleQueueAccountData.size;
     const queueSize = (params.queueSize ?? 500) * 32;
-    const [buffer, bufferBump] = new OracleQueueAccount({
-      program,
-      keypair: oracleQueueAccount,
-    }).bufferFromSeed();
     await program.rpc.oracleQueueInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
@@ -1471,18 +1468,17 @@ export class OracleQueueAccount {
         consecutiveOracleFailureLimit:
           params.consecutiveOracleFailureLimit ?? new anchor.BN(1000),
         minimumDelaySeconds: params.minimumDelaySeconds ?? 5,
-        bufferBump,
         queueSize,
       },
       {
         accounts: {
           oracleQueue: oracleQueueAccount.publicKey,
           authority: params.authority,
-          buffer,
+          buffer: buffer.publicKey,
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
         },
-        signers: [oracleQueueAccount],
+        signers: [oracleQueueAccount, buffer],
         instructions: [
           anchor.web3.SystemProgram.createAccount({
             fromPubkey: program.provider.wallet.publicKey,
@@ -1914,28 +1910,24 @@ export class CrankAccount {
     params: CrankInitParams
   ): Promise<CrankAccount> {
     const crankAccount = anchor.web3.Keypair.generate();
+    const buffer = anchor.web3.Keypair.generate();
     const size = program.account.crankAccountData.size;
     const crankSize = (params.maxRows ?? 500) * 40;
-    const [buffer, bufferBump] = new CrankAccount({
-      program,
-      keypair: crankAccount,
-    }).bufferFromSeed();
     await program.rpc.crankInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
-        bufferBump,
         crankSize,
       },
       {
         accounts: {
           crank: crankAccount.publicKey,
           queue: params.queueAccount.publicKey,
-          buffer,
+          buffer: buffer.publicKey,
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
         },
-        signers: [crankAccount],
+        signers: [crankAccount, buffer],
         instructions: [
           anchor.web3.SystemProgram.createAccount({
             fromPubkey: program.provider.wallet.publicKey,

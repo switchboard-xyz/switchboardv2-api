@@ -882,12 +882,9 @@ class OracleQueueAccount {
     static async create(program, params) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
+        const buffer = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         const queueSize = ((_a = params.queueSize) !== null && _a !== void 0 ? _a : 500) * 32;
-        const [buffer, bufferBump] = new OracleQueueAccount({
-            program,
-            keypair: oracleQueueAccount,
-        }).bufferFromSeed();
         await program.rpc.oracleQueueInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
@@ -901,17 +898,16 @@ class OracleQueueAccount {
             consecutiveFeedFailureLimit: (_k = params.consecutiveFeedFailureLimit) !== null && _k !== void 0 ? _k : new anchor.BN(1000),
             consecutiveOracleFailureLimit: (_l = params.consecutiveOracleFailureLimit) !== null && _l !== void 0 ? _l : new anchor.BN(1000),
             minimumDelaySeconds: (_m = params.minimumDelaySeconds) !== null && _m !== void 0 ? _m : 5,
-            bufferBump,
             queueSize,
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
                 authority: params.authority,
-                buffer,
+                buffer: buffer.publicKey,
                 systemProgram: web3_js_1.SystemProgram.programId,
                 payer: program.provider.wallet.publicKey,
             },
-            signers: [oracleQueueAccount],
+            signers: [oracleQueueAccount, buffer],
             instructions: [
                 anchor.web3.SystemProgram.createAccount({
                     fromPubkey: program.provider.wallet.publicKey,
@@ -1148,26 +1144,22 @@ class CrankAccount {
     static async create(program, params) {
         var _a, _b, _c;
         const crankAccount = anchor.web3.Keypair.generate();
+        const buffer = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
         const crankSize = ((_a = params.maxRows) !== null && _a !== void 0 ? _a : 500) * 40;
-        const [buffer, bufferBump] = new CrankAccount({
-            program,
-            keypair: crankAccount,
-        }).bufferFromSeed();
         await program.rpc.crankInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
-            bufferBump,
             crankSize,
         }, {
             accounts: {
                 crank: crankAccount.publicKey,
                 queue: params.queueAccount.publicKey,
-                buffer,
+                buffer: buffer.publicKey,
                 systemProgram: web3_js_1.SystemProgram.programId,
                 payer: program.provider.wallet.publicKey,
             },
-            signers: [crankAccount],
+            signers: [crankAccount, buffer],
             instructions: [
                 anchor.web3.SystemProgram.createAccount({
                     fromPubkey: program.provider.wallet.publicKey,
