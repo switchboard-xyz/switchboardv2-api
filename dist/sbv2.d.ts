@@ -573,6 +573,10 @@ export interface OracleQueueInitParams {
      * the minimum update delay time for Aggregators
      */
     minimumDelaySeconds?: number;
+    /**
+     * Optionally set the size of the queue.
+     */
+    queueSize?: number;
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to
@@ -598,6 +602,10 @@ export declare class OracleQueueAccount {
      * @return size.
      */
     size(): number;
+    /**
+     * Loads the queue's buffer pubkey
+     */
+    bufferFromSeed(): [PublicKey, number];
     /**
      * Create and initialize the OracleQueueAccount.
      * @param program Switchboard program representation holding connection and IDL.
@@ -766,6 +774,7 @@ export declare class CrankRow {
      *  Next aggregator update timestamp to order the crank by
      */
     nextTimestamp: anchor.BN;
+    static from(buf: Buffer): CrankRow;
 }
 /**
  * A Switchboard account representing a crank of aggregators ordered by next update time.
@@ -790,6 +799,10 @@ export declare class CrankAccount {
      * @return size.
      */
     size(): number;
+    /**
+     * Loads the crank's buffer pubkey
+     */
+    bufferFromSeed(): [PublicKey, number];
     /**
      * Create and initialize the CrankAccount.
      * @param program Switchboard program representation holding connection and IDL.

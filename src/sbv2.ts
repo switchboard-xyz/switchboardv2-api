@@ -827,6 +827,7 @@ export class AggregatorAccount {
           programState: stateAccount.publicKey,
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
+          dataBuffer: params.oracleQueueAccount.bufferFromSeed()[0],
         },
       }
     );
@@ -1338,6 +1339,10 @@ export interface OracleQueueInitParams {
    * the minimum update delay time for Aggregators
    */
   minimumDelaySeconds?: number;
+  /**
+   * Optionally set the size of the queue.
+   */
+  queueSize?: number;
 }
 
 /**
@@ -1380,6 +1385,22 @@ export class OracleQueueAccount {
     const queue: any = await this.program.account.oracleQueueAccountData.fetch(
       this.publicKey
     );
+    const queueData = [];
+    const buffer =
+      (
+        await this.program.provider.connection.getAccountInfo(
+          this.bufferFromSeed()[0]
+        )
+      )?.data ?? Buffer.from("");
+    const rowSize = 32;
+    for (let i = 0; i < buffer.length; i += rowSize) {
+      if (buffer.length - i < rowSize) {
+        break;
+      }
+      const pubkeyBuf = buffer.slice(i, i + rowSize);
+      queueData.push(new PublicKey(pubkeyBuf));
+    }
+    queue.queue = queueData;
     queue.ebuf = undefined;
     return queue;
   }
@@ -1390,6 +1411,16 @@ export class OracleQueueAccount {
    */
   size(): number {
     return this.program.account.oracleQueueAccountData.size;
+  }
+
+  /**
+   * Loads the queue's buffer pubkey
+   */
+  bufferFromSeed(): [PublicKey, number] {
+    return anchor.utils.publicKey.findProgramAddressSync(
+      [Buffer.from("BUFFER"), this.publicKey.toBytes()],
+      this.program.programId
+    );
   }
 
   /**
@@ -1404,6 +1435,11 @@ export class OracleQueueAccount {
   ): Promise<OracleQueueAccount> {
     const oracleQueueAccount = anchor.web3.Keypair.generate();
     const size = program.account.oracleQueueAccountData.size;
+    const queueSize = params.queueSize * 32 ?? 500;
+    const buffer = new OracleQueueAccount({
+      program,
+      keypair: oracleQueueAccount,
+    }).bufferFromSeed()[0];
     await program.rpc.oracleQueueInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
@@ -1424,13 +1460,13 @@ export class OracleQueueAccount {
           params.consecutiveFeedFailureLimit ?? new anchor.BN(1000),
         consecutiveOracleFailureLimit:
           params.consecutiveOracleFailureLimit ?? new anchor.BN(1000),
-        minimumDelaySeconds:
-          params.minimumDelaySeconds ?? 5,
+        minimumDelaySeconds: params.minimumDelaySeconds ?? 5,
       },
       {
         accounts: {
           oracleQueue: oracleQueueAccount.publicKey,
           authority: params.authority,
+          buffer,
         },
         signers: [oracleQueueAccount],
         instructions: [
@@ -1441,6 +1477,16 @@ export class OracleQueueAccount {
             lamports:
               await program.provider.connection.getMinimumBalanceForRentExemption(
                 size
+              ),
+            programId: program.programId,
+          }),
+          anchor.web3.SystemProgram.createAccount({
+            fromPubkey: program.provider.wallet.publicKey,
+            newAccountPubkey: buffer,
+            space: queueSize,
+            lamports:
+              await program.provider.connection.getMinimumBalanceForRentExemption(
+                queueSize
               ),
             programId: program.programId,
           }),
@@ -1764,6 +1810,15 @@ export class CrankRow {
    *  Next aggregator update timestamp to order the crank by
    */
   nextTimestamp: anchor.BN;
+
+  static from(buf: Buffer): CrankRow {
+    const pubkey = new PublicKey(buf.slice(0, 32));
+    const nextTimestamp = new anchor.BN(buf.slice(32));
+    const res = new CrankRow();
+    res.pubkey = pubkey;
+    res.nextTimestamp = nextTimestamp;
+    return res;
+  }
 }
 
 /**
@@ -1802,11 +1857,27 @@ export class CrankAccount {
    * Switchboard IDL.
    */
   async loadData(): Promise<any> {
-    const lease: any = await this.program.account.crankAccountData.fetch(
+    const crank: any = await this.program.account.crankAccountData.fetch(
       this.publicKey
     );
-    lease.ebuf = undefined;
-    return lease;
+    const pqData = [];
+    const buffer =
+      (
+        await this.program.provider.connection.getAccountInfo(
+          this.bufferFromSeed()[0]
+        )
+      )?.data ?? Buffer.from("");
+    const rowSize = 40;
+    for (let i = 0; i < buffer.length; i += rowSize) {
+      if (buffer.length - i < rowSize) {
+        break;
+      }
+      const rowBuf = buffer.slice(i, i + rowSize);
+      pqData.push(CrankRow.from(rowBuf));
+    }
+    crank.pqData = pqData;
+    crank.ebuf = undefined;
+    return crank;
   }
 
   /**
@@ -1815,6 +1886,16 @@ export class CrankAccount {
    */
   size(): number {
     return this.program.account.crankAccountData.size;
+  }
+
+  /**
+   * Loads the crank's buffer pubkey
+   */
+  bufferFromSeed(): [PublicKey, number] {
+    return anchor.utils.publicKey.findProgramAddressSync(
+      [Buffer.from("BUFFER"), this.publicKey.toBytes()],
+      this.program.programId
+    );
   }
 
   /**
@@ -1829,16 +1910,21 @@ export class CrankAccount {
   ): Promise<CrankAccount> {
     const crankAccount = anchor.web3.Keypair.generate();
     const size = program.account.crankAccountData.size;
+    const crankSize = params.maxRows * 40 ?? 500;
+    const buffer = new CrankAccount({
+      program,
+      keypair: crankAccount,
+    }).bufferFromSeed()[0];
     await program.rpc.crankInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
-        maxRows: params.maxRows ?? null,
       },
       {
         accounts: {
           crank: crankAccount.publicKey,
           queue: params.queueAccount.publicKey,
+          buffer,
         },
         signers: [crankAccount],
         instructions: [
@@ -1849,6 +1935,16 @@ export class CrankAccount {
             lamports:
               await program.provider.connection.getMinimumBalanceForRentExemption(
                 size
+              ),
+            programId: program.programId,
+          }),
+          anchor.web3.SystemProgram.createAccount({
+            fromPubkey: program.provider.wallet.publicKey,
+            newAccountPubkey: buffer,
+            space: crankSize,
+            lamports:
+              await program.provider.connection.getMinimumBalanceForRentExemption(
+                crankSize
               ),
             programId: program.programId,
           }),
@@ -1913,6 +2009,7 @@ export class CrankAccount {
           lease: leaseAccount.publicKey,
           escrow: lease.escrow,
           programState: programStateAccount.publicKey,
+          dataBuffer: this.bufferFromSeed()[0],
         },
       }
     );
@@ -1932,6 +2029,11 @@ export class CrankAccount {
     const leaseBumpsMap: Map<string, number> = new Map();
     const permissionBumpsMap: Map<string, number> = new Map();
     const leasePubkeys = [];
+    const queueAccount = new OracleQueueAccount({
+      program: this.program,
+      publicKey: params.queuePubkey,
+    });
+
     for (const row of next) {
       const aggregatorAccount = new AggregatorAccount({
         program: this.program,
@@ -1939,10 +2041,7 @@ export class CrankAccount {
       });
       const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
         this.program,
-        new OracleQueueAccount({
-          program: this.program,
-          publicKey: params.queuePubkey,
-        }),
+        queueAccount,
         aggregatorAccount
       );
       const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
@@ -1997,6 +2096,8 @@ export class CrankAccount {
           programState: programStateAccount.publicKey,
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
+          crankDataBuffer: this.bufferFromSeed()[0],
+          queueDataBuffer: queueAccount.bufferFromSeed()[0],
         },
         remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
           return { isSigner: false, isWritable: true, pubkey };
@@ -2244,6 +2345,7 @@ export class OracleAccount {
           gcOracle: lastPubkey,
           oracleQueue: queueAccount.publicKey,
           permission: permissionAccount.publicKey,
+          dataBuffer: queueAccount.bufferFromSeed()[0],
         },
         signers: [this.keypair],
       }

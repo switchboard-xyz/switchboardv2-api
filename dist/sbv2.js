@@ -533,6 +533,7 @@ class AggregatorAccount {
                 programState: stateAccount.publicKey,
                 payoutWallet: params.payoutWallet,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
+                dataBuffer: params.oracleQueueAccount.bufferFromSeed()[0],
             },
         });
     }
@@ -840,7 +841,19 @@ class OracleQueueAccount {
      * Switchboard IDL.
      */
     async loadData() {
+        var _a, _b;
         const queue = await this.program.account.oracleQueueAccountData.fetch(this.publicKey);
+        const queueData = [];
+        const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(this.bufferFromSeed()[0]))) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : Buffer.from("");
+        const rowSize = 32;
+        for (let i = 0; i < buffer.length; i += rowSize) {
+            if (buffer.length - i < rowSize) {
+                break;
+            }
+            const pubkeyBuf = buffer.slice(i, i + rowSize);
+            queueData.push(new web3_js_1.PublicKey(pubkeyBuf));
+        }
+        queue.queue = queueData;
         queue.ebuf = undefined;
         return queue;
     }
@@ -852,32 +865,44 @@ class OracleQueueAccount {
         return this.program.account.oracleQueueAccountData.size;
     }
     /**
+     * Loads the queue's buffer pubkey
+     */
+    bufferFromSeed() {
+        return anchor.utils.publicKey.findProgramAddressSync([Buffer.from("BUFFER"), this.publicKey.toBytes()], this.program.programId);
+    }
+    /**
      * Create and initialize the OracleQueueAccount.
      * @param program Switchboard program representation holding connection and IDL.
      * @param params.
      * @return newly generated OracleQueueAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
+        const queueSize = (_a = params.queueSize * 32) !== null && _a !== void 0 ? _a : 500;
+        const buffer = new OracleQueueAccount({
+            program,
+            keypair: oracleQueueAccount,
+        }).bufferFromSeed()[0];
         await program.rpc.oracleQueueInit({
-            name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
-            metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 64),
-            reward: (_c = params.reward) !== null && _c !== void 0 ? _c : new anchor.BN(0),
-            minStake: (_d = params.minStake) !== null && _d !== void 0 ? _d : new anchor.BN(0),
-            feedProbationPeriod: (_e = params.feedProbationPeriod) !== null && _e !== void 0 ? _e : 0,
-            oracleTimeout: (_f = params.oracleTimeout) !== null && _f !== void 0 ? _f : 180,
-            slashingEnabled: (_g = params.slashingEnabled) !== null && _g !== void 0 ? _g : false,
-            varianceToleranceMultiplier: Object.assign({}, SwitchboardDecimal.fromBig(new big_js_1.default((_h = params.varianceToleranceMultiplier) !== null && _h !== void 0 ? _h : 2))),
+            name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
+            metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
+            reward: (_d = params.reward) !== null && _d !== void 0 ? _d : new anchor.BN(0),
+            minStake: (_e = params.minStake) !== null && _e !== void 0 ? _e : new anchor.BN(0),
+            feedProbationPeriod: (_f = params.feedProbationPeriod) !== null && _f !== void 0 ? _f : 0,
+            oracleTimeout: (_g = params.oracleTimeout) !== null && _g !== void 0 ? _g : 180,
+            slashingEnabled: (_h = params.slashingEnabled) !== null && _h !== void 0 ? _h : false,
+            varianceToleranceMultiplier: Object.assign({}, SwitchboardDecimal.fromBig(new big_js_1.default((_j = params.varianceToleranceMultiplier) !== null && _j !== void 0 ? _j : 2))),
             authority: params.authority,
-            consecutiveFeedFailureLimit: (_j = params.consecutiveFeedFailureLimit) !== null && _j !== void 0 ? _j : new anchor.BN(1000),
-            consecutiveOracleFailureLimit: (_k = params.consecutiveOracleFailureLimit) !== null && _k !== void 0 ? _k : new anchor.BN(1000),
-            minimumDelaySeconds: (_l = params.minimumDelaySeconds) !== null && _l !== void 0 ? _l : 5,
+            consecutiveFeedFailureLimit: (_k = params.consecutiveFeedFailureLimit) !== null && _k !== void 0 ? _k : new anchor.BN(1000),
+            consecutiveOracleFailureLimit: (_l = params.consecutiveOracleFailureLimit) !== null && _l !== void 0 ? _l : new anchor.BN(1000),
+            minimumDelaySeconds: (_m = params.minimumDelaySeconds) !== null && _m !== void 0 ? _m : 5,
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
                 authority: params.authority,
+                buffer,
             },
             signers: [oracleQueueAccount],
             instructions: [
@@ -886,6 +911,13 @@ class OracleQueueAccount {
                     newAccountPubkey: oracleQueueAccount.publicKey,
                     space: size,
                     lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
+                    programId: program.programId,
+                }),
+                anchor.web3.SystemProgram.createAccount({
+                    fromPubkey: program.provider.wallet.publicKey,
+                    newAccountPubkey: buffer,
+                    space: queueSize,
+                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(queueSize),
                     programId: program.programId,
                 }),
             ],
@@ -1039,6 +1071,14 @@ exports.LeaseAccount = LeaseAccount;
  * Row structure of elements in the crank.
  */
 class CrankRow {
+    static from(buf) {
+        const pubkey = new web3_js_1.PublicKey(buf.slice(0, 32));
+        const nextTimestamp = new anchor.BN(buf.slice(32));
+        const res = new CrankRow();
+        res.pubkey = pubkey;
+        res.nextTimestamp = nextTimestamp;
+        return res;
+    }
 }
 exports.CrankRow = CrankRow;
 /**
@@ -1069,9 +1109,21 @@ class CrankAccount {
      * Switchboard IDL.
      */
     async loadData() {
-        const lease = await this.program.account.crankAccountData.fetch(this.publicKey);
-        lease.ebuf = undefined;
-        return lease;
+        var _a, _b;
+        const crank = await this.program.account.crankAccountData.fetch(this.publicKey);
+        const pqData = [];
+        const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(this.bufferFromSeed()[0]))) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : Buffer.from("");
+        const rowSize = 40;
+        for (let i = 0; i < buffer.length; i += rowSize) {
+            if (buffer.length - i < rowSize) {
+                break;
+            }
+            const rowBuf = buffer.slice(i, i + rowSize);
+            pqData.push(CrankRow.from(rowBuf));
+        }
+        crank.pqData = pqData;
+        crank.ebuf = undefined;
+        return crank;
     }
     /**
      * Get the size of a CrankAccount on chain.
@@ -1079,6 +1131,12 @@ class CrankAccount {
      */
     size() {
         return this.program.account.crankAccountData.size;
+    }
+    /**
+     * Loads the crank's buffer pubkey
+     */
+    bufferFromSeed() {
+        return anchor.utils.publicKey.findProgramAddressSync([Buffer.from("BUFFER"), this.publicKey.toBytes()], this.program.programId);
     }
     /**
      * Create and initialize the CrankAccount.
@@ -1090,14 +1148,19 @@ class CrankAccount {
         var _a, _b, _c;
         const crankAccount = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
+        const crankSize = (_a = params.maxRows * 40) !== null && _a !== void 0 ? _a : 500;
+        const buffer = new CrankAccount({
+            program,
+            keypair: crankAccount,
+        }).bufferFromSeed()[0];
         await program.rpc.crankInit({
-            name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
-            metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 64),
-            maxRows: (_c = params.maxRows) !== null && _c !== void 0 ? _c : null,
+            name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
+            metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
         }, {
             accounts: {
                 crank: crankAccount.publicKey,
                 queue: params.queueAccount.publicKey,
+                buffer,
             },
             signers: [crankAccount],
             instructions: [
@@ -1106,6 +1169,13 @@ class CrankAccount {
                     newAccountPubkey: crankAccount.publicKey,
                     space: size,
                     lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
+                    programId: program.programId,
+                }),
+                anchor.web3.SystemProgram.createAccount({
+                    fromPubkey: program.provider.wallet.publicKey,
+                    newAccountPubkey: buffer,
+                    space: crankSize,
+                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(crankSize),
                     programId: program.programId,
                 }),
             ],
@@ -1155,6 +1225,7 @@ class CrankAccount {
                 lease: leaseAccount.publicKey,
                 escrow: lease.escrow,
                 programState: programStateAccount.publicKey,
+                dataBuffer: this.bufferFromSeed()[0],
             },
         });
     }
@@ -1173,15 +1244,16 @@ class CrankAccount {
         const leaseBumpsMap = new Map();
         const permissionBumpsMap = new Map();
         const leasePubkeys = [];
+        const queueAccount = new OracleQueueAccount({
+            program: this.program,
+            publicKey: params.queuePubkey,
+        });
         for (const row of next) {
             const aggregatorAccount = new AggregatorAccount({
                 program: this.program,
                 publicKey: row,
             });
-            const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(this.program, new OracleQueueAccount({
-                program: this.program,
-                publicKey: params.queuePubkey,
-            }), aggregatorAccount);
+            const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(this.program, queueAccount, aggregatorAccount);
             const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, params.queueAuthority, params.queuePubkey, row);
             leasePubkeys.push(leaseAccount.publicKey);
             remainingAccounts.push(aggregatorAccount.publicKey);
@@ -1219,6 +1291,8 @@ class CrankAccount {
                 programState: programStateAccount.publicKey,
                 payoutWallet: params.payoutWallet,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
+                crankDataBuffer: this.bufferFromSeed()[0],
+                queueDataBuffer: queueAccount.bufferFromSeed()[0],
             },
             remainingAccounts: remainingAccounts.map((pubkey) => {
                 return { isSigner: false, isWritable: true, pubkey };
@@ -1396,6 +1470,7 @@ class OracleAccount {
                 gcOracle: lastPubkey,
                 oracleQueue: queueAccount.publicKey,
                 permission: permissionAccount.publicKey,
+                dataBuffer: queueAccount.bufferFromSeed()[0],
             },
             signers: [this.keypair],
         });
