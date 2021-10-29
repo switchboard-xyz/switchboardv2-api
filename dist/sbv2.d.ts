@@ -351,6 +351,7 @@ export declare class AggregatorAccount {
      */
     openRound(params: AggregatorOpenRoundParams): Promise<TransactionSignature>;
     getOracleIndex(oraclePubkey: PublicKey): Promise<number>;
+    saveResult(aggregator: any, oracleAccount: OracleAccount, params: AggregatorSaveResultParams): Promise<TransactionSignature>;
     /**
      * RPC for an oracle to save a result to an aggregator round.
      * @param oracleAccount The oracle account submitting a result.

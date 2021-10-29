@@ -546,6 +546,9 @@ class AggregatorAccount {
         }
         return -1;
     }
+    async saveResult(aggregator, oracleAccount, params) {
+        return await this.program.provider.send(await this.saveResultTxn(aggregator, oracleAccount, params));
+    }
     /**
      * RPC for an oracle to save a result to an aggregator round.
      * @param oracleAccount The oracle account submitting a result.
