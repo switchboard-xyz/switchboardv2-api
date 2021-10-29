@@ -1496,28 +1496,7 @@ export class OracleQueueAccount {
           buffer: buffer.publicKey,
         },
         signers: [oracleQueueAccount, buffer, payerKeypair],
-        instructions: [
-          anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
-            newAccountPubkey: oracleQueueAccount.publicKey,
-            space: size,
-            lamports:
-              await program.provider.connection.getMinimumBalanceForRentExemption(
-                size
-              ),
-            programId: program.programId,
-          }),
-          anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
-            newAccountPubkey: buffer.publicKey,
-            space: queueSize,
-            lamports:
-              await program.provider.connection.getMinimumBalanceForRentExemption(
-                queueSize
-              ),
-            programId: program.programId,
-          }),
-        ],
+        instructions: [],
       }
     );
     return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
