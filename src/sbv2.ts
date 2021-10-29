@@ -1911,16 +1911,6 @@ export class CrankAccount {
     tx.add(
       anchor.web3.SystemProgram.createAccount({
         fromPubkey: program.provider.wallet.publicKey,
-        newAccountPubkey: crankAccount.publicKey,
-        space: size,
-        lamports:
-          await program.provider.connection.getMinimumBalanceForRentExemption(
-            size
-          ),
-        programId: program.programId,
-      }),
-      anchor.web3.SystemProgram.createAccount({
-        fromPubkey: program.provider.wallet.publicKey,
         newAccountPubkey: buffer.publicKey,
         space: crankSize,
         lamports:
@@ -1943,10 +1933,13 @@ export class CrankAccount {
         crankSize,
       },
       {
+        signers: [crankAccount],
         accounts: {
           crank: crankAccount.publicKey,
           queue: params.queueAccount.publicKey,
           buffer: buffer.publicKey,
+          systemProgram: SystemProgram.programId,
+          payer: program.provider.wallet.publicKey,
         },
       }
     );

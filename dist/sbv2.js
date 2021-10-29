@@ -1146,12 +1146,6 @@ class CrankAccount {
         const tx = new web3_js_1.Transaction();
         tx.add(anchor.web3.SystemProgram.createAccount({
             fromPubkey: program.provider.wallet.publicKey,
-            newAccountPubkey: crankAccount.publicKey,
-            space: size,
-            lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
-            programId: program.programId,
-        }), anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
             newAccountPubkey: buffer.publicKey,
             space: crankSize,
             lamports: await program.provider.connection.getMinimumBalanceForRentExemption(crankSize),
@@ -1166,10 +1160,13 @@ class CrankAccount {
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
             crankSize,
         }, {
+            signers: [crankAccount],
             accounts: {
                 crank: crankAccount.publicKey,
                 queue: params.queueAccount.publicKey,
                 buffer: buffer.publicKey,
+                systemProgram: web3_js_1.SystemProgram.programId,
+                payer: program.provider.wallet.publicKey,
             },
         });
         return new CrankAccount({ program, keypair: crankAccount });
