@@ -899,8 +899,6 @@ class OracleQueueAccount {
                 oracleQueue: oracleQueueAccount.publicKey,
                 authority: params.authority,
                 buffer: buffer.publicKey,
-                systemProgram: web3_js_1.SystemProgram.programId,
-                payer: program.provider.wallet.publicKey,
             },
             signers: [oracleQueueAccount, buffer, payerKeypair],
             instructions: [
@@ -1153,8 +1151,6 @@ class CrankAccount {
                 crank: crankAccount.publicKey,
                 queue: params.queueAccount.publicKey,
                 buffer: buffer.publicKey,
-                systemProgram: web3_js_1.SystemProgram.programId,
-                payer: program.provider.wallet.publicKey,
             },
             signers: [crankAccount, buffer, payerKeypair],
             instructions: [
