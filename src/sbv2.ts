@@ -1441,16 +1441,6 @@ export class OracleQueueAccount {
     tx.add(
       anchor.web3.SystemProgram.createAccount({
         fromPubkey: program.provider.wallet.publicKey,
-        newAccountPubkey: oracleQueueAccount.publicKey,
-        space: size,
-        lamports:
-          await program.provider.connection.getMinimumBalanceForRentExemption(
-            size
-          ),
-        programId: program.programId,
-      }),
-      anchor.web3.SystemProgram.createAccount({
-        fromPubkey: program.provider.wallet.publicKey,
         newAccountPubkey: buffer.publicKey,
         space: queueSize,
         lamports:
@@ -1464,7 +1454,7 @@ export class OracleQueueAccount {
       await program.provider.connection.getRecentBlockhashAndContext()
     ).value.blockhash;
     tx.recentBlockhash = recentBlockhash;
-    tx.sign(payerKeypair, oracleQueueAccount, buffer);
+    tx.sign(payerKeypair, buffer);
     await program.provider.send(tx);
     await program.rpc.oracleQueueInit(
       {
@@ -1494,6 +1484,8 @@ export class OracleQueueAccount {
           oracleQueue: oracleQueueAccount.publicKey,
           authority: params.authority,
           buffer: buffer.publicKey,
+          systemProgram: SystemProgram.programId,
+          payer: program.provider.wallet.publicKey,
         },
       }
     );

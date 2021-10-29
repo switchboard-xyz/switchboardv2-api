@@ -883,12 +883,6 @@ class OracleQueueAccount {
         const tx = new web3_js_1.Transaction();
         tx.add(anchor.web3.SystemProgram.createAccount({
             fromPubkey: program.provider.wallet.publicKey,
-            newAccountPubkey: oracleQueueAccount.publicKey,
-            space: size,
-            lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
-            programId: program.programId,
-        }), anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
             newAccountPubkey: buffer.publicKey,
             space: queueSize,
             lamports: await program.provider.connection.getMinimumBalanceForRentExemption(queueSize),
@@ -896,7 +890,7 @@ class OracleQueueAccount {
         }));
         const recentBlockhash = (await program.provider.connection.getRecentBlockhashAndContext()).value.blockhash;
         tx.recentBlockhash = recentBlockhash;
-        tx.sign(payerKeypair, oracleQueueAccount, buffer);
+        tx.sign(payerKeypair, buffer);
         await program.provider.send(tx);
         await program.rpc.oracleQueueInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
@@ -917,6 +911,8 @@ class OracleQueueAccount {
                 oracleQueue: oracleQueueAccount.publicKey,
                 authority: params.authority,
                 buffer: buffer.publicKey,
+                systemProgram: web3_js_1.SystemProgram.programId,
+                payer: program.provider.wallet.publicKey,
             },
         });
         return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
