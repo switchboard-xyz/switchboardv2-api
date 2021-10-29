@@ -1115,7 +1115,7 @@ class CrankAccount {
         const pqData = [];
         const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(this.bufferFromSeed()[0]))) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : Buffer.from("");
         const rowSize = 40;
-        for (let i = 0; i < buffer.length; i += rowSize) {
+        for (let i = 0; i < crank.pqSize * rowSize; i += rowSize) {
             if (buffer.length - i < rowSize) {
                 break;
             }

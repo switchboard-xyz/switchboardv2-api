@@ -1873,7 +1873,7 @@ export class CrankAccount {
         )
       )?.data ?? Buffer.from("");
     const rowSize = 40;
-    for (let i = 0; i < buffer.length; i += rowSize) {
+    for (let i = 0; i < crank.pqSize * rowSize; i += rowSize) {
       if (buffer.length - i < rowSize) {
         break;
       }
