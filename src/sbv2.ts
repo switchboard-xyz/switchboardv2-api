@@ -1437,25 +1437,14 @@ export class OracleQueueAccount {
     const buffer = anchor.web3.Keypair.generate();
     const size = program.account.oracleQueueAccountData.size;
     const queueSize = (params.queueSize ?? 500) * 32;
-    const tx = new Transaction();
-    tx.add(
-      anchor.web3.SystemProgram.createAccount({
-        fromPubkey: program.provider.wallet.publicKey,
-        newAccountPubkey: buffer.publicKey,
-        space: queueSize,
-        lamports:
-          await program.provider.connection.getMinimumBalanceForRentExemption(
-            queueSize
-          ),
-        programId: program.programId,
-      })
-    );
-    const recentBlockhash = (
-      await program.provider.connection.getRecentBlockhashAndContext()
-    ).value.blockhash;
-    tx.recentBlockhash = recentBlockhash;
-    tx.sign(payerKeypair, buffer);
-    await program.provider.send(tx);
+    // const tx = new Transaction();
+    // tx.add();
+    // const recentBlockhash = (
+    // await program.provider.connection.getRecentBlockhashAndContext()
+    // ).value.blockhash;
+    // tx.recentBlockhash = recentBlockhash;
+    // tx.sign(payerKeypair, buffer);
+    // await program.provider.send(tx);
     await program.rpc.oracleQueueInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
@@ -1480,7 +1469,7 @@ export class OracleQueueAccount {
         queueSize,
       },
       {
-        signers: [oracleQueueAccount],
+        signers: [oracleQueueAccount, buffer],
         accounts: {
           oracleQueue: oracleQueueAccount.publicKey,
           authority: params.authority,
@@ -1488,6 +1477,18 @@ export class OracleQueueAccount {
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
         },
+        instructions: [
+          anchor.web3.SystemProgram.createAccount({
+            fromPubkey: program.provider.wallet.publicKey,
+            newAccountPubkey: buffer.publicKey,
+            space: queueSize,
+            lamports:
+              await program.provider.connection.getMinimumBalanceForRentExemption(
+                queueSize
+              ),
+            programId: program.programId,
+          }),
+        ],
       }
     );
     return new OracleQueueAccount({ program, keypair: oracleQueueAccount });

@@ -880,18 +880,14 @@ class OracleQueueAccount {
         const buffer = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         const queueSize = ((_a = params.queueSize) !== null && _a !== void 0 ? _a : 500) * 32;
-        const tx = new web3_js_1.Transaction();
-        tx.add(anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
-            newAccountPubkey: buffer.publicKey,
-            space: queueSize,
-            lamports: await program.provider.connection.getMinimumBalanceForRentExemption(queueSize),
-            programId: program.programId,
-        }));
-        const recentBlockhash = (await program.provider.connection.getRecentBlockhashAndContext()).value.blockhash;
-        tx.recentBlockhash = recentBlockhash;
-        tx.sign(payerKeypair, buffer);
-        await program.provider.send(tx);
+        // const tx = new Transaction();
+        // tx.add();
+        // const recentBlockhash = (
+        // await program.provider.connection.getRecentBlockhashAndContext()
+        // ).value.blockhash;
+        // tx.recentBlockhash = recentBlockhash;
+        // tx.sign(payerKeypair, buffer);
+        // await program.provider.send(tx);
         await program.rpc.oracleQueueInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
@@ -907,7 +903,7 @@ class OracleQueueAccount {
             minimumDelaySeconds: (_m = params.minimumDelaySeconds) !== null && _m !== void 0 ? _m : 5,
             queueSize,
         }, {
-            signers: [oracleQueueAccount],
+            signers: [oracleQueueAccount, buffer],
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
                 authority: params.authority,
@@ -915,6 +911,15 @@ class OracleQueueAccount {
                 systemProgram: web3_js_1.SystemProgram.programId,
                 payer: program.provider.wallet.publicKey,
             },
+            instructions: [
+                anchor.web3.SystemProgram.createAccount({
+                    fromPubkey: program.provider.wallet.publicKey,
+                    newAccountPubkey: buffer.publicKey,
+                    space: queueSize,
+                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(queueSize),
+                    programId: program.programId,
+                }),
+            ],
         });
         return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
     }
