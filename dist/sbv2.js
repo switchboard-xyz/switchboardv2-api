@@ -1157,9 +1157,9 @@ class CrankAccount {
             lamports: await program.provider.connection.getMinimumBalanceForRentExemption(crankSize),
             programId: program.programId,
         }));
-        tx.sign(payerKeypair, crankAccount, buffer);
         const recentBlockhash = (await program.provider.connection.getRecentBlockhashAndContext()).value.blockhash;
         tx.recentBlockhash = recentBlockhash;
+        tx.sign(payerKeypair, crankAccount, buffer);
         await program.provider.send(tx);
         await program.rpc.crankInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
