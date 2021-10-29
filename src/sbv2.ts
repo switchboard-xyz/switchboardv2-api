@@ -827,7 +827,7 @@ export class AggregatorAccount {
           programState: stateAccount.publicKey,
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
-          dataBuffer: queue.dataBuffer ?? console.log("WEIRD"),
+          dataBuffer: queue.dataBuffer,
         },
       }
     );
@@ -1813,7 +1813,6 @@ export class CrankRow {
   static from(buf: Buffer): CrankRow {
     const pubkey = new PublicKey(buf.slice(0, 32));
     const nextTimestamp = new anchor.BN(buf.slice(32, 40), "le");
-    console.log(`!!! ${nextTimestamp.toNumber()}`);
     const res = new CrankRow();
     res.pubkey = pubkey;
     res.nextTimestamp = nextTimestamp;
@@ -1997,7 +1996,7 @@ export class CrankAccount {
           lease: leaseAccount.publicKey,
           escrow: lease.escrow,
           programState: programStateAccount.publicKey,
-          dataBuffer: crank.dataBuffer ?? console.log("WEIRD"),
+          dataBuffer: crank.dataBuffer,
         },
       }
     );
@@ -2092,8 +2091,8 @@ export class CrankAccount {
           programState: programStateAccount.publicKey,
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
-          crankDataBuffer: crank.dataBuffer ?? console.log("WEIRD"),
-          queueDataBuffer: queue.dataBuffer ?? console.log("WEIRD"),
+          crankDataBuffer: crank.dataBuffer,
+          queueDataBuffer: queue.dataBuffer,
         },
         remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
           return { isSigner: false, isWritable: true, pubkey };
@@ -2341,7 +2340,7 @@ export class OracleAccount {
           gcOracle: lastPubkey,
           oracleQueue: queueAccount.publicKey,
           permission: permissionAccount.publicKey,
-          dataBuffer: queue.dataBuffer ?? console.log("WEIRD"),
+          dataBuffer: queue.dataBuffer,
         },
         signers: [this.keypair],
       }
