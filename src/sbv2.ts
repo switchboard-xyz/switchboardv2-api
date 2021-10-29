@@ -1495,7 +1495,6 @@ export class OracleQueueAccount {
           authority: params.authority,
           buffer: buffer.publicKey,
         },
-        signers: [oracleQueueAccount, buffer, payerKeypair],
       }
     );
     return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
@@ -1949,7 +1948,6 @@ export class CrankAccount {
           queue: params.queueAccount.publicKey,
           buffer: buffer.publicKey,
         },
-        signers: [payerKeypair],
       }
     );
     return new CrankAccount({ program, keypair: crankAccount });
