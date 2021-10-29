@@ -500,6 +500,7 @@ class AggregatorAccount {
      * @return TransactionSignature
      */
     async openRound(params) {
+        var _a;
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(this.program, params.oracleQueueAccount, this);
         try {
@@ -533,7 +534,7 @@ class AggregatorAccount {
                 programState: stateAccount.publicKey,
                 payoutWallet: params.payoutWallet,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
-                dataBuffer: queue.dataBuffer,
+                dataBuffer: (_a = queue.dataBuffer) !== null && _a !== void 0 ? _a : console.log("WEIRD"),
             },
         });
     }
@@ -1179,6 +1180,7 @@ class CrankAccount {
      * @return TransactionSignature
      */
     async push(params) {
+        var _a;
         const aggregatorAccount = params.aggregatorAccount;
         const crank = await this.loadData();
         const queueAccount = new OracleQueueAccount({
@@ -1216,7 +1218,7 @@ class CrankAccount {
                 lease: leaseAccount.publicKey,
                 escrow: lease.escrow,
                 programState: programStateAccount.publicKey,
-                dataBuffer: crank.dataBuffer,
+                dataBuffer: (_a = crank.dataBuffer) !== null && _a !== void 0 ? _a : console.log("WEIRD"),
             },
         });
     }
@@ -1226,7 +1228,7 @@ class CrankAccount {
      * @return TransactionSignature
      */
     async popTxn(params) {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e, _f;
         const next = (_a = params.readyPubkeys) !== null && _a !== void 0 ? _a : (await this.peakNextReady(5));
         if (next.length === 0) {
             throw new Error("Crank is not ready to be turned.");
@@ -1284,8 +1286,8 @@ class CrankAccount {
                 programState: programStateAccount.publicKey,
                 payoutWallet: params.payoutWallet,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
-                crankDataBuffer: crank.dataBuffer,
-                queueDataBuffer: queue.dataBuffer,
+                crankDataBuffer: (_e = crank.dataBuffer) !== null && _e !== void 0 ? _e : console.log("WEIRD"),
+                queueDataBuffer: (_f = queue.dataBuffer) !== null && _f !== void 0 ? _f : console.log("WEIRD"),
             },
             remainingAccounts: remainingAccounts.map((pubkey) => {
                 return { isSigner: false, isWritable: true, pubkey };
@@ -1435,6 +1437,7 @@ class OracleAccount {
      * @return TransactionSignature.
      */
     async heartbeat() {
+        var _a;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
         const queueAccount = new OracleQueueAccount({
             program: this.program,
@@ -1463,7 +1466,7 @@ class OracleAccount {
                 gcOracle: lastPubkey,
                 oracleQueue: queueAccount.publicKey,
                 permission: permissionAccount.publicKey,
-                dataBuffer: queue.dataBuffer,
+                dataBuffer: (_a = queue.dataBuffer) !== null && _a !== void 0 ? _a : console.log("WEIRD"),
             },
             signers: [this.keypair],
         });

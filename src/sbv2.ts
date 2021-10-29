@@ -827,7 +827,7 @@ export class AggregatorAccount {
           programState: stateAccount.publicKey,
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
-          dataBuffer: queue.dataBuffer,
+          dataBuffer: queue.dataBuffer ?? console.log("WEIRD"),
         },
       }
     );
@@ -1997,7 +1997,7 @@ export class CrankAccount {
           lease: leaseAccount.publicKey,
           escrow: lease.escrow,
           programState: programStateAccount.publicKey,
-          dataBuffer: crank.dataBuffer,
+          dataBuffer: crank.dataBuffer ?? console.log("WEIRD"),
         },
       }
     );
@@ -2092,8 +2092,8 @@ export class CrankAccount {
           programState: programStateAccount.publicKey,
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
-          crankDataBuffer: crank.dataBuffer,
-          queueDataBuffer: queue.dataBuffer,
+          crankDataBuffer: crank.dataBuffer ?? console.log("WEIRD"),
+          queueDataBuffer: queue.dataBuffer ?? console.log("WEIRD"),
         },
         remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
           return { isSigner: false, isWritable: true, pubkey };
@@ -2341,7 +2341,7 @@ export class OracleAccount {
           gcOracle: lastPubkey,
           oracleQueue: queueAccount.publicKey,
           permission: permissionAccount.publicKey,
-          dataBuffer: queue.dataBuffer,
+          dataBuffer: queue.dataBuffer ?? console.log("WEIRD"),
         },
         signers: [this.keypair],
       }
