@@ -1430,6 +1430,9 @@ export class OracleQueueAccount {
     program: anchor.Program,
     params: OracleQueueInitParams
   ): Promise<OracleQueueAccount> {
+    const payerKeypair = Keypair.fromSecretKey(
+      (program.provider.wallet as any).payer.secretKey
+    );
     const oracleQueueAccount = anchor.web3.Keypair.generate();
     const buffer = anchor.web3.Keypair.generate();
     const size = program.account.oracleQueueAccountData.size;
@@ -1465,7 +1468,7 @@ export class OracleQueueAccount {
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
         },
-        signers: [oracleQueueAccount, buffer],
+        signers: [oracleQueueAccount, buffer, payerKeypair],
         instructions: [
           anchor.web3.SystemProgram.createAccount({
             fromPubkey: program.provider.wallet.publicKey,
@@ -1883,6 +1886,9 @@ export class CrankAccount {
     program: anchor.Program,
     params: CrankInitParams
   ): Promise<CrankAccount> {
+    const payerKeypair = Keypair.fromSecretKey(
+      (program.provider.wallet as any).payer.secretKey
+    );
     const crankAccount = anchor.web3.Keypair.generate();
     const buffer = anchor.web3.Keypair.generate();
     const size = program.account.crankAccountData.size;
@@ -1901,7 +1907,7 @@ export class CrankAccount {
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
         },
-        signers: [crankAccount, buffer],
+        signers: [crankAccount, buffer, payerKeypair],
         instructions: [
           anchor.web3.SystemProgram.createAccount({
             fromPubkey: program.provider.wallet.publicKey,

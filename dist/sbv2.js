@@ -875,6 +875,7 @@ class OracleQueueAccount {
      */
     static async create(program, params) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const buffer = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
@@ -901,7 +902,7 @@ class OracleQueueAccount {
                 systemProgram: web3_js_1.SystemProgram.programId,
                 payer: program.provider.wallet.publicKey,
             },
-            signers: [oracleQueueAccount, buffer],
+            signers: [oracleQueueAccount, buffer, payerKeypair],
             instructions: [
                 anchor.web3.SystemProgram.createAccount({
                     fromPubkey: program.provider.wallet.publicKey,
@@ -1131,6 +1132,7 @@ class CrankAccount {
      */
     static async create(program, params) {
         var _a, _b, _c;
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const crankAccount = anchor.web3.Keypair.generate();
         const buffer = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
@@ -1147,7 +1149,7 @@ class CrankAccount {
                 systemProgram: web3_js_1.SystemProgram.programId,
                 payer: program.provider.wallet.publicKey,
             },
-            signers: [crankAccount, buffer],
+            signers: [crankAccount, buffer, payerKeypair],
             instructions: [
                 anchor.web3.SystemProgram.createAccount({
                     fromPubkey: program.provider.wallet.publicKey,
