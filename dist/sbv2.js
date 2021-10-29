@@ -880,14 +880,6 @@ class OracleQueueAccount {
         const buffer = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         const queueSize = ((_a = params.queueSize) !== null && _a !== void 0 ? _a : 500) * 32 + 8;
-        // const tx = new Transaction();
-        // tx.add();
-        // const recentBlockhash = (
-        // await program.provider.connection.getRecentBlockhashAndContext()
-        // ).value.blockhash;
-        // tx.recentBlockhash = recentBlockhash;
-        // tx.sign(payerKeypair, buffer);
-        // await program.provider.send(tx);
         await program.rpc.oracleQueueInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
