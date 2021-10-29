@@ -30,6 +30,7 @@ const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
 const assert_1 = __importDefault(require("assert"));
+var reverse = require("buffer-reverse");
 /**
  * Switchboard precisioned representation of numbers.
  */
@@ -1072,7 +1073,7 @@ exports.LeaseAccount = LeaseAccount;
 class CrankRow {
     static from(buf) {
         const pubkey = new web3_js_1.PublicKey(buf.slice(0, 32));
-        const nextTimestamp = new anchor.BN(buf.slice(32));
+        const nextTimestamp = new anchor.BN(reverse(buf.slice(32, 40)));
         const res = new CrankRow();
         res.pubkey = pubkey;
         res.nextTimestamp = nextTimestamp;

@@ -11,6 +11,7 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
 import assert from "assert";
+var reverse = require("buffer-reverse");
 
 /**
  * Switchboard precisioned representation of numbers.
@@ -1816,7 +1817,7 @@ export class CrankRow {
 
   static from(buf: Buffer): CrankRow {
     const pubkey = new PublicKey(buf.slice(0, 32));
-    const nextTimestamp = new anchor.BN(buf.slice(32));
+    const nextTimestamp = new anchor.BN(reverse(buf.slice(32, 40)));
     const res = new CrankRow();
     res.pubkey = pubkey;
     res.nextTimestamp = nextTimestamp;
