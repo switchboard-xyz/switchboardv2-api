@@ -1924,7 +1924,7 @@ export class CrankAccount {
       await program.provider.connection.getRecentBlockhashAndContext()
     ).value.blockhash;
     tx.recentBlockhash = recentBlockhash;
-    tx.sign(payerKeypair, crankAccount, buffer);
+    tx.sign(payerKeypair, buffer);
     await program.provider.send(tx);
     await program.rpc.crankInit(
       {
