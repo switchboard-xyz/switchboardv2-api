@@ -880,10 +880,10 @@ class OracleQueueAccount {
      * @return newly generated OracleQueueAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
-        const queueSize = (_a = params.queueSize * 32) !== null && _a !== void 0 ? _a : 500;
+        const queueSize = ((_a = params.queueSize) !== null && _a !== void 0 ? _a : 500) * 32;
         const [buffer, bufferBump] = new OracleQueueAccount({
             program,
             keypair: oracleQueueAccount,
@@ -902,7 +902,7 @@ class OracleQueueAccount {
             consecutiveOracleFailureLimit: (_l = params.consecutiveOracleFailureLimit) !== null && _l !== void 0 ? _l : new anchor.BN(1000),
             minimumDelaySeconds: (_m = params.minimumDelaySeconds) !== null && _m !== void 0 ? _m : 5,
             bufferBump,
-            queueSize: (_o = params.queueSize) !== null && _o !== void 0 ? _o : 500,
+            queueSize,
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
@@ -1149,7 +1149,7 @@ class CrankAccount {
         var _a, _b, _c;
         const crankAccount = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
-        const crankSize = (_a = params.maxRows * 40) !== null && _a !== void 0 ? _a : 500;
+        const crankSize = ((_a = params.maxRows) !== null && _a !== void 0 ? _a : 500) * 40;
         const [buffer, bufferBump] = new CrankAccount({
             program,
             keypair: crankAccount,
@@ -1158,6 +1158,7 @@ class CrankAccount {
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
             bufferBump,
+            crankSize,
         }, {
             accounts: {
                 crank: crankAccount.publicKey,

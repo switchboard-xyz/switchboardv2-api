@@ -1445,7 +1445,7 @@ export class OracleQueueAccount {
   ): Promise<OracleQueueAccount> {
     const oracleQueueAccount = anchor.web3.Keypair.generate();
     const size = program.account.oracleQueueAccountData.size;
-    const queueSize = params.queueSize * 32 ?? 500;
+    const queueSize = (params.queueSize ?? 500) * 32;
     const [buffer, bufferBump] = new OracleQueueAccount({
       program,
       keypair: oracleQueueAccount,
@@ -1472,7 +1472,7 @@ export class OracleQueueAccount {
           params.consecutiveOracleFailureLimit ?? new anchor.BN(1000),
         minimumDelaySeconds: params.minimumDelaySeconds ?? 5,
         bufferBump,
-        queueSize: params.queueSize ?? 500,
+        queueSize,
       },
       {
         accounts: {
@@ -1915,7 +1915,7 @@ export class CrankAccount {
   ): Promise<CrankAccount> {
     const crankAccount = anchor.web3.Keypair.generate();
     const size = program.account.crankAccountData.size;
-    const crankSize = params.maxRows * 40 ?? 500;
+    const crankSize = (params.maxRows ?? 500) * 40;
     const [buffer, bufferBump] = new CrankAccount({
       program,
       keypair: crankAccount,
@@ -1925,6 +1925,7 @@ export class CrankAccount {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
         bufferBump,
+        crankSize,
       },
       {
         accounts: {
