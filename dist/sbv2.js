@@ -907,6 +907,7 @@ class OracleQueueAccount {
             minimumDelaySeconds: (_m = params.minimumDelaySeconds) !== null && _m !== void 0 ? _m : 5,
             queueSize,
         }, {
+            signers: [oracleQueueAccount],
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
                 authority: params.authority,

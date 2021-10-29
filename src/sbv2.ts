@@ -1480,6 +1480,7 @@ export class OracleQueueAccount {
         queueSize,
       },
       {
+        signers: [oracleQueueAccount],
         accounts: {
           oracleQueue: oracleQueueAccount.publicKey,
           authority: params.authority,
