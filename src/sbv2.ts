@@ -1813,6 +1813,7 @@ export class CrankRow {
   static from(buf: Buffer): CrankRow {
     const pubkey = new PublicKey(buf.slice(0, 32));
     const nextTimestamp = new anchor.BN(buf.slice(32, 40), "le");
+    console.log(`-row: ${pubkey.toBase58()} - ${nextTimestamp.toNumber()}`);
     const res = new CrankRow();
     res.pubkey = pubkey;
     res.nextTimestamp = nextTimestamp;
