@@ -1903,25 +1903,6 @@ export class CrankAccount {
     const buffer = anchor.web3.Keypair.generate();
     const size = program.account.crankAccountData.size;
     const crankSize = (params.maxRows ?? 500) * 40 + 8;
-    const tx = new Transaction();
-    tx.add(
-      anchor.web3.SystemProgram.createAccount({
-        fromPubkey: program.provider.wallet.publicKey,
-        newAccountPubkey: buffer.publicKey,
-        space: crankSize,
-        lamports:
-          await program.provider.connection.getMinimumBalanceForRentExemption(
-            crankSize
-          ),
-        programId: program.programId,
-      })
-    );
-    const recentBlockhash = (
-      await program.provider.connection.getRecentBlockhashAndContext()
-    ).value.blockhash;
-    tx.recentBlockhash = recentBlockhash;
-    tx.sign(payerKeypair, buffer);
-    await program.provider.send(tx);
     await program.rpc.crankInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
@@ -1929,7 +1910,7 @@ export class CrankAccount {
         crankSize,
       },
       {
-        signers: [crankAccount],
+        signers: [crankAccount, buffer],
         accounts: {
           crank: crankAccount.publicKey,
           queue: params.queueAccount.publicKey,
@@ -1937,6 +1918,18 @@ export class CrankAccount {
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
         },
+        instructions: [
+          anchor.web3.SystemProgram.createAccount({
+            fromPubkey: program.provider.wallet.publicKey,
+            newAccountPubkey: buffer.publicKey,
+            space: crankSize,
+            lamports:
+              await program.provider.connection.getMinimumBalanceForRentExemption(
+                crankSize
+              ),
+            programId: program.programId,
+          }),
+        ],
       }
     );
     return new CrankAccount({ program, keypair: crankAccount });
