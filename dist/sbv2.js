@@ -847,7 +847,7 @@ class OracleQueueAccount {
         var _a, _b;
         const queue = await this.program.account.oracleQueueAccountData.fetch(this.publicKey);
         const queueData = [];
-        const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(queue.dataBuffer))) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : Buffer.from("");
+        const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(queue.dataBuffer))) === null || _a === void 0 ? void 0 : _a.data.slice(8)) !== null && _b !== void 0 ? _b : Buffer.from("");
         const rowSize = 32;
         for (let i = 0; i < buffer.length; i += rowSize) {
             if (buffer.length - i < rowSize) {
@@ -879,7 +879,7 @@ class OracleQueueAccount {
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const buffer = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
-        const queueSize = ((_a = params.queueSize) !== null && _a !== void 0 ? _a : 500) * 32;
+        const queueSize = ((_a = params.queueSize) !== null && _a !== void 0 ? _a : 500) * 32 + 8;
         // const tx = new Transaction();
         // tx.add();
         // const recentBlockhash = (
@@ -1112,7 +1112,7 @@ class CrankAccount {
         var _a, _b;
         const crank = await this.program.account.crankAccountData.fetch(this.publicKey);
         const pqData = [];
-        const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(crank.dataBuffer))) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : Buffer.from("");
+        const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(crank.dataBuffer))) === null || _a === void 0 ? void 0 : _a.data.slice(8)) !== null && _b !== void 0 ? _b : Buffer.from("");
         const rowSize = 40;
         for (let i = 0; i < crank.pqSize * rowSize; i += rowSize) {
             if (buffer.length - i < rowSize) {
@@ -1144,7 +1144,7 @@ class CrankAccount {
         const crankAccount = anchor.web3.Keypair.generate();
         const buffer = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
-        const crankSize = ((_a = params.maxRows) !== null && _a !== void 0 ? _a : 500) * 40;
+        const crankSize = ((_a = params.maxRows) !== null && _a !== void 0 ? _a : 500) * 40 + 8;
         const tx = new web3_js_1.Transaction();
         tx.add(anchor.web3.SystemProgram.createAccount({
             fromPubkey: program.provider.wallet.publicKey,

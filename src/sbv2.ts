@@ -1397,8 +1397,9 @@ export class OracleQueueAccount {
     );
     const queueData = [];
     const buffer =
-      (await this.program.provider.connection.getAccountInfo(queue.dataBuffer))
-        ?.data ?? Buffer.from("");
+      (
+        await this.program.provider.connection.getAccountInfo(queue.dataBuffer)
+      )?.data.slice(8) ?? Buffer.from("");
     const rowSize = 32;
     for (let i = 0; i < buffer.length; i += rowSize) {
       if (buffer.length - i < rowSize) {
@@ -1436,7 +1437,7 @@ export class OracleQueueAccount {
     const oracleQueueAccount = anchor.web3.Keypair.generate();
     const buffer = anchor.web3.Keypair.generate();
     const size = program.account.oracleQueueAccountData.size;
-    const queueSize = (params.queueSize ?? 500) * 32;
+    const queueSize = (params.queueSize ?? 500) * 32 + 8;
     // const tx = new Transaction();
     // tx.add();
     // const recentBlockhash = (
@@ -1861,8 +1862,9 @@ export class CrankAccount {
     );
     const pqData = [];
     const buffer =
-      (await this.program.provider.connection.getAccountInfo(crank.dataBuffer))
-        ?.data ?? Buffer.from("");
+      (
+        await this.program.provider.connection.getAccountInfo(crank.dataBuffer)
+      )?.data.slice(8) ?? Buffer.from("");
     const rowSize = 40;
     for (let i = 0; i < crank.pqSize * rowSize; i += rowSize) {
       if (buffer.length - i < rowSize) {
@@ -1900,7 +1902,7 @@ export class CrankAccount {
     const crankAccount = anchor.web3.Keypair.generate();
     const buffer = anchor.web3.Keypair.generate();
     const size = program.account.crankAccountData.size;
-    const crankSize = (params.maxRows ?? 500) * 40;
+    const crankSize = (params.maxRows ?? 500) * 40 + 8;
     const tx = new Transaction();
     tx.add(
       anchor.web3.SystemProgram.createAccount({
