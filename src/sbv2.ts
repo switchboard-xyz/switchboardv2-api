@@ -1460,6 +1460,10 @@ export class OracleQueueAccount {
         programId: program.programId,
       })
     );
+    const recentBlockhash = (
+      await program.provider.connection.getRecentBlockhashAndContext()
+    ).value.blockhash;
+    tx.recentBlockhash = recentBlockhash;
     tx.sign(oracleQueueAccount, buffer);
     await program.provider.send(tx);
     await program.rpc.oracleQueueInit(
@@ -1950,6 +1954,10 @@ export class CrankAccount {
       })
     );
     tx.sign(crankAccount, buffer);
+    const recentBlockhash = (
+      await program.provider.connection.getRecentBlockhashAndContext()
+    ).value.blockhash;
+    tx.recentBlockhash = recentBlockhash;
     await program.provider.send(tx);
     await program.rpc.crankInit(
       {
