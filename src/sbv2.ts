@@ -11,7 +11,6 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
 import assert from "assert";
-var reverse = require("buffer-reverse");
 
 /**
  * Switchboard precisioned representation of numbers.
@@ -1473,6 +1472,7 @@ export class OracleQueueAccount {
           params.consecutiveOracleFailureLimit ?? new anchor.BN(1000),
         minimumDelaySeconds: params.minimumDelaySeconds ?? 5,
         bufferBump,
+        queueSize: params.queueSize ?? 500,
       },
       {
         accounts: {

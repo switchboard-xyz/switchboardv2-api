@@ -30,7 +30,6 @@ const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
 const assert_1 = __importDefault(require("assert"));
-var reverse = require("buffer-reverse");
 /**
  * Switchboard precisioned representation of numbers.
  */
@@ -881,7 +880,7 @@ class OracleQueueAccount {
      * @return newly generated OracleQueueAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         const queueSize = (_a = params.queueSize * 32) !== null && _a !== void 0 ? _a : 500;
@@ -903,6 +902,7 @@ class OracleQueueAccount {
             consecutiveOracleFailureLimit: (_l = params.consecutiveOracleFailureLimit) !== null && _l !== void 0 ? _l : new anchor.BN(1000),
             minimumDelaySeconds: (_m = params.minimumDelaySeconds) !== null && _m !== void 0 ? _m : 5,
             bufferBump,
+            queueSize: (_o = params.queueSize) !== null && _o !== void 0 ? _o : 500,
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
