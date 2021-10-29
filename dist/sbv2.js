@@ -880,6 +880,23 @@ class OracleQueueAccount {
         const buffer = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         const queueSize = ((_a = params.queueSize) !== null && _a !== void 0 ? _a : 500) * 32;
+        const tx = new web3_js_1.Transaction();
+        tx.add(anchor.web3.SystemProgram.createAccount({
+            fromPubkey: program.provider.wallet.publicKey,
+            newAccountPubkey: oracleQueueAccount.publicKey,
+            space: size,
+            lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
+            programId: program.programId,
+        }), anchor.web3.SystemProgram.createAccount({
+            fromPubkey: program.provider.wallet.publicKey,
+            newAccountPubkey: buffer.publicKey,
+            space: queueSize,
+            lamports: await program.provider.connection.getMinimumBalanceForRentExemption(queueSize),
+            programId: program.programId,
+        }));
+        tx.addSignature(oracleQueueAccount.publicKey, new Buffer(oracleQueueAccount.secretKey));
+        tx.addSignature(buffer.publicKey, new Buffer(buffer.secretKey));
+        await program.provider.send(tx);
         await program.rpc.oracleQueueInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
@@ -1142,6 +1159,23 @@ class CrankAccount {
         const buffer = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
         const crankSize = ((_a = params.maxRows) !== null && _a !== void 0 ? _a : 500) * 40;
+        const tx = new web3_js_1.Transaction();
+        tx.add(anchor.web3.SystemProgram.createAccount({
+            fromPubkey: program.provider.wallet.publicKey,
+            newAccountPubkey: crankAccount.publicKey,
+            space: size,
+            lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
+            programId: program.programId,
+        }), anchor.web3.SystemProgram.createAccount({
+            fromPubkey: program.provider.wallet.publicKey,
+            newAccountPubkey: buffer.publicKey,
+            space: crankSize,
+            lamports: await program.provider.connection.getMinimumBalanceForRentExemption(crankSize),
+            programId: program.programId,
+        }));
+        tx.addSignature(crankAccount.publicKey, new Buffer(crankAccount.secretKey));
+        tx.addSignature(buffer.publicKey, new Buffer(buffer.secretKey));
+        await program.provider.send(tx);
         await program.rpc.crankInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
@@ -1152,23 +1186,8 @@ class CrankAccount {
                 queue: params.queueAccount.publicKey,
                 buffer: buffer.publicKey,
             },
-            signers: [crankAccount, buffer, payerKeypair],
-            instructions: [
-                anchor.web3.SystemProgram.createAccount({
-                    fromPubkey: program.provider.wallet.publicKey,
-                    newAccountPubkey: crankAccount.publicKey,
-                    space: size,
-                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
-                    programId: program.programId,
-                }),
-                anchor.web3.SystemProgram.createAccount({
-                    fromPubkey: program.provider.wallet.publicKey,
-                    newAccountPubkey: buffer.publicKey,
-                    space: crankSize,
-                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(crankSize),
-                    programId: program.programId,
-                }),
-            ],
+            signers: [payerKeypair],
+            instructions: [],
         });
         return new CrankAccount({ program, keypair: crankAccount });
     }
