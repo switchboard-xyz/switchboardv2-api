@@ -884,10 +884,10 @@ class OracleQueueAccount {
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
         const queueSize = (_a = params.queueSize * 32) !== null && _a !== void 0 ? _a : 500;
-        const buffer = new OracleQueueAccount({
+        const [buffer, bufferBump] = new OracleQueueAccount({
             program,
             keypair: oracleQueueAccount,
-        }).bufferFromSeed()[0];
+        }).bufferFromSeed();
         await program.rpc.oracleQueueInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
@@ -901,11 +901,14 @@ class OracleQueueAccount {
             consecutiveFeedFailureLimit: (_k = params.consecutiveFeedFailureLimit) !== null && _k !== void 0 ? _k : new anchor.BN(1000),
             consecutiveOracleFailureLimit: (_l = params.consecutiveOracleFailureLimit) !== null && _l !== void 0 ? _l : new anchor.BN(1000),
             minimumDelaySeconds: (_m = params.minimumDelaySeconds) !== null && _m !== void 0 ? _m : 5,
+            bufferBump,
         }, {
             accounts: {
                 oracleQueue: oracleQueueAccount.publicKey,
                 authority: params.authority,
                 buffer,
+                systemProgram: web3_js_1.SystemProgram.programId,
+                payer: program.provider.wallet.publicKey,
             },
             signers: [oracleQueueAccount],
             instructions: [
@@ -916,16 +919,6 @@ class OracleQueueAccount {
                     lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
                     programId: program.programId,
                 }),
-                // anchor.web3.SystemProgram.createAccount({
-                // fromPubkey: program.provider.wallet.publicKey,
-                // newAccountPubkey: buffer,
-                // space: queueSize,
-                // lamports:
-                // await program.provider.connection.getMinimumBalanceForRentExemption(
-                // queueSize
-                // ),
-                // programId: program.programId,
-                // }),
             ],
         });
         return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
@@ -1155,18 +1148,21 @@ class CrankAccount {
         const crankAccount = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
         const crankSize = (_a = params.maxRows * 40) !== null && _a !== void 0 ? _a : 500;
-        const buffer = new CrankAccount({
+        const [buffer, bufferBump] = new CrankAccount({
             program,
             keypair: crankAccount,
-        }).bufferFromSeed()[0];
+        }).bufferFromSeed();
         await program.rpc.crankInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
+            bufferBump,
         }, {
             accounts: {
                 crank: crankAccount.publicKey,
                 queue: params.queueAccount.publicKey,
                 buffer,
+                systemProgram: web3_js_1.SystemProgram.programId,
+                payer: program.provider.wallet.publicKey,
             },
             signers: [crankAccount],
             instructions: [
@@ -1177,16 +1173,6 @@ class CrankAccount {
                     lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
                     programId: program.programId,
                 }),
-                // anchor.web3.SystemProgram.createAccount({
-                // fromPubkey: program.provider.wallet.publicKey,
-                // newAccountPubkey: buffer,
-                // space: crankSize,
-                // lamports:
-                // await program.provider.connection.getMinimumBalanceForRentExemption(
-                // crankSize
-                // ),
-                // programId: program.programId,
-                // }),
             ],
         });
         return new CrankAccount({ program, keypair: crankAccount });

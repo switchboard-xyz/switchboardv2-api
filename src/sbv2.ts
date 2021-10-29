@@ -1446,10 +1446,10 @@ export class OracleQueueAccount {
     const oracleQueueAccount = anchor.web3.Keypair.generate();
     const size = program.account.oracleQueueAccountData.size;
     const queueSize = params.queueSize * 32 ?? 500;
-    const buffer = new OracleQueueAccount({
+    const [buffer, bufferBump] = new OracleQueueAccount({
       program,
       keypair: oracleQueueAccount,
-    }).bufferFromSeed()[0];
+    }).bufferFromSeed();
     await program.rpc.oracleQueueInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
@@ -1471,12 +1471,15 @@ export class OracleQueueAccount {
         consecutiveOracleFailureLimit:
           params.consecutiveOracleFailureLimit ?? new anchor.BN(1000),
         minimumDelaySeconds: params.minimumDelaySeconds ?? 5,
+        bufferBump,
       },
       {
         accounts: {
           oracleQueue: oracleQueueAccount.publicKey,
           authority: params.authority,
           buffer,
+          systemProgram: SystemProgram.programId,
+          payer: program.provider.wallet.publicKey,
         },
         signers: [oracleQueueAccount],
         instructions: [
@@ -1490,16 +1493,6 @@ export class OracleQueueAccount {
               ),
             programId: program.programId,
           }),
-          // anchor.web3.SystemProgram.createAccount({
-          // fromPubkey: program.provider.wallet.publicKey,
-          // newAccountPubkey: buffer,
-          // space: queueSize,
-          // lamports:
-          // await program.provider.connection.getMinimumBalanceForRentExemption(
-          // queueSize
-          // ),
-          // programId: program.programId,
-          // }),
         ],
       }
     );
@@ -1921,20 +1914,23 @@ export class CrankAccount {
     const crankAccount = anchor.web3.Keypair.generate();
     const size = program.account.crankAccountData.size;
     const crankSize = params.maxRows * 40 ?? 500;
-    const buffer = new CrankAccount({
+    const [buffer, bufferBump] = new CrankAccount({
       program,
       keypair: crankAccount,
-    }).bufferFromSeed()[0];
+    }).bufferFromSeed();
     await program.rpc.crankInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
+        bufferBump,
       },
       {
         accounts: {
           crank: crankAccount.publicKey,
           queue: params.queueAccount.publicKey,
           buffer,
+          systemProgram: SystemProgram.programId,
+          payer: program.provider.wallet.publicKey,
         },
         signers: [crankAccount],
         instructions: [
@@ -1948,16 +1944,6 @@ export class CrankAccount {
               ),
             programId: program.programId,
           }),
-          // anchor.web3.SystemProgram.createAccount({
-          // fromPubkey: program.provider.wallet.publicKey,
-          // newAccountPubkey: buffer,
-          // space: crankSize,
-          // lamports:
-          // await program.provider.connection.getMinimumBalanceForRentExemption(
-          // crankSize
-          // ),
-          // programId: program.programId,
-          // }),
         ],
       }
     );
