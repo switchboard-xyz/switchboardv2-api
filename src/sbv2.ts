@@ -6,6 +6,7 @@ import {
   SystemProgram,
   Transaction,
   TransactionSignature,
+  sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
@@ -2082,7 +2083,11 @@ export class CrankAccount {
    * @return TransactionSignature
    */
   async pop(params: CrankPopParams): Promise<TransactionSignature> {
-    return await this.program.provider.send(await this.popTxn(params));
+    return await sendAndConfirmTransaction(
+      this.program.provider.connection,
+      await this.popTxn(params),
+      []
+    );
   }
 
   /**
