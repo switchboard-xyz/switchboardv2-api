@@ -338,6 +338,19 @@ export declare class AggregatorAccount {
      */
     addJob(job: JobAccount, authority?: Keypair): Promise<TransactionSignature>;
     /**
+     * Prevent new jobs from being added to the feed.
+     * @param authority The current authroity keypair
+     * @return TransactionSignature
+     */
+    lock(authority?: Keypair): Promise<TransactionSignature>;
+    /**
+     * Change the aggregator authority.
+     * @param currentAuthority The current authroity keypair
+     * @param newAuthority The new authority to set.
+     * @return TransactionSignature
+     */
+    setAuthority(newAuthority: PublicKey, currentAuthority?: Keypair): Promise<TransactionSignature>;
+    /**
      * RPC to remove a job from an aggregtor.
      * @param job JobAccount to be removed from the aggregator
      * @return TransactionSignature

@@ -600,7 +600,6 @@ export class AggregatorAccount {
     return results;
   }
 
-  // TODO: allow passing cache
   /**
    * Produces a hash of all the jobs currently in the aggregator
    * @return hash of all the feed jobs.
@@ -743,6 +742,49 @@ export class AggregatorAccount {
           job: job.publicKey,
         },
         signers: [authority],
+      }
+    );
+  }
+
+  /**
+   * Prevent new jobs from being added to the feed.
+   * @param authority The current authroity keypair
+   * @return TransactionSignature
+   */
+  async lock(authority?: Keypair): Promise<TransactionSignature> {
+    authority = authority ?? this.keypair;
+    return await this.program.rpc.aggregatorLock(
+      {},
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          authority: authority.publicKey,
+        },
+        signers: [authority],
+      }
+    );
+  }
+
+  /**
+   * Change the aggregator authority.
+   * @param currentAuthority The current authroity keypair
+   * @param newAuthority The new authority to set.
+   * @return TransactionSignature
+   */
+  async setAuthority(
+    newAuthority: PublicKey,
+    currentAuthority?: Keypair
+  ): Promise<TransactionSignature> {
+    currentAuthority = currentAuthority ?? this.keypair;
+    return await this.program.rpc.aggregatorSetAuthority(
+      {},
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          newAuthority,
+          authority: currentAuthority.publicKey,
+        },
+        signers: [currentAuthority],
       }
     );
   }
