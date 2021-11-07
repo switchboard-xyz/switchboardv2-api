@@ -204,9 +204,10 @@ class ProgramStateAccount {
                 state: statePubkey,
                 to,
                 vault,
-                authority: this.program.provider.wallet.publicKey,
+                authority: authority.publicKey,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
             },
+            signers: [authority],
         });
     }
 }
