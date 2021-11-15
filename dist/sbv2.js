@@ -1420,7 +1420,7 @@ class OracleAccount {
         const switchTokenMint = await programStateAccount.getTokenMint();
         const wallet = await switchTokenMint.createAccount(program.provider.wallet.publicKey);
         await switchTokenMint.setAuthority(wallet, programStateAccount.publicKey, "AccountOwner", payerKeypair, []);
-        const [oracleAccount, oracleBump] = OracleAccount.fromSeed(program, wallet);
+        const [oracleAccount, oracleBump] = OracleAccount.fromSeed(program, params.queueAccount, wallet);
         await program.rpc.oracleInit({
             name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
             metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 128),
@@ -1443,8 +1443,12 @@ class OracleAccount {
      * Constructs OracleAccount from the static seed from which it was generated.
      * @return OracleAccount and PDA bump tuple.
      */
-    static fromSeed(program, wallet) {
-        const [oraclePubkey, oracleBump] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("OracleAccountData"), wallet.toBuffer()], program.programId);
+    static fromSeed(program, queueAccount, wallet) {
+        const [oraclePubkey, oracleBump] = anchor.utils.publicKey.findProgramAddressSync([
+            Buffer.from("OracleAccountData"),
+            queueAccount.publicKey.toBuffer(),
+            wallet.toBuffer(),
+        ], program.programId);
         return [
             new OracleAccount({ program, publicKey: oraclePubkey }),
             oracleBump,

@@ -906,7 +906,7 @@ export declare class OracleAccount {
      * Constructs OracleAccount from the static seed from which it was generated.
      * @return OracleAccount and PDA bump tuple.
      */
-    static fromSeed(program: anchor.Program, wallet: PublicKey): [OracleAccount, number];
+    static fromSeed(program: anchor.Program, queueAccount: OracleQueueAccount, wallet: PublicKey): [OracleAccount, number];
     /**
      * Inititates a heartbeat for an OracleAccount, signifying oracle is still healthy.
      * @return TransactionSignature.

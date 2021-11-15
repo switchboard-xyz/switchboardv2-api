@@ -2278,7 +2278,11 @@ export class OracleAccount {
       payerKeypair,
       []
     );
-    const [oracleAccount, oracleBump] = OracleAccount.fromSeed(program, wallet);
+    const [oracleAccount, oracleBump] = OracleAccount.fromSeed(
+      program,
+      params.queueAccount,
+      wallet
+    );
 
     await program.rpc.oracleInit(
       {
@@ -2308,11 +2312,16 @@ export class OracleAccount {
    */
   static fromSeed(
     program: anchor.Program,
+    queueAccount: OracleQueueAccount,
     wallet: PublicKey
   ): [OracleAccount, number] {
     const [oraclePubkey, oracleBump] =
       anchor.utils.publicKey.findProgramAddressSync(
-        [Buffer.from("OracleAccountData"), wallet.toBuffer()],
+        [
+          Buffer.from("OracleAccountData"),
+          queueAccount.publicKey.toBuffer(),
+          wallet.toBuffer(),
+        ],
         program.programId
       );
     return [
