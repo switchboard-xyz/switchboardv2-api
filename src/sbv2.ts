@@ -2130,10 +2130,13 @@ export class CrankAccount {
    * @return TransactionSignature
    */
   async pop(params: CrankPopParams): Promise<TransactionSignature> {
+    const payerKeypair = Keypair.fromSecretKey(
+      (this.program.provider.wallet as any).payer.secretKey
+    );
     return await sendAndConfirmTransaction(
       this.program.provider.connection,
       await this.popTxn(params),
-      []
+      [payerKeypair]
     );
   }
 

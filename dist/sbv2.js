@@ -1320,7 +1320,8 @@ class CrankAccount {
      * @return TransactionSignature
      */
     async pop(params) {
-        return await web3_js_1.sendAndConfirmTransaction(this.program.provider.connection, await this.popTxn(params), []);
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
+        return await web3_js_1.sendAndConfirmTransaction(this.program.provider.connection, await this.popTxn(params), [payerKeypair]);
     }
     /**
      * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
