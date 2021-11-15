@@ -1290,6 +1290,7 @@ class CrankAccount {
             permissionBumps.push((_c = permissionBumpsMap.get(key.toBase58())) !== null && _c !== void 0 ? _c : 0);
         }
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
         // const promises: Array<Promise<TransactionSignature>> = [];
         return this.program.transaction.crankPop({
             stateBump,
@@ -1310,6 +1311,7 @@ class CrankAccount {
             remainingAccounts: remainingAccounts.map((pubkey) => {
                 return { isSigner: false, isWritable: true, pubkey };
             }),
+            signers: [payerKeypair],
         });
     }
     /**

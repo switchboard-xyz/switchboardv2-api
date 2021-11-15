@@ -2094,6 +2094,9 @@ export class CrankAccount {
     const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
       this.program
     );
+    const payerKeypair = Keypair.fromSecretKey(
+      (this.program.provider.wallet as any).payer.secretKey
+    );
     // const promises: Array<Promise<TransactionSignature>> = [];
     return this.program.transaction.crankPop(
       {
@@ -2116,6 +2119,7 @@ export class CrankAccount {
         remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
           return { isSigner: false, isWritable: true, pubkey };
         }),
+        signers: [payerKeypair],
       }
     );
   }
