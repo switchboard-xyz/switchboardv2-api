@@ -834,7 +834,9 @@ export class AggregatorAccount {
     try {
       await leaseAccount.loadData();
     } catch (_) {
-      throw new Error("A requested pda account has not been initialized.");
+      throw new Error(
+        "A requested lease pda account has not been initialized."
+      );
     }
 
     const escrowPubkey = (await leaseAccount.loadData()).escrow;
@@ -850,7 +852,9 @@ export class AggregatorAccount {
     try {
       await permissionAccount.loadData();
     } catch (_) {
-      throw new Error("A requested pda account has not been initialized.");
+      throw new Error(
+        "A requested permission pda account has not been initialized."
+      );
     }
 
     return await this.program.rpc.aggregatorOpenRound(
@@ -1983,7 +1987,9 @@ export class CrankAccount {
     try {
       lease = await leaseAccount.loadData();
     } catch (_) {
-      throw new Error("A requested pda account has not been initialized.");
+      throw new Error(
+        "A requested lease pda account has not been initialized."
+      );
     }
 
     const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
@@ -1995,7 +2001,9 @@ export class CrankAccount {
     try {
       await permissionAccount.loadData();
     } catch (_) {
-      throw new Error("A requested pda account has not been initialized.");
+      throw new Error(
+        "A requested permission pda account has not been initialized."
+      );
     }
     const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
       this.program
@@ -2363,7 +2371,9 @@ export class OracleAccount {
     try {
       await permissionAccount.loadData();
     } catch (_) {
-      throw new Error("A requested pda account has not been initialized.");
+      throw new Error(
+        "A requested permission pda account has not been initialized."
+      );
     }
     const oracle = await this.loadData();
 

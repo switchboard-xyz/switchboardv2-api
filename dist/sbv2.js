@@ -538,7 +538,7 @@ class AggregatorAccount {
             await leaseAccount.loadData();
         }
         catch (_) {
-            throw new Error("A requested pda account has not been initialized.");
+            throw new Error("A requested lease pda account has not been initialized.");
         }
         const escrowPubkey = (await leaseAccount.loadData()).escrow;
         const queue = await params.oracleQueueAccount.loadData();
@@ -548,7 +548,7 @@ class AggregatorAccount {
             await permissionAccount.loadData();
         }
         catch (_) {
-            throw new Error("A requested pda account has not been initialized.");
+            throw new Error("A requested permission pda account has not been initialized.");
         }
         return await this.program.rpc.aggregatorOpenRound({
             stateBump,
@@ -1213,14 +1213,14 @@ class CrankAccount {
             lease = await leaseAccount.loadData();
         }
         catch (_) {
-            throw new Error("A requested pda account has not been initialized.");
+            throw new Error("A requested lease pda account has not been initialized.");
         }
         const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, aggregatorAccount.publicKey);
         try {
             await permissionAccount.loadData();
         }
         catch (_) {
-            throw new Error("A requested pda account has not been initialized.");
+            throw new Error("A requested permission pda account has not been initialized.");
         }
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         return await this.program.rpc.crankPush({
@@ -1477,7 +1477,7 @@ class OracleAccount {
             await permissionAccount.loadData();
         }
         catch (_) {
-            throw new Error("A requested pda account has not been initialized.");
+            throw new Error("A requested permission pda account has not been initialized.");
         }
         const oracle = await this.loadData();
         return await this.program.rpc.oracleHeartbeat({
