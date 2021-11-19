@@ -158,14 +158,11 @@ class ProgramStateAccount {
      */
     static async create(program, params) {
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
-        // TODO: save bump
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
-        // TODO: need to save this to change mint and lock minting
-        const mintAuthority = anchor.web3.Keypair.generate();
         const decimals = 9;
-        const mint = await spl.Token.createMint(program.provider.connection, payerKeypair, mintAuthority.publicKey, null, decimals, spl.TOKEN_PROGRAM_ID);
+        const mint = await spl.Token.createMint(program.provider.connection, payerKeypair, payerKeypair.publicKey, null, decimals, spl.TOKEN_PROGRAM_ID);
         const tokenVault = await mint.createAccount(program.provider.wallet.publicKey);
-        await mint.mintTo(tokenVault, mintAuthority.publicKey, [mintAuthority], 100000000);
+        await mint.mintTo(tokenVault, payerKeypair.publicKey, [payerKeypair], 100000000);
         await program.rpc.programInit({
             stateBump,
             decimals: new anchor.BN(decimals),
@@ -173,7 +170,7 @@ class ProgramStateAccount {
             accounts: {
                 state: stateAccount.publicKey,
                 authority: program.provider.wallet.publicKey,
-                mintAuthority: mintAuthority.publicKey,
+                mintAuthority: payerKeypair.publicKey,
                 tokenMint: mint.publicKey,
                 vault: tokenVault,
                 payer: program.provider.wallet.publicKey,
