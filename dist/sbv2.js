@@ -161,7 +161,6 @@ class ProgramStateAccount {
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         let mint = null;
         let vault = null;
-        console.log(params.mint.toBase58());
         if (params.mint === undefined) {
             const decimals = 9;
             const token = await spl.Token.createMint(program.provider.connection, payerKeypair, payerKeypair.publicKey, null, decimals, spl.TOKEN_PROGRAM_ID);
@@ -175,6 +174,7 @@ class ProgramStateAccount {
             const token = new spl.Token(program.provider.connection, mint, spl.TOKEN_PROGRAM_ID, payerKeypair);
             vault = await token.createAccount(payerKeypair.publicKey);
         }
+        console.log(mint.toBase58());
         await program.rpc.programInit({
             stateBump,
         }, {
