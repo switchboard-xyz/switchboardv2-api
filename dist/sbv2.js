@@ -181,7 +181,7 @@ class ProgramStateAccount {
             accounts: {
                 state: stateAccount.publicKey,
                 authority: payerKeypair.publicKey,
-                tokenMint: mint.publicKey,
+                tokenMint: mint,
                 vault,
                 payer: payerKeypair.publicKey,
                 systemProgram: web3_js_1.SystemProgram.programId,
