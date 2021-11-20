@@ -230,13 +230,11 @@ export class ProgramStateAccount {
     await program.rpc.programInit(
       {
         stateBump,
-        decimals: new anchor.BN(decimals),
       },
       {
         accounts: {
           state: stateAccount.publicKey,
           authority: payerKeypair.publicKey,
-          mintAuthority: payerKeypair.publicKey,
           tokenMint: mint.publicKey,
           vault: tokenVault,
           payer: payerKeypair.publicKey,
