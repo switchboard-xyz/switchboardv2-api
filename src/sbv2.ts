@@ -240,7 +240,7 @@ export class ProgramStateAccount {
       const token = new spl.Token(
         program.provider.connection,
         mint,
-        program.programId,
+        spl.TOKEN_PROGRAM_ID,
         payerKeypair
       );
       vault = await token.createAccount(payerKeypair.publicKey);

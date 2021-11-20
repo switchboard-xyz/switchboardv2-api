@@ -172,7 +172,7 @@ class ProgramStateAccount {
         }
         else {
             mint = params.mint;
-            const token = new spl.Token(program.provider.connection, mint, program.programId, payerKeypair);
+            const token = new spl.Token(program.provider.connection, mint, spl.TOKEN_PROGRAM_ID, payerKeypair);
             vault = await token.createAccount(payerKeypair.publicKey);
         }
         await program.rpc.programInit({
