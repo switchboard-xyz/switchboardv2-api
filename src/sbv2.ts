@@ -244,7 +244,6 @@ export class ProgramStateAccount {
       );
       vault = await token.createAccount(payerKeypair.publicKey);
     }
-    console.log(mint.toBase58());
     await program.rpc.programInit(
       {
         stateBump,

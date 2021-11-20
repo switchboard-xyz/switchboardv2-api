@@ -174,7 +174,6 @@ class ProgramStateAccount {
             const token = new spl.Token(program.provider.connection, mint, spl.TOKEN_PROGRAM_ID, payerKeypair);
             vault = await token.createAccount(payerKeypair.publicKey);
         }
-        console.log(mint.toBase58());
         await program.rpc.programInit({
             stateBump,
         }, {
