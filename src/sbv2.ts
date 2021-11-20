@@ -220,9 +220,7 @@ export class ProgramStateAccount {
       decimals,
       spl.TOKEN_PROGRAM_ID
     );
-    const tokenVault = await mint.createAccount(
-      program.provider.wallet.publicKey
-    );
+    const tokenVault = await mint.createAccount(payerKeypair.publicKey);
     await mint.mintTo(
       tokenVault,
       payerKeypair.publicKey,
@@ -237,11 +235,11 @@ export class ProgramStateAccount {
       {
         accounts: {
           state: stateAccount.publicKey,
-          authority: program.provider.wallet.publicKey,
+          authority: payerKeypair.publicKey,
           mintAuthority: payerKeypair.publicKey,
           tokenMint: mint.publicKey,
           vault: tokenVault,
-          payer: program.provider.wallet.publicKey,
+          payer: payerKeypair.publicKey,
           systemProgram: SystemProgram.programId,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
         },
