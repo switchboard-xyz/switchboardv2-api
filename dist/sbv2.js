@@ -159,10 +159,20 @@ class ProgramStateAccount {
     static async create(program, params) {
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
-        const decimals = 9;
-        const mint = await spl.Token.createMint(program.provider.connection, payerKeypair, payerKeypair.publicKey, null, decimals, spl.TOKEN_PROGRAM_ID);
-        const tokenVault = await mint.createAccount(payerKeypair.publicKey);
-        await mint.mintTo(tokenVault, payerKeypair.publicKey, [payerKeypair], 100000000);
+        let mint = null;
+        let vault = null;
+        if (params.mint === undefined) {
+            const decimals = 9;
+            const token = await spl.Token.createMint(program.provider.connection, payerKeypair, payerKeypair.publicKey, null, decimals, spl.TOKEN_PROGRAM_ID);
+            const tokenVault = await token.createAccount(payerKeypair.publicKey);
+            mint = token.publicKey;
+            await token.mintTo(tokenVault, payerKeypair.publicKey, [payerKeypair], 100000000);
+            vault = tokenVault;
+        }
+        else {
+            mint = params.mint;
+            vault = await mint.createAccount(payerKeypair.publicKey);
+        }
         await program.rpc.programInit({
             stateBump,
         }, {
@@ -170,7 +180,7 @@ class ProgramStateAccount {
                 state: stateAccount.publicKey,
                 authority: payerKeypair.publicKey,
                 tokenMint: mint.publicKey,
-                vault: tokenVault,
+                vault,
                 payer: payerKeypair.publicKey,
                 systemProgram: web3_js_1.SystemProgram.programId,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,

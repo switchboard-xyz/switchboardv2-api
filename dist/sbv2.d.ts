@@ -58,6 +58,7 @@ export interface AccountParams {
  * Input parameters initializing program state.
  */
 export interface ProgramInitParams {
+    mint?: PublicKey;
 }
 /**
  * Input parameters for transferring from Switchboard token vault.
