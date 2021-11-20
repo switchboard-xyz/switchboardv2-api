@@ -237,7 +237,13 @@ export class ProgramStateAccount {
       vault = tokenVault;
     } else {
       mint = params.mint;
-      vault = await mint.createAccount(payerKeypair.publicKey);
+      const token = new spl.Token(
+        program.provider.connection,
+        mint,
+        program.programId,
+        payerKeypair
+      );
+      vault = await token.createAccount(payerKeypair.publicKey);
     }
     await program.rpc.programInit(
       {
