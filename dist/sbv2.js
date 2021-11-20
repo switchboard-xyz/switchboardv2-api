@@ -906,7 +906,8 @@ class OracleQueueAccount {
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const buffer = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;
-        const queueSize = ((_a = params.queueSize) !== null && _a !== void 0 ? _a : 500) * 32 + 8;
+        params.queueSize = (_a = params.queueSize) !== null && _a !== void 0 ? _a : 500;
+        const queueSize = params.queueSize * 32 + 8;
         await program.rpc.oracleQueueInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
@@ -920,7 +921,7 @@ class OracleQueueAccount {
             consecutiveFeedFailureLimit: (_k = params.consecutiveFeedFailureLimit) !== null && _k !== void 0 ? _k : new anchor.BN(1000),
             consecutiveOracleFailureLimit: (_l = params.consecutiveOracleFailureLimit) !== null && _l !== void 0 ? _l : new anchor.BN(1000),
             minimumDelaySeconds: (_m = params.minimumDelaySeconds) !== null && _m !== void 0 ? _m : 5,
-            queueSize,
+            queueSize: params.queueSize,
         }, {
             signers: [oracleQueueAccount, buffer],
             accounts: {
@@ -1162,11 +1163,12 @@ class CrankAccount {
         const crankAccount = anchor.web3.Keypair.generate();
         const buffer = anchor.web3.Keypair.generate();
         const size = program.account.crankAccountData.size;
-        const crankSize = ((_a = params.maxRows) !== null && _a !== void 0 ? _a : 500) * 40 + 8;
+        params.maxRows = (_a = params.maxRows) !== null && _a !== void 0 ? _a : 500;
+        const crankSize = params.maxRows * 40 + 8;
         await program.rpc.crankInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
-            crankSize,
+            crankSize: params.maxRows,
         }, {
             signers: [crankAccount, buffer],
             accounts: {

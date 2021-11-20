@@ -1471,7 +1471,8 @@ export class OracleQueueAccount {
     const oracleQueueAccount = anchor.web3.Keypair.generate();
     const buffer = anchor.web3.Keypair.generate();
     const size = program.account.oracleQueueAccountData.size;
-    const queueSize = (params.queueSize ?? 500) * 32 + 8;
+    params.queueSize = params.queueSize ?? 500;
+    const queueSize = params.queueSize * 32 + 8;
     await program.rpc.oracleQueueInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
@@ -1490,7 +1491,7 @@ export class OracleQueueAccount {
         consecutiveOracleFailureLimit:
           params.consecutiveOracleFailureLimit ?? new anchor.BN(1000),
         minimumDelaySeconds: params.minimumDelaySeconds ?? 5,
-        queueSize,
+        queueSize: params.queueSize,
       },
       {
         signers: [oracleQueueAccount, buffer],
@@ -1924,12 +1925,13 @@ export class CrankAccount {
     const crankAccount = anchor.web3.Keypair.generate();
     const buffer = anchor.web3.Keypair.generate();
     const size = program.account.crankAccountData.size;
-    const crankSize = (params.maxRows ?? 500) * 40 + 8;
+    params.maxRows = params.maxRows ?? 500;
+    const crankSize = params.maxRows * 40 + 8;
     await program.rpc.crankInit(
       {
         name: (params.name ?? Buffer.from("")).slice(0, 32),
         metadata: (params.metadata ?? Buffer.from("")).slice(0, 64),
-        crankSize,
+        crankSize: params.maxRows,
       },
       {
         signers: [crankAccount, buffer],
