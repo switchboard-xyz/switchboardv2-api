@@ -1017,7 +1017,7 @@ class LeaseAccount {
      * @return newly generated LeaseAccount.
      */
     static async create(program, params) {
-        var _a;
+        var _a, _b;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
@@ -1027,6 +1027,9 @@ class LeaseAccount {
         await switchTokenMint.setAuthority(escrow, leaseAccount.publicKey, "CloseAccount", payerKeypair.publicKey, [payerKeypair]);
         // Set program to be escrow authority.
         await switchTokenMint.setAuthority(escrow, programStateAccount.publicKey, "AccountOwner", payerKeypair.publicKey, [payerKeypair]);
+        const ei = await switchTokenMint.getAccountInfo(escrow);
+        console.log(`Escrow cloase authority: ${(_a = ei.closeAuthority) === null || _a === void 0 ? void 0 : _a.toBase58()}`);
+        console.log(`Lease: ${leaseAccount.publicKey.toBase58()}`);
         // const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: PublicKey = new PublicKey(
         // "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         // );
@@ -1044,7 +1047,7 @@ class LeaseAccount {
             loadAmount: params.loadAmount,
             stateBump,
             leaseBump,
-            withdrawAuthority: (_a = params.withdrawAuthority) !== null && _a !== void 0 ? _a : web3_js_1.PublicKey.default,
+            withdrawAuthority: (_b = params.withdrawAuthority) !== null && _b !== void 0 ? _b : web3_js_1.PublicKey.default,
         }, {
             accounts: {
                 programState: programStateAccount.publicKey,

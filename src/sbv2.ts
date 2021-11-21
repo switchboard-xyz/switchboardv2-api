@@ -1697,6 +1697,9 @@ export class LeaseAccount {
       payerKeypair.publicKey,
       [payerKeypair]
     );
+    const ei = await switchTokenMint.getAccountInfo(escrow);
+    console.log(`Escrow cloase authority: ${ei.closeAuthority?.toBase58()}`);
+    console.log(`Lease: ${leaseAccount.publicKey.toBase58()}`);
     // const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: PublicKey = new PublicKey(
     // "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
     // );
