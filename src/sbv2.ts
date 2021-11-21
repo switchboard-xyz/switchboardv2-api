@@ -1681,14 +1681,6 @@ export class LeaseAccount {
       params.aggregatorAccount
     );
     const escrow = await switchTokenMint.createAccount(payerKeypair.publicKey);
-    // // Set lease to be the close authority.
-    // await switchTokenMint.setAuthority(
-    // escrow,
-    // leaseAccount.publicKey,
-    // "CloseAccount",
-    // payerKeypair.publicKey,
-    // [payerKeypair]
-    // );
     // Set program to be escrow authority.
     await switchTokenMint.setAuthority(
       escrow,
@@ -1697,22 +1689,6 @@ export class LeaseAccount {
       payerKeypair.publicKey,
       [payerKeypair]
     );
-    const ei = await switchTokenMint.getAccountInfo(escrow);
-    console.log(`Escrow cloase authority: ${ei.closeAuthority?.toBase58()}`);
-    console.log(`Lease: ${leaseAccount.publicKey.toBase58()}`);
-    // const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: PublicKey = new PublicKey(
-    // "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
-    // );
-    // const escrowBump = (
-    // await PublicKey.findProgramAddress(
-    // [
-    // leaseAccount.publicKey.toBuffer(),
-    // spl.TOKEN_PROGRAM_ID.toBuffer(),
-    // switchTokenMint.publicKey.toBuffer(),
-    // ],
-    // SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
-    // )
-    // )[1];
     await program.rpc.leaseInit(
       {
         loadAmount: params.loadAmount,

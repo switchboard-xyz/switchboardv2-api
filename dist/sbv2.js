@@ -1017,43 +1017,19 @@ class LeaseAccount {
      * @return newly generated LeaseAccount.
      */
     static async create(program, params) {
-        var _a, _b;
+        var _a;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(program, params.oracleQueueAccount, params.aggregatorAccount);
         const escrow = await switchTokenMint.createAccount(payerKeypair.publicKey);
-        // // Set lease to be the close authority.
-        // await switchTokenMint.setAuthority(
-        // escrow,
-        // leaseAccount.publicKey,
-        // "CloseAccount",
-        // payerKeypair.publicKey,
-        // [payerKeypair]
-        // );
         // Set program to be escrow authority.
         await switchTokenMint.setAuthority(escrow, programStateAccount.publicKey, "AccountOwner", payerKeypair.publicKey, [payerKeypair]);
-        const ei = await switchTokenMint.getAccountInfo(escrow);
-        console.log(`Escrow cloase authority: ${(_a = ei.closeAuthority) === null || _a === void 0 ? void 0 : _a.toBase58()}`);
-        console.log(`Lease: ${leaseAccount.publicKey.toBase58()}`);
-        // const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: PublicKey = new PublicKey(
-        // "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
-        // );
-        // const escrowBump = (
-        // await PublicKey.findProgramAddress(
-        // [
-        // leaseAccount.publicKey.toBuffer(),
-        // spl.TOKEN_PROGRAM_ID.toBuffer(),
-        // switchTokenMint.publicKey.toBuffer(),
-        // ],
-        // SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
-        // )
-        // )[1];
         await program.rpc.leaseInit({
             loadAmount: params.loadAmount,
             stateBump,
             leaseBump,
-            withdrawAuthority: (_b = params.withdrawAuthority) !== null && _b !== void 0 ? _b : web3_js_1.PublicKey.default,
+            withdrawAuthority: (_a = params.withdrawAuthority) !== null && _a !== void 0 ? _a : web3_js_1.PublicKey.default,
         }, {
             accounts: {
                 programState: programStateAccount.publicKey,
