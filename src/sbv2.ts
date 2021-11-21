@@ -1203,6 +1203,10 @@ export enum SwitchboardPermission {
   PERMIT_ORACLE_HEARTBEAT = "permitOracleHeartbeat",
   PERMIT_ORACLE_QUEUE_USAGE = "permitOracleQueueUsage",
 }
+export enum SwitchboardPermissionValue {
+  PERMIT_ORACLE_HEARTBEAT = 1 << 0,
+  PERMIT_ORACLE_QUEUE_USAGE = 1 << 1,
+}
 /**
  * A Switchboard account representing a permission or privilege granted by one
  * account signer to another account.
@@ -1232,6 +1236,16 @@ export class PermissionAccount {
     this.program = params.program;
     this.keypair = params.keypair;
     this.publicKey = params.publicKey ?? this.keypair.publicKey;
+  }
+
+  /**
+   * Check if a specific permission is enabled on this permission account
+   */
+  async isPermissionEnabled(
+    permission: SwitchboardPermissionValue
+  ): Promise<boolean> {
+    const permissions = (await this.loadData()).permissions;
+    return (permissions & (permission as number)) != 0;
   }
 
   /**

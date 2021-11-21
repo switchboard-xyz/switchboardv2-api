@@ -484,6 +484,10 @@ export declare enum SwitchboardPermission {
     PERMIT_ORACLE_HEARTBEAT = "permitOracleHeartbeat",
     PERMIT_ORACLE_QUEUE_USAGE = "permitOracleQueueUsage"
 }
+export declare enum SwitchboardPermissionValue {
+    PERMIT_ORACLE_HEARTBEAT = 1,
+    PERMIT_ORACLE_QUEUE_USAGE = 2
+}
 /**
  * A Switchboard account representing a permission or privilege granted by one
  * account signer to another account.
@@ -497,6 +501,10 @@ export declare class PermissionAccount {
      * @param params initialization params.
      */
     constructor(params: AccountParams);
+    /**
+     * Check if a specific permission is enabled on this permission account
+     */
+    isPermissionEnabled(permission: SwitchboardPermissionValue): Promise<boolean>;
     /**
      * Load and parse PermissionAccount data based on the program IDL.
      * @return PermissionAccount data parsed in accordance with the

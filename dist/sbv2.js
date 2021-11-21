@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = void 0;
+exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = void 0;
 const anchor = __importStar(require("@project-serum/anchor"));
 const spl = __importStar(require("@solana/spl-token"));
 const web3_js_1 = require("@solana/web3.js");
@@ -750,6 +750,11 @@ var SwitchboardPermission;
     SwitchboardPermission["PERMIT_ORACLE_HEARTBEAT"] = "permitOracleHeartbeat";
     SwitchboardPermission["PERMIT_ORACLE_QUEUE_USAGE"] = "permitOracleQueueUsage";
 })(SwitchboardPermission = exports.SwitchboardPermission || (exports.SwitchboardPermission = {}));
+var SwitchboardPermissionValue;
+(function (SwitchboardPermissionValue) {
+    SwitchboardPermissionValue[SwitchboardPermissionValue["PERMIT_ORACLE_HEARTBEAT"] = 1] = "PERMIT_ORACLE_HEARTBEAT";
+    SwitchboardPermissionValue[SwitchboardPermissionValue["PERMIT_ORACLE_QUEUE_USAGE"] = 2] = "PERMIT_ORACLE_QUEUE_USAGE";
+})(SwitchboardPermissionValue = exports.SwitchboardPermissionValue || (exports.SwitchboardPermissionValue = {}));
 /**
  * A Switchboard account representing a permission or privilege granted by one
  * account signer to another account.
@@ -772,6 +777,13 @@ class PermissionAccount {
         this.program = params.program;
         this.keypair = params.keypair;
         this.publicKey = (_a = params.publicKey) !== null && _a !== void 0 ? _a : this.keypair.publicKey;
+    }
+    /**
+     * Check if a specific permission is enabled on this permission account
+     */
+    async isPermissionEnabled(permission) {
+        const permissions = (await this.loadData()).permissions;
+        return (permissions & permission) != 0;
     }
     /**
      * Load and parse PermissionAccount data based on the program IDL.
