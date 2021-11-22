@@ -102,6 +102,7 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="permissionaccount.html#ispermissionenabled" class="tsd-kind-icon">is<wbr>Permission<wbr>Enabled</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="permissionaccount.html#loaddata" class="tsd-kind-icon">load<wbr>Data</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="permissionaccount.html#set" class="tsd-kind-icon">set</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="permissionaccount.html#size" class="tsd-kind-icon">size</a></li>
@@ -124,7 +125,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/e80c05d/src/sbv2.ts#L1198">sbv2.ts:1198</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/09569eb/src/sbv2.ts#L1217">sbv2.ts:1217</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -154,7 +155,7 @@
 					<div class="tsd-signature tsd-kind-icon">keypair<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Keypair</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/e80c05d/src/sbv2.ts#L1198">sbv2.ts:1198</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/09569eb/src/sbv2.ts#L1217">sbv2.ts:1217</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -164,7 +165,7 @@
 					<div class="tsd-signature tsd-kind-icon">program<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Program</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Idl</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/e80c05d/src/sbv2.ts#L1196">sbv2.ts:1196</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/09569eb/src/sbv2.ts#L1215">sbv2.ts:1215</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -174,13 +175,41 @@
 					<div class="tsd-signature tsd-kind-icon">public<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/e80c05d/src/sbv2.ts#L1197">sbv2.ts:1197</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/09569eb/src/sbv2.ts#L1216">sbv2.ts:1216</a></li>
 						</ul>
 					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="ispermissionenabled" class="tsd-anchor"></a>
+					<h3>is<wbr>Permission<wbr>Enabled</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Permission<wbr>Enabled<span class="tsd-signature-symbol">(</span>permission<span class="tsd-signature-symbol">: </span><a href="../enums/switchboardpermissionvalue.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SwitchboardPermissionValue</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/09569eb/src/sbv2.ts#L1244">sbv2.ts:1244</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Check if a specific permission is enabled on this permission account</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>permission: <a href="../enums/switchboardpermissionvalue.html" class="tsd-signature-type" data-tsd-kind="Enumeration">SwitchboardPermissionValue</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="loaddata" class="tsd-anchor"></a>
 					<h3>load<wbr>Data</h3>
@@ -191,7 +220,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/e80c05d/src/sbv2.ts#L1227">sbv2.ts:1227</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/09569eb/src/sbv2.ts#L1256">sbv2.ts:1256</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -215,7 +244,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/e80c05d/src/sbv2.ts#L1310">sbv2.ts:1310</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/09569eb/src/sbv2.ts#L1339">sbv2.ts:1339</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -244,7 +273,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/e80c05d/src/sbv2.ts#L1238">sbv2.ts:1238</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/09569eb/src/sbv2.ts#L1267">sbv2.ts:1267</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -267,7 +296,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/e80c05d/src/sbv2.ts#L1248">sbv2.ts:1248</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/09569eb/src/sbv2.ts#L1277">sbv2.ts:1277</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -302,7 +331,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/e80c05d/src/sbv2.ts#L1287">sbv2.ts:1287</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/09569eb/src/sbv2.ts#L1316">sbv2.ts:1316</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -354,6 +383,9 @@
 					<li class=" tsd-kind-enum">
 						<a href="../enums/switchboardpermission.html" class="tsd-kind-icon">Switchboard<wbr>Permission</a>
 					</li>
+					<li class=" tsd-kind-enum">
+						<a href="../enums/switchboardpermissionvalue.html" class="tsd-kind-icon">Switchboard<wbr>Permission<wbr>Value</a>
+					</li>
 					<li class=" tsd-kind-class">
 						<a href="aggregatoraccount.html" class="tsd-kind-icon">Aggregator<wbr>Account</a>
 					</li>
@@ -391,6 +423,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="permissionaccount.html#publickey" class="tsd-kind-icon">public<wbr>Key</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="permissionaccount.html#ispermissionenabled" class="tsd-kind-icon">is<wbr>Permission<wbr>Enabled</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="permissionaccount.html#loaddata" class="tsd-kind-icon">load<wbr>Data</a>
@@ -455,6 +490,9 @@
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="../interfaces/oraclequeueinitparams.html" class="tsd-kind-icon">Oracle<wbr>Queue<wbr>Init<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/oraclewithdrawparams.html" class="tsd-kind-icon">Oracle<wbr>Withdraw<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="../interfaces/permissioninitparams.html" class="tsd-kind-icon">Permission<wbr>Init<wbr>Params</a>
