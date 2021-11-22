@@ -2219,6 +2219,24 @@ export interface OracleInitParams {
 }
 
 /**
+ * Parameters for an OracleWithdraw request.
+ */
+export interface OracleWithdrawParams {
+  /**
+   *  Amount to withdraw
+   */
+  amount: anchor.BN;
+  /**
+   * Token Account to withdraw to
+   */
+  withdrawAccount: PublicKey;
+  /**
+   * Oracle authority keypair.
+   */
+  oracleAuthority: Keypair;
+}
+
+/**
  * A Switchboard account representing an oracle account and its associated queue
  * and escrow account.
  */
@@ -2397,6 +2415,52 @@ export class OracleAccount {
           dataBuffer: queue.dataBuffer,
         },
         signers: [this.keypair],
+      }
+    );
+  }
+
+  /**
+   * Withdraw stake and/or rewards from an OracleAccount.
+   */
+  async withdraw(params: OracleWithdrawParams): Promise<TransactionSignature> {
+    const payerKeypair = Keypair.fromSecretKey(
+      (this.program.provider.wallet as any).payer.secretKey
+    );
+    const oracle = await this.loadData();
+    const queuePubkey = oracle.queuePubkey;
+    const queueAccount = new OracleQueueAccount({
+      program: this.program,
+      publicKey: queuePubkey,
+    });
+    const queueAuthority = (await queueAccount.loadData()).authority;
+    const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(
+      this.program
+    );
+    const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
+      this.program,
+      queueAuthority,
+      queueAccount.publicKey,
+      this.publicKey
+    );
+
+    return await this.program.rpc.oracleWithdraw(
+      {
+        permissionBump,
+        stateBump,
+        amount: params.amount,
+      },
+      {
+        accounts: {
+          oracle: this.publicKey,
+          oracleAuthority: params.oracleAuthority.publicKey,
+          tokenAccount: oracle.tokenAccount,
+          withdrawAccount: params.withdrawAccount,
+          oracleQueue: queueAccount.publicKey,
+          permission: permissionAccount.publicKey,
+          tokenProgram: spl.TOKEN_PROGRAM_ID,
+          programState: stateAccount.publicKey,
+        },
+        signers: [params.oracleAuthority],
       }
     );
   }

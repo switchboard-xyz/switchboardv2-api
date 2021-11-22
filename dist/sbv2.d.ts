@@ -881,6 +881,23 @@ export interface OracleInitParams {
     queueAccount: OracleQueueAccount;
 }
 /**
+ * Parameters for an OracleWithdraw request.
+ */
+export interface OracleWithdrawParams {
+    /**
+     *  Amount to withdraw
+     */
+    amount: anchor.BN;
+    /**
+     * Token Account to withdraw to
+     */
+    withdrawAccount: PublicKey;
+    /**
+     * Oracle authority keypair.
+     */
+    oracleAuthority: Keypair;
+}
+/**
  * A Switchboard account representing an oracle account and its associated queue
  * and escrow account.
  */
@@ -921,4 +938,8 @@ export declare class OracleAccount {
      * @return TransactionSignature.
      */
     heartbeat(): Promise<TransactionSignature>;
+    /**
+     * Withdraw stake and/or rewards from an OracleAccount.
+     */
+    withdraw(params: OracleWithdrawParams): Promise<TransactionSignature>;
 }
