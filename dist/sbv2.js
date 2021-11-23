@@ -30,6 +30,8 @@ const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
 const assert_1 = __importDefault(require("assert"));
+// Devnet Program ID.
+const SBV2_DEVNET_PID = new web3_js_1.PublicKey("2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG");
 /**
  * Switchboard precisioned representation of numbers.
  */

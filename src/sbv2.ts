@@ -13,6 +13,11 @@ import Big from "big.js";
 import * as crypto from "crypto";
 import assert from "assert";
 
+// Devnet Program ID.
+const SBV2_DEVNET_PID = new PublicKey(
+  "2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG"
+);
+
 /**
  * Switchboard precisioned representation of numbers.
  */
