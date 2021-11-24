@@ -724,7 +724,7 @@ export declare class LeaseAccount {
      * @param program Switchboard program representation holding connection and IDL.
      * @param params.
      */
-    extend(program: anchor.Program, params: LeaseExtendParams): Promise<LeaseAccount>;
+    extend(params: LeaseExtendParams): Promise<LeaseAccount>;
 }
 /**
  * Parameters for initializing a CrankAccount

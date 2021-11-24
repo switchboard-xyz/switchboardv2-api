@@ -1067,7 +1067,8 @@ class LeaseAccount {
      * @param program Switchboard program representation holding connection and IDL.
      * @param params.
      */
-    async extend(program, params) {
+    async extend(params) {
+        const program = this.program;
         const lease = await this.loadData();
         const escrow = lease.escrow;
         const queue = lease.queue;
@@ -1530,6 +1531,8 @@ class OracleAccount {
                 permission: permissionAccount.publicKey,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
                 programState: stateAccount.publicKey,
+                systemProgram: web3_js_1.SystemProgram.programId,
+                payer: this.program.provider.wallet.publicKey,
             },
             signers: [params.oracleAuthority],
         });
