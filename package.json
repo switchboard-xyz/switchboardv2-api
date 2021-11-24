@@ -1,6 +1,6 @@
 {
   "name": "@switchboard-xyz/switchboard-v2",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "API wrapper for intergating with the Switchboardv2 program",
   "repository": {
     "type": "git",
