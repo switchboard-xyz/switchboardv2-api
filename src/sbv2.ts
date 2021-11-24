@@ -3,18 +3,18 @@ import * as spl from "@solana/spl-token";
 import {
   Keypair,
   PublicKey,
+  sendAndConfirmTransaction,
   SystemProgram,
   Transaction,
   TransactionSignature,
-  sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
+import assert from "assert";
 import Big from "big.js";
 import * as crypto from "crypto";
-import assert from "assert";
 
 // Devnet Program ID.
-const SBV2_DEVNET_PID = new PublicKey(
+export const SBV2_DEVNET_PID = new PublicKey(
   "2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG"
 );
 
