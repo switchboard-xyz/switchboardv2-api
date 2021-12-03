@@ -1758,7 +1758,7 @@ export class LeaseAccount {
    * @param program Switchboard program representation holding connection and IDL.
    * @param params.
    */
-  async extend(params: LeaseExtendParams) {
+  async extend(params: LeaseExtendParams): Promise<TransactionSignature> {
     const program = this.program;
     const lease = await this.loadData();
     const escrow = lease.escrow;
@@ -1772,7 +1772,7 @@ export class LeaseAccount {
       new OracleQueueAccount({ program, publicKey: queue }),
       new AggregatorAccount({ program, publicKey: aggregator })
     );
-    await program.rpc.leaseExtend(
+    return await program.rpc.leaseExtend(
       {
         loadAmount: params.loadAmount,
         stateBump,
@@ -1792,7 +1792,6 @@ export class LeaseAccount {
         signers: [params.funderAuthority],
       }
     );
-    return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
   }
 
   /**
@@ -1800,7 +1799,7 @@ export class LeaseAccount {
    * @param program Switchboard program representation holding connection and IDL.
    * @param params.
    */
-  async withdraw(params: LeaseWithdrawParams) {
+  async withdraw(params: LeaseWithdrawParams): Promise<TransactionSignature> {
     const program = this.program;
     const lease = await this.loadData();
     const escrow = lease.escrow;
@@ -1814,7 +1813,7 @@ export class LeaseAccount {
       new OracleQueueAccount({ program, publicKey: queue }),
       new AggregatorAccount({ program, publicKey: aggregator })
     );
-    await program.rpc.leaseExtend(
+    return await program.rpc.leaseExtend(
       {
         amount: params.amount,
         stateBump,
@@ -1834,7 +1833,6 @@ export class LeaseAccount {
         signers: [params.withdrawAuthority],
       }
     );
-    return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
   }
 }
 

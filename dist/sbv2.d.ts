@@ -741,13 +741,13 @@ export declare class LeaseAccount {
      * @param program Switchboard program representation holding connection and IDL.
      * @param params.
      */
-    extend(params: LeaseExtendParams): Promise<LeaseAccount>;
+    extend(params: LeaseExtendParams): Promise<TransactionSignature>;
     /**
      * Withdraw funds from a LeaseAccount.
      * @param program Switchboard program representation holding connection and IDL.
      * @param params.
      */
-    withdraw(params: LeaseWithdrawParams): Promise<LeaseAccount>;
+    withdraw(params: LeaseWithdrawParams): Promise<TransactionSignature>;
 }
 /**
  * Parameters for initializing a CrankAccount

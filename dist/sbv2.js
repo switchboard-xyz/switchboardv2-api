@@ -1076,7 +1076,7 @@ class LeaseAccount {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(program, new OracleQueueAccount({ program, publicKey: queue }), new AggregatorAccount({ program, publicKey: aggregator }));
-        await program.rpc.leaseExtend({
+        return await program.rpc.leaseExtend({
             loadAmount: params.loadAmount,
             stateBump,
             leaseBump,
@@ -1093,7 +1093,6 @@ class LeaseAccount {
             },
             signers: [params.funderAuthority],
         });
-        return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
     }
     /**
      * Withdraw funds from a LeaseAccount.
@@ -1109,7 +1108,7 @@ class LeaseAccount {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(program, new OracleQueueAccount({ program, publicKey: queue }), new AggregatorAccount({ program, publicKey: aggregator }));
-        await program.rpc.leaseExtend({
+        return await program.rpc.leaseExtend({
             amount: params.amount,
             stateBump,
             leaseBump,
@@ -1126,7 +1125,6 @@ class LeaseAccount {
             },
             signers: [params.withdrawAuthority],
         });
-        return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
     }
 }
 exports.LeaseAccount = LeaseAccount;
