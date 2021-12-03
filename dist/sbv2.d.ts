@@ -681,6 +681,23 @@ export interface LeaseExtendParams {
     funderAuthority: Keypair;
 }
 /**
+ * Parameters for withdrawing from a LeaseAccount
+ */
+export interface LeaseWithdrawParams {
+    /**
+     *  Token amount to withdraw from the lease escrow
+     */
+    amount: anchor.BN;
+    /**
+     *  The wallet to withdraw to.
+     */
+    withdrawWallet: PublicKey;
+    /**
+     *  The withdraw authority of the lease
+     */
+    withdrawAuthority: Keypair;
+}
+/**
  * A Switchboard account representing a lease for managing funds for oracle payouts
  * for fulfilling feed updates.
  */
@@ -725,6 +742,12 @@ export declare class LeaseAccount {
      * @param params.
      */
     extend(params: LeaseExtendParams): Promise<LeaseAccount>;
+    /**
+     * Withdraw funds from a LeaseAccount.
+     * @param program Switchboard program representation holding connection and IDL.
+     * @param params.
+     */
+    withdraw(params: LeaseWithdrawParams): Promise<LeaseAccount>;
 }
 /**
  * Parameters for initializing a CrankAccount

@@ -1095,6 +1095,39 @@ class LeaseAccount {
         });
         return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
     }
+    /**
+     * Withdraw funds from a LeaseAccount.
+     * @param program Switchboard program representation holding connection and IDL.
+     * @param params.
+     */
+    async withdraw(params) {
+        const program = this.program;
+        const lease = await this.loadData();
+        const escrow = lease.escrow;
+        const queue = lease.queue;
+        const aggregator = lease.aggregator;
+        const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
+        const switchTokenMint = await programStateAccount.getTokenMint();
+        const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(program, new OracleQueueAccount({ program, publicKey: queue }), new AggregatorAccount({ program, publicKey: aggregator }));
+        await program.rpc.leaseExtend({
+            amount: params.amount,
+            stateBump,
+            leaseBump,
+        }, {
+            accounts: {
+                lease: leaseAccount.publicKey,
+                aggregator,
+                queue,
+                withdrawAuthority: params.withdrawAuthority.publicKey,
+                withdrawAccount: params.withdrawWallet,
+                tokenProgram: spl.TOKEN_PROGRAM_ID,
+                escrow,
+                programState: programStateAccount.publicKey,
+            },
+            signers: [params.withdrawAuthority],
+        });
+        return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
+    }
 }
 exports.LeaseAccount = LeaseAccount;
 /**
