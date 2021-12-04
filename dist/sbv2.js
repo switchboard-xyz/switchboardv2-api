@@ -161,6 +161,16 @@ class ProgramStateAccount {
     static async create(program, params) {
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
+        const psa = new ProgramStateAccount({
+            program,
+            publicKey: stateAccount.publicKey,
+        });
+        // Short circuit if already created.
+        try {
+            await psa.loadData();
+            return psa;
+        }
+        catch (e) { }
         let mint = null;
         let vault = null;
         if (params.mint === undefined) {
@@ -189,10 +199,7 @@ class ProgramStateAccount {
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
             },
         });
-        return new ProgramStateAccount({
-            program,
-            publicKey: stateAccount.publicKey,
-        });
+        return psa;
     }
     /**
      * Transfer N tokens from the program vault to a specified account.

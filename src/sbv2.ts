@@ -218,6 +218,15 @@ export class ProgramStateAccount {
       (program.provider.wallet as any).payer.secretKey
     );
     const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
+    const psa = new ProgramStateAccount({
+      program,
+      publicKey: stateAccount.publicKey,
+    });
+    // Short circuit if already created.
+    try {
+      await psa.loadData();
+      return psa;
+    } catch (e) {}
     let mint = null;
     let vault = null;
     if (params.mint === undefined) {
@@ -265,10 +274,7 @@ export class ProgramStateAccount {
         },
       }
     );
-    return new ProgramStateAccount({
-      program,
-      publicKey: stateAccount.publicKey,
-    });
+    return psa;
   }
 
   /**
