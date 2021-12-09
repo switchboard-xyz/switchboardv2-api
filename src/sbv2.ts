@@ -568,7 +568,7 @@ export class AggregatorAccount {
       if (row.timestamp.eq(new anchor.BN(0))) {
         break;
       }
-      if (i < insertIdx) {
+      if (i <= insertIdx) {
         tail.push(row);
       } else {
         front.push(row);
