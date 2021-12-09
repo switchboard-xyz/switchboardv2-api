@@ -472,6 +472,32 @@ export class SwitchboardError {
 }
 
 /**
+ * Row structure of elements in the aggregator history buffer.
+ */
+export class AggregatorHistoryRow {
+  /**
+   *  Timestamp of the aggregator result.
+   */
+  timestamp: anchor.BN;
+  /**
+   *  Aggregator value at timestamp.
+   */
+  value: Big;
+
+  static from(buf: Buffer): AggregatorHistoryRow {
+    const timestamp = new anchor.BN(buf.slice(0, 8), "le");
+    // TODO(mgild): does this work for negative???
+    const mantissa = new anchor.BN(buf.slice(8, 24), "le");
+    const scale = buf.readUInt32LE(24);
+    const decimal = new SwitchboardDecimal(mantissa, scale);
+    const res = new AggregatorHistoryRow();
+    res.timestamp = timestamp;
+    res.value = decimal.toBig();
+    return res;
+  }
+}
+
+/**
  * Account type representing an aggregator (data feed).
  */
 export class AggregatorAccount {
@@ -520,6 +546,35 @@ export class AggregatorAccount {
       await this.program.account.aggregatorAccountData.fetch(this.publicKey);
     aggregator.ebuf = undefined;
     return aggregator;
+  }
+
+  async loadHistory(): Promise<Array<AggregatorHistoryRow>> {
+    const aggregator = await this.loadData();
+    if (aggregator.historyBuffer == PublicKey.default) {
+      return [];
+    }
+    const ROW_SIZE = 168;
+    const buffer =
+      (
+        await this.program.provider.connection.getAccountInfo(
+          aggregator.historyBuffer
+        )
+      )?.data.slice(12) ?? Buffer.from("");
+    const insertIdx = buffer.readUInt32LE(8) * ROW_SIZE;
+    const front = [];
+    const tail = [];
+    for (let i = 0; i < buffer.length; i += ROW_SIZE) {
+      const row = AggregatorHistoryRow.from(buffer.slice(i, i + ROW_SIZE));
+      if (row.timestamp.eq(new anchor.BN(0))) {
+        break;
+      }
+      if (i < insertIdx) {
+        tail.push(row);
+      } else {
+        front.push(row);
+      }
+    }
+    return front.concat(tail);
   }
 
   /**

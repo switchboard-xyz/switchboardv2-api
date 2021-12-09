@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.SBV2_DEVNET_PID = void 0;
+exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.SBV2_DEVNET_PID = void 0;
 const anchor = __importStar(require("@project-serum/anchor"));
 const spl = __importStar(require("@solana/spl-token"));
 const web3_js_1 = require("@solana/web3.js");
@@ -255,6 +255,23 @@ class SwitchboardError {
 }
 exports.SwitchboardError = SwitchboardError;
 /**
+ * Row structure of elements in the aggregator history buffer.
+ */
+class AggregatorHistoryRow {
+    static from(buf) {
+        const timestamp = new anchor.BN(buf.slice(0, 8), "le");
+        // TODO(mgild): does this work for negative???
+        const mantissa = new anchor.BN(buf.slice(8, 24), "le");
+        const scale = buf.readUInt32LE(24);
+        const decimal = new SwitchboardDecimal(mantissa, scale);
+        const res = new AggregatorHistoryRow();
+        res.timestamp = timestamp;
+        res.value = decimal.toBig();
+        return res;
+    }
+}
+exports.AggregatorHistoryRow = AggregatorHistoryRow;
+/**
  * Account type representing an aggregator (data feed).
  */
 class AggregatorAccount {
@@ -293,6 +310,31 @@ class AggregatorAccount {
         const aggregator = await this.program.account.aggregatorAccountData.fetch(this.publicKey);
         aggregator.ebuf = undefined;
         return aggregator;
+    }
+    async loadHistory() {
+        var _a, _b;
+        const aggregator = await this.loadData();
+        if (aggregator.historyBuffer == web3_js_1.PublicKey.default) {
+            return [];
+        }
+        const ROW_SIZE = 168;
+        const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(aggregator.historyBuffer))) === null || _a === void 0 ? void 0 : _a.data.slice(12)) !== null && _b !== void 0 ? _b : Buffer.from("");
+        const insertIdx = buffer.readUInt32LE(8) * ROW_SIZE;
+        const front = [];
+        const tail = [];
+        for (let i = 0; i < buffer.length; i += ROW_SIZE) {
+            const row = AggregatorHistoryRow.from(buffer.slice(i, i + ROW_SIZE));
+            if (row.timestamp.eq(new anchor.BN(0))) {
+                break;
+            }
+            if (i < insertIdx) {
+                tail.push(row);
+            }
+            else {
+                front.push(row);
+            }
+        }
+        return front.concat(tail);
     }
     /**
      * Get the latest confirmed value stored in the aggregator account.

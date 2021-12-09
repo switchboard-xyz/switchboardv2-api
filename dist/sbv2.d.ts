@@ -256,6 +256,20 @@ export declare class SwitchboardError {
     static fromCode(program: anchor.Program, code: number): SwitchboardError;
 }
 /**
+ * Row structure of elements in the aggregator history buffer.
+ */
+export declare class AggregatorHistoryRow {
+    /**
+     *  Timestamp of the aggregator result.
+     */
+    timestamp: anchor.BN;
+    /**
+     *  Aggregator value at timestamp.
+     */
+    value: Big;
+    static from(buf: Buffer): AggregatorHistoryRow;
+}
+/**
  * Account type representing an aggregator (data feed).
  */
 export declare class AggregatorAccount {
@@ -279,6 +293,7 @@ export declare class AggregatorAccount {
      * Switchboard IDL.
      */
     loadData(): Promise<any>;
+    loadHistory(): Promise<Array<AggregatorHistoryRow>>;
     /**
      * Get the latest confirmed value stored in the aggregator account.
      * @param aggregator Optional parameter representing the already loaded
