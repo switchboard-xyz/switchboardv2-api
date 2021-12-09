@@ -1115,19 +1115,19 @@ class LeaseAccount {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(program, new OracleQueueAccount({ program, publicKey: queue }), new AggregatorAccount({ program, publicKey: aggregator }));
-        return await program.rpc.leaseExtend({
+        return await program.rpc.leaseWithdraw({
             amount: params.amount,
             stateBump,
             leaseBump,
         }, {
             accounts: {
                 lease: leaseAccount.publicKey,
+                escrow,
                 aggregator,
                 queue,
                 withdrawAuthority: params.withdrawAuthority.publicKey,
                 withdrawAccount: params.withdrawWallet,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
-                escrow,
                 programState: programStateAccount.publicKey,
             },
             signers: [params.withdrawAuthority],

@@ -1819,7 +1819,7 @@ export class LeaseAccount {
       new OracleQueueAccount({ program, publicKey: queue }),
       new AggregatorAccount({ program, publicKey: aggregator })
     );
-    return await program.rpc.leaseExtend(
+    return await program.rpc.leaseWithdraw(
       {
         amount: params.amount,
         stateBump,
@@ -1828,12 +1828,12 @@ export class LeaseAccount {
       {
         accounts: {
           lease: leaseAccount.publicKey,
+          escrow,
           aggregator,
           queue,
           withdrawAuthority: params.withdrawAuthority.publicKey,
           withdrawAccount: params.withdrawWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
-          escrow,
           programState: programStateAccount.publicKey,
         },
         signers: [params.withdrawAuthority],
