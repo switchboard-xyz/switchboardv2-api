@@ -682,6 +682,7 @@ class AggregatorAccount {
      */
     async saveResultTxn(aggregator, oracleAccount, // TODO: move to params.
     params) {
+        var _a;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
         const remainingAccounts = [];
         for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
@@ -707,7 +708,7 @@ class AggregatorAccount {
         const [oraclePermissionAccount, oraclePermissionBump] = PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, oracleAccount.publicKey);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const digest = this.produceJobsHash(params.jobs).digest();
-        let historyBuffer = aggregator.historyBuffer;
+        let historyBuffer = (_a = aggregator.historyBuffer) !== null && _a !== void 0 ? _a : web3_js_1.PublicKey.default;
         if (historyBuffer.equals(web3_js_1.PublicKey.default)) {
             historyBuffer = this.publicKey;
         }

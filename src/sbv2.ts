@@ -1105,7 +1105,7 @@ export class AggregatorAccount {
       this.program
     );
     const digest = this.produceJobsHash(params.jobs).digest();
-    let historyBuffer = aggregator.historyBuffer;
+    let historyBuffer = aggregator.historyBuffer ?? PublicKey.default;
     if (historyBuffer.equals(PublicKey.default)) {
       historyBuffer = this.publicKey;
     }
