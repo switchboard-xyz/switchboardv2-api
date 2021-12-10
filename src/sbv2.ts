@@ -1548,6 +1548,11 @@ export interface OracleQueueInitParams {
    * Optionally set the size of the queue.
    */
   queueSize?: number;
+  /**
+   * Eanbling this setting means data feeds do not need explicit permission
+   * to join the queue.
+   */
+  unpermissionedFeeds?: boolean;
 }
 
 /**
@@ -1653,6 +1658,7 @@ export class OracleQueueAccount {
           params.consecutiveOracleFailureLimit ?? new anchor.BN(1000),
         minimumDelaySeconds: params.minimumDelaySeconds ?? 5,
         queueSize: params.queueSize,
+        unpermissionedFeeds: params.unpermissionedFeeds ?? false,
       },
       {
         signers: [oracleQueueAccount, buffer],

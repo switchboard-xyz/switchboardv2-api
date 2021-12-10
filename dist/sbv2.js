@@ -1017,7 +1017,7 @@ class OracleQueueAccount {
      * @return newly generated OracleQueueAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const buffer = anchor.web3.Keypair.generate();
@@ -1038,6 +1038,7 @@ class OracleQueueAccount {
             consecutiveOracleFailureLimit: (_l = params.consecutiveOracleFailureLimit) !== null && _l !== void 0 ? _l : new anchor.BN(1000),
             minimumDelaySeconds: (_m = params.minimumDelaySeconds) !== null && _m !== void 0 ? _m : 5,
             queueSize: params.queueSize,
+            unpermissionedFeeds: (_o = params.unpermissionedFeeds) !== null && _o !== void 0 ? _o : false,
         }, {
             signers: [oracleQueueAccount, buffer],
             accounts: {

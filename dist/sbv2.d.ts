@@ -630,6 +630,11 @@ export interface OracleQueueInitParams {
      * Optionally set the size of the queue.
      */
     queueSize?: number;
+    /**
+     * Eanbling this setting means data feeds do not need explicit permission
+     * to join the queue.
+     */
+    unpermissionedFeeds?: boolean;
 }
 /**
  * A Switchboard account representing a queue for distributing oracles to
