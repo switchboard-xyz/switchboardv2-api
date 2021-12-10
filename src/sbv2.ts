@@ -415,6 +415,20 @@ export interface AggregatorSaveResultParams {
 }
 
 /**
+ * Parameters for creating and setting a history buffer for an aggregator
+ */
+export interface AggregatorSetHistoryBufferParams {
+  /*
+   * Authority keypair for the aggregator.
+   */
+  authority?: Keypair;
+  /*
+   * Number of elements for the history buffer to fit.
+   */
+  size: number;
+}
+
+/**
  * Parameters required to open an aggregator round
  */
 export interface AggregatorOpenRoundParams {
@@ -564,6 +578,9 @@ export class AggregatorAccount {
     const front = [];
     const tail = [];
     for (let i = 0; i < buffer.length; i += ROW_SIZE) {
+      if (i + ROW_SIZE > buffer.length) {
+        break;
+      }
       const row = AggregatorHistoryRow.from(buffer.slice(i, i + ROW_SIZE));
       if (row.timestamp.eq(new anchor.BN(0))) {
         break;
@@ -798,6 +815,48 @@ export class AggregatorAccount {
       }
     );
     return new AggregatorAccount({ program, keypair: aggregatorAccount });
+  }
+
+  /**
+   * Create and set a history buffer for a specified oracle
+   * @param program Switchboard program representation holding connection and IDL.
+   * @param params.
+   * @return TransactionSignature of the rpc
+   */
+  async setHistoryBuffer(
+    params: AggregatorSetHistoryBufferParams
+  ): Promise<TransactionSignature> {
+    const buffer = Keypair.generate();
+    const program = this.program;
+    const authority = params.authority ?? this.keypair;
+    const HISTORY_ROW_SIZE = 28;
+    const INSERT_IDX_SIZE = 4;
+    const DISCRIMINATOR_SIZE = 8;
+    const size =
+      params.size * HISTORY_ROW_SIZE + INSERT_IDX_SIZE + DISCRIMINATOR_SIZE;
+    return await program.rpc.aggregatorSetHistoryBuffer(
+      {},
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          authority: authority.publicKey,
+          buffer: buffer.publicKey,
+        },
+        signers: [authority, buffer],
+        instructions: [
+          anchor.web3.SystemProgram.createAccount({
+            fromPubkey: program.provider.wallet.publicKey,
+            newAccountPubkey: buffer.publicKey,
+            space: size,
+            lamports:
+              await program.provider.connection.getMinimumBalanceForRentExemption(
+                size
+              ),
+            programId: program.programId,
+          }),
+        ],
+      }
+    );
   }
 
   /**
@@ -1046,6 +1105,10 @@ export class AggregatorAccount {
       this.program
     );
     const digest = this.produceJobsHash(params.jobs).digest();
+    let historyBuffer = aggregator.historyBuffer;
+    if (historyBuffer.equals(PublicKey.default)) {
+      historyBuffer = this.publicKey;
+    }
     return this.program.transaction.aggregatorSaveResult(
       {
         oracleIdx: params.oracleIdx,
@@ -1072,6 +1135,7 @@ export class AggregatorAccount {
           escrow,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           programState: programStateAccount.publicKey,
+          historyBuffer,
         },
         remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
           return { isSigner: false, isWritable: true, pubkey };

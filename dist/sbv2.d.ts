@@ -214,6 +214,13 @@ export interface AggregatorSaveResultParams {
     jobs: Array<OracleJob>;
 }
 /**
+ * Parameters for creating and setting a history buffer for an aggregator
+ */
+export interface AggregatorSetHistoryBufferParams {
+    authority?: Keypair;
+    size: number;
+}
+/**
  * Parameters required to open an aggregator round
  */
 export interface AggregatorOpenRoundParams {
@@ -348,6 +355,13 @@ export declare class AggregatorAccount {
      * @return newly generated AggregatorAccount.
      */
     static create(program: anchor.Program, params: AggregatorInitParams): Promise<AggregatorAccount>;
+    /**
+     * Create and set a history buffer for a specified oracle
+     * @param program Switchboard program representation holding connection and IDL.
+     * @param params.
+     * @return TransactionSignature of the rpc
+     */
+    setHistoryBuffer(params: AggregatorSetHistoryBufferParams): Promise<TransactionSignature>;
     /**
      * RPC to add a new job to an aggregtor to be performed on feed updates.
      * @param job JobAccount specifying another job for this aggregator to fulfill on update
