@@ -332,9 +332,9 @@ class AggregatorAccount {
                 break;
             }
             const row = AggregatorHistoryRow.from(buffer.slice(i, i + ROW_SIZE));
-            if (row.timestamp.eq(new anchor.BN(0))) {
-                break;
-            }
+            // if (row.timestamp.eq(new anchor.BN(0))) {
+            // break;
+            // }
             if (i <= insertIdx) {
                 tail.push(row);
             }
