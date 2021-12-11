@@ -568,13 +568,17 @@ export class AggregatorAccount {
       return [];
     }
     const ROW_SIZE = 168;
-    const buffer =
+    let buffer =
       (
         await this.program.provider.connection.getAccountInfo(
           aggregator.historyBuffer
         )
-      )?.data.slice(12) ?? Buffer.from("");
+      )?.data ?? Buffer.from("");
+    if (buffer.length < 120) {
+      return [];
+    }
     const insertIdx = buffer.readUInt32LE(8) * ROW_SIZE;
+    buffer = buffer.slice(12);
     const front = [];
     const tail = [];
     for (let i = 0; i < buffer.length; i += ROW_SIZE) {
