@@ -567,14 +567,14 @@ export class AggregatorAccount {
     if (aggregator.historyBuffer == PublicKey.default) {
       return [];
     }
-    const ROW_SIZE = 168;
+    const ROW_SIZE = 28;
     let buffer =
       (
         await this.program.provider.connection.getAccountInfo(
           aggregator.historyBuffer
         )
       )?.data ?? Buffer.from("");
-    if (buffer.length < 120) {
+    if (buffer.length < 12) {
       return [];
     }
     const insertIdx = buffer.readUInt32LE(8) * ROW_SIZE;
@@ -587,11 +587,11 @@ export class AggregatorAccount {
         break;
       }
       const row = AggregatorHistoryRow.from(buffer.slice(i, i + ROW_SIZE));
-      // if (row.timestamp.eq(new anchor.BN(0))) {
-      // break;
-      // }
+      if (row.timestamp.eq(new anchor.BN(0))) {
+        break;
+      }
       if (i <= insertIdx) {
-        front.push(row);
+        tail.push(row);
       } else {
         front.push(row);
       }

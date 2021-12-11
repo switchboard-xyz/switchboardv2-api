@@ -317,9 +317,9 @@ class AggregatorAccount {
         if (aggregator.historyBuffer == web3_js_1.PublicKey.default) {
             return [];
         }
-        const ROW_SIZE = 168;
+        const ROW_SIZE = 28;
         let buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(aggregator.historyBuffer))) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : Buffer.from("");
-        if (buffer.length < 120) {
+        if (buffer.length < 12) {
             return [];
         }
         const insertIdx = buffer.readUInt32LE(8) * ROW_SIZE;
@@ -332,11 +332,11 @@ class AggregatorAccount {
                 break;
             }
             const row = AggregatorHistoryRow.from(buffer.slice(i, i + ROW_SIZE));
-            // if (row.timestamp.eq(new anchor.BN(0))) {
-            // break;
-            // }
+            if (row.timestamp.eq(new anchor.BN(0))) {
+                break;
+            }
             if (i <= insertIdx) {
-                front.push(row);
+                tail.push(row);
             }
             else {
                 front.push(row);
