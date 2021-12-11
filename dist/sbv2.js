@@ -336,7 +336,7 @@ class AggregatorAccount {
             // break;
             // }
             if (i <= insertIdx) {
-                tail.push(row);
+                front.push(row);
             }
             else {
                 front.push(row);
