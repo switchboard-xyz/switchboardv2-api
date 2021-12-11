@@ -323,7 +323,7 @@ class AggregatorAccount {
             return [];
         }
         const insertIdx = buffer.readUInt32LE(8) * ROW_SIZE;
-        console.log(insertIdx);
+        // console.log(insertIdx);
         buffer = buffer.slice(12);
         const front = [];
         const tail = [];
