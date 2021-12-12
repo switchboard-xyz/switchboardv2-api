@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>SwitchboardError | @switchboard-xyz/switchboard-v2</title>
+	<title>AggregatorHistoryRow | @switchboard-xyz/switchboard-v2</title>
 	<meta name="description" content="Documentation for @switchboard-xyz/switchboard-v2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules.html">@switchboard-xyz/switchboard-v2</a>
 				</li>
 				<li>
-					<a href="switchboarderror.html">SwitchboardError</a>
+					<a href="aggregatorhistoryrow.html">AggregatorHistoryRow</a>
 				</li>
 			</ul>
-			<h1>Class SwitchboardError</h1>
+			<h1>Class AggregatorHistoryRow</h1>
 		</div>
 	</div>
 </header>
@@ -68,7 +68,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Switchboard wrapper for anchor program errors.</p>
+						<p>Row structure of elements in the aggregator history buffer.</p>
 					</div>
 				</div>
 			</section>
@@ -76,7 +76,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">SwitchboardError</span>
+						<span class="target">AggregatorHistoryRow</span>
 					</li>
 				</ul>
 			</section>
@@ -87,22 +87,20 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="switchboarderror.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="aggregatorhistoryrow.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="switchboarderror.html#code" class="tsd-kind-icon">code</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="switchboarderror.html#msg" class="tsd-kind-icon">msg</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="switchboarderror.html#name" class="tsd-kind-icon">name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="switchboarderror.html#program" class="tsd-kind-icon">program</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="aggregatorhistoryrow.html#timestamp" class="tsd-kind-icon">timestamp</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="aggregatorhistoryrow.html#value" class="tsd-kind-icon">value</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="switchboarderror.html#fromcode" class="tsd-kind-icon">from<wbr>Code</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="aggregatorhistoryrow.html#from" class="tsd-kind-icon">from</a></li>
 							</ul>
 						</section>
 					</div>
@@ -114,13 +112,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Switchboard<wbr>Error<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="switchboarderror.html" class="tsd-signature-type" data-tsd-kind="Class">SwitchboardError</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Aggregator<wbr>History<wbr>Row<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="aggregatorhistoryrow.html" class="tsd-signature-type" data-tsd-kind="Class">AggregatorHistoryRow</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="switchboarderror.html" class="tsd-signature-type" data-tsd-kind="Class">SwitchboardError</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="aggregatorhistoryrow.html" class="tsd-signature-type" data-tsd-kind="Class">AggregatorHistoryRow</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -128,62 +126,32 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="code" class="tsd-anchor"></a>
-					<h3>code</h3>
-					<div class="tsd-signature tsd-kind-icon">code<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="timestamp" class="tsd-anchor"></a>
+					<h3>timestamp</h3>
+					<div class="tsd-signature tsd-kind-icon">timestamp<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">BN</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/8181ce7/src/sbv2.ts#L460">sbv2.ts:460</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/8181ce7/src/sbv2.ts#L495">sbv2.ts:495</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p> Numerical SwitchboardError reporesentation.</p>
+							<p> Timestamp of the aggregator result.</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="msg" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> msg</h3>
-					<div class="tsd-signature tsd-kind-icon">msg<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="value" class="tsd-anchor"></a>
+					<h3>value</h3>
+					<div class="tsd-signature tsd-kind-icon">value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Big</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/8181ce7/src/sbv2.ts#L464">sbv2.ts:464</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/8181ce7/src/sbv2.ts#L499">sbv2.ts:499</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p> Message describing this error in detail.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="name" class="tsd-anchor"></a>
-					<h3>name</h3>
-					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/8181ce7/src/sbv2.ts#L456">sbv2.ts:456</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p> Stringified name of the error type.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="program" class="tsd-anchor"></a>
-					<h3>program</h3>
-					<div class="tsd-signature tsd-kind-icon">program<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Program</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Idl</span><span class="tsd-signature-symbol">&gt;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/8181ce7/src/sbv2.ts#L452">sbv2.ts:452</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p> The program containing the Switchboard IDL specifying error codes.</p>
+							<p> Aggregator value at timestamp.</p>
 						</div>
 					</div>
 				</section>
@@ -191,41 +159,25 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="fromcode" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Code</h3>
+					<a name="from" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> from</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">from<wbr>Code<span class="tsd-signature-symbol">(</span>program<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Program</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Idl</span><span class="tsd-signature-symbol">&gt;</span>, code<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="switchboarderror.html" class="tsd-signature-type" data-tsd-kind="Class">SwitchboardError</a></li>
+						<li class="tsd-signature tsd-kind-icon">from<span class="tsd-signature-symbol">(</span>buf<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Buffer</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="aggregatorhistoryrow.html" class="tsd-signature-type" data-tsd-kind="Class">AggregatorHistoryRow</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/8181ce7/src/sbv2.ts#L473">sbv2.ts:473</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/8181ce7/src/sbv2.ts#L501">sbv2.ts:501</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Converts a numerical error code to a SwitchboardError based on the program
-									IDL.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>program: <span class="tsd-signature-type">Program</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Idl</span><span class="tsd-signature-symbol">&gt;</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>the Switchboard program object containing the program IDL.</p>
-									</div>
-								</li>
-								<li>
-									<h5>code: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Error code to convert to a SwitchboardError object.</p>
-									</div>
+									<h5>buf: <span class="tsd-signature-type">Buffer</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="switchboarderror.html" class="tsd-signature-type" data-tsd-kind="Class">SwitchboardError</a></h4>
-							<p>SwitchboardError</p>
+							<h4 class="tsd-returns-title">Returns <a href="aggregatorhistoryrow.html" class="tsd-signature-type" data-tsd-kind="Class">AggregatorHistoryRow</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -250,9 +202,27 @@
 					<li class=" tsd-kind-class">
 						<a href="aggregatoraccount.html" class="tsd-kind-icon">Aggregator<wbr>Account</a>
 					</li>
-					<li class=" tsd-kind-class">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class">
 						<a href="aggregatorhistoryrow.html" class="tsd-kind-icon">Aggregator<wbr>History<wbr>Row</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="aggregatorhistoryrow.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="aggregatorhistoryrow.html#timestamp" class="tsd-kind-icon">timestamp</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="aggregatorhistoryrow.html#value" class="tsd-kind-icon">value</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="aggregatorhistoryrow.html#from" class="tsd-kind-icon">from</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-class">
 						<a href="crankaccount.html" class="tsd-kind-icon">Crank<wbr>Account</a>
 					</li>
@@ -280,33 +250,9 @@
 					<li class=" tsd-kind-class">
 						<a href="switchboarddecimal.html" class="tsd-kind-icon">Switchboard<wbr>Decimal</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-class">
+					<li class=" tsd-kind-class">
 						<a href="switchboarderror.html" class="tsd-kind-icon">Switchboard<wbr>Error</a>
-						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="switchboarderror.html#constructor" class="tsd-kind-icon">constructor</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="switchboarderror.html#code" class="tsd-kind-icon">code</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="switchboarderror.html#msg" class="tsd-kind-icon">msg</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="switchboarderror.html#name" class="tsd-kind-icon">name</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="switchboarderror.html#program" class="tsd-kind-icon">program</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="switchboarderror.html#fromcode" class="tsd-kind-icon">from<wbr>Code</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="../interfaces/accountparams.html" class="tsd-kind-icon">Account<wbr>Params</a>
 					</li>
