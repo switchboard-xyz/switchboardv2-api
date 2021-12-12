@@ -527,7 +527,7 @@ class AggregatorAccount {
         return new AggregatorAccount({ program, keypair: aggregatorAccount });
     }
     /**
-     * Create and set a history buffer for a specified oracle
+     * Create and set a history buffer for the aggregator.
      * @param program Switchboard program representation holding connection and IDL.
      * @param params.
      * @return TransactionSignature of the rpc
