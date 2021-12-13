@@ -299,7 +299,8 @@ class AggregatorAccount {
      * @return The name of the aggregator.
      */
     static getName(aggregator) {
-        return Buffer.from(aggregator.name).toString("utf8");
+        // eslint-disable-next-line no-control-regex
+        return String.fromCharCode(...aggregator.name).replace(/\u0000/g, "");
     }
     /**
      * Load and parse AggregatorAccount state based on the program IDL.
@@ -687,7 +688,6 @@ class AggregatorAccount {
      */
     async saveResultTxn(aggregator, oracleAccount, // TODO: move to params.
     params) {
-        var _a;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
         const remainingAccounts = [];
         for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
@@ -713,7 +713,7 @@ class AggregatorAccount {
         const [oraclePermissionAccount, oraclePermissionBump] = PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, oracleAccount.publicKey);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const digest = this.produceJobsHash(params.jobs).digest();
-        let historyBuffer = (_a = aggregator.historyBuffer) !== null && _a !== void 0 ? _a : web3_js_1.PublicKey.default;
+        let historyBuffer = aggregator.historyBuffer;
         if (historyBuffer.equals(web3_js_1.PublicKey.default)) {
             historyBuffer = this.publicKey;
         }
@@ -810,7 +810,7 @@ class JobAccount {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const jobAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
-        const size = 276 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
+        const size = 280 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const state = await stateAccount.loadData();
         await program.rpc.jobInit({

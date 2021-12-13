@@ -547,7 +547,8 @@ export class AggregatorAccount {
    * @return The name of the aggregator.
    */
   static getName(aggregator: any): string {
-    return Buffer.from(aggregator.name).toString("utf8");
+    // eslint-disable-next-line no-control-regex
+    return String.fromCharCode(...aggregator.name).replace(/\u0000/g, "");
   }
 
   /**
@@ -1110,7 +1111,7 @@ export class AggregatorAccount {
       this.program
     );
     const digest = this.produceJobsHash(params.jobs).digest();
-    let historyBuffer = aggregator.historyBuffer ?? PublicKey.default;
+    let historyBuffer = aggregator.historyBuffer;
     if (historyBuffer.equals(PublicKey.default)) {
       historyBuffer = this.publicKey;
     }
@@ -1257,7 +1258,7 @@ export class JobAccount {
     );
     const jobAccount = params.keypair ?? anchor.web3.Keypair.generate();
     const size =
-      276 + params.data.length + (params.variables?.join("")?.length ?? 0);
+      280 + params.data.length + (params.variables?.join("")?.length ?? 0);
     const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
     const state = await stateAccount.loadData();
     await program.rpc.jobInit(
