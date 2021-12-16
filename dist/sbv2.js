@@ -1133,9 +1133,19 @@ class LeaseAccount {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(program, params.oracleQueueAccount, params.aggregatorAccount);
-        const escrow = await switchTokenMint.createAssociatedTokenAccount(payerKeypair.publicKey);
+        // const escrow = await switchTokenMint.createAssociatedTokenAccount(
+        // payerKeypair.publicKey
+        // );
+        const escrow = await spl.Token.getAssociatedTokenAddress(switchTokenMint.associatedProgramId, switchTokenMint.programId, switchTokenMint.publicKey, leaseAccount.publicKey, true);
+        await switchTokenMint.createAssociatedTokenAccountInternal(leaseAccount.publicKey, escrow);
         // Set program to be escrow authority.
-        await switchTokenMint.setAuthority(escrow, programStateAccount.publicKey, "AccountOwner", payerKeypair.publicKey, [payerKeypair]);
+        // await switchTokenMint.setAuthority(
+        // escrow,
+        // programStateAccount.publicKey,
+        // "AccountOwner",
+        // payerKeypair.publicKey,
+        // [payerKeypair]
+        // );
         await program.rpc.leaseInit({
             loadAmount: params.loadAmount,
             stateBump,

@@ -312,6 +312,29 @@ export class ProgramStateAccount {
       }
     );
   }
+
+  // async createAssociatedTokenAccountInternal(
+  // token: spl.Token,
+  // owner: PublicKey,
+  // associatedAddress: PublicKey
+  // ): Promise<PublicKey> {
+  // await sendAndConfirmTransaction(
+  // this.program.provider.connection,
+  // new Transaction().add(
+  // Token.createAssociatedTokenAccountInstruction(
+  // token.associatedProgramId,
+  // token.programId,
+  // token.publicKey,
+  // associatedAddress,
+  // owner,
+  // token.payer.publicKey
+  // )
+  // ),
+  // [token.payer]
+  // );
+  //
+  // return associatedAddress;
+  // }
 }
 
 /**
@@ -1854,17 +1877,29 @@ export class LeaseAccount {
       params.oracleQueueAccount,
       params.aggregatorAccount
     );
-    const escrow = await switchTokenMint.createAssociatedTokenAccount(
-      payerKeypair.publicKey
+    // const escrow = await switchTokenMint.createAssociatedTokenAccount(
+    // payerKeypair.publicKey
+    // );
+    const escrow = await spl.Token.getAssociatedTokenAddress(
+      switchTokenMint.associatedProgramId,
+      switchTokenMint.programId,
+      switchTokenMint.publicKey,
+      leaseAccount.publicKey,
+      true
+    );
+
+    await (switchTokenMint as any).createAssociatedTokenAccountInternal(
+      leaseAccount.publicKey,
+      escrow
     );
     // Set program to be escrow authority.
-    await switchTokenMint.setAuthority(
-      escrow,
-      programStateAccount.publicKey,
-      "AccountOwner",
-      payerKeypair.publicKey,
-      [payerKeypair]
-    );
+    // await switchTokenMint.setAuthority(
+    // escrow,
+    // programStateAccount.publicKey,
+    // "AccountOwner",
+    // payerKeypair.publicKey,
+    // [payerKeypair]
+    // );
     await program.rpc.leaseInit(
       {
         loadAmount: params.loadAmount,
