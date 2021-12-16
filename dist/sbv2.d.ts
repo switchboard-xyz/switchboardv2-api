@@ -212,6 +212,14 @@ export interface AggregatorSaveResultParams {
      *  List of OracleJobs that were performed to produce this result.
      */
     jobs: Array<OracleJob>;
+    /**
+     *  Authority of the queue the aggregator is attached to.
+     */
+    queueAuthority: PublicKey;
+    /**
+     *  Program token mint.
+     */
+    tokenMint: PublicKey;
 }
 /**
  * Parameters for creating and setting a history buffer for an aggregator
@@ -300,7 +308,7 @@ export declare class AggregatorAccount {
      * Switchboard IDL.
      */
     loadData(): Promise<any>;
-    loadHistory(): Promise<Array<AggregatorHistoryRow>>;
+    loadHistory(aggregator?: any): Promise<Array<AggregatorHistoryRow>>;
     /**
      * Get the latest confirmed value stored in the aggregator account.
      * @param aggregator Optional parameter representing the already loaded

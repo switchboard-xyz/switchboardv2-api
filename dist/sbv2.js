@@ -312,9 +312,9 @@ class AggregatorAccount {
         aggregator.ebuf = undefined;
         return aggregator;
     }
-    async loadHistory() {
+    async loadHistory(aggregator) {
         var _a, _b;
-        const aggregator = await this.loadData();
+        aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
         if (aggregator.historyBuffer == web3_js_1.PublicKey.default) {
             return [];
         }
@@ -699,18 +699,10 @@ class AggregatorAccount {
             publicKey: queuePubkey,
         });
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(this.program, queueAccount, this);
-        const accountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, [queueAccount.publicKey, leaseAccount.publicKey].concat(aggregator.currentRound.oraclePubkeysData.slice(0, aggregator.oracleRequestBatchSize)));
-        const [queueAccountData, leaseAccountData] = accountDatas.slice(0, 2);
-        const oracleAccountDatas = accountDatas.slice(2);
-        const coder = new anchor.AccountsCoder(this.program.idl);
-        oracleAccountDatas === null || oracleAccountDatas === void 0 ? void 0 : oracleAccountDatas.map((item) => {
-            const oracle = coder.decode("OracleAccountData", item.account.data);
-            remainingAccounts.push(oracle.tokenAccount);
-        });
-        const queue = coder.decode("OracleQueueAccountData", queueAccountData.account.data);
-        const escrow = coder.decode("LeaseAccountData", leaseAccountData.account.data).escrow;
-        const [feedPermissionAccount, feedPermissionBump] = PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, this.publicKey);
-        const [oraclePermissionAccount, oraclePermissionBump] = PermissionAccount.fromSeed(this.program, queue.authority, queuePubkey, oracleAccount.publicKey);
+        const oracleAccountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, aggregator.currentRound.oraclePubkeysData.slice(0, aggregator.oracleRequestBatchSize));
+        const escrow = await spl.Token.getAssociatedTokenAddress(spl.ASSOCIATED_TOKEN_PROGRAM_ID, params.tokenMint, this.program.programId, leaseAccount.publicKey);
+        const [feedPermissionAccount, feedPermissionBump] = PermissionAccount.fromSeed(this.program, params.queueAuthority, queueAccount.publicKey, this.publicKey);
+        const [oraclePermissionAccount, oraclePermissionBump] = PermissionAccount.fromSeed(this.program, params.queueAuthority, queueAccount.publicKey, oracleAccount.publicKey);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const digest = this.produceJobsHash(params.jobs).digest();
         let historyBuffer = aggregator.historyBuffer;
@@ -734,7 +726,7 @@ class AggregatorAccount {
                 oracle: oracleAccount.publicKey,
                 oracleAuthority: payerKeypair.publicKey,
                 oracleQueue: queueAccount.publicKey,
-                queueAuthority: queue.authority,
+                queueAuthority: params.queueAuthority,
                 feedPermission: feedPermissionAccount.publicKey,
                 oraclePermission: oraclePermissionAccount.publicKey,
                 lease: leaseAccount.publicKey,
