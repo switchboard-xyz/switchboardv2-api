@@ -2510,7 +2510,7 @@ export class OracleAccount {
       ProgramStateAccount.fromSeed(program);
 
     const switchTokenMint = await programStateAccount.getTokenMint();
-    const wallet = await switchTokenMint.createAssociatedTokenAccount(
+    const wallet = await switchTokenMint.createAccount(
       program.provider.wallet.publicKey
     );
     await switchTokenMint.setAuthority(

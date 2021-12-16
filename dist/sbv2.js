@@ -1556,7 +1556,7 @@ class OracleAccount {
         const size = program.account.oracleAccountData.size;
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
-        const wallet = await switchTokenMint.createAssociatedTokenAccount(program.provider.wallet.publicKey);
+        const wallet = await switchTokenMint.createAccount(program.provider.wallet.publicKey);
         await switchTokenMint.setAuthority(wallet, programStateAccount.publicKey, "AccountOwner", payerKeypair, []);
         const [oracleAccount, oracleBump] = OracleAccount.fromSeed(program, params.queueAccount, wallet);
         await program.rpc.oracleInit({
