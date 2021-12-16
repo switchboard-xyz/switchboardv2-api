@@ -1854,7 +1854,9 @@ export class LeaseAccount {
       params.oracleQueueAccount,
       params.aggregatorAccount
     );
-    const escrow = await switchTokenMint.createAccount(payerKeypair.publicKey);
+    const escrow = await switchTokenMint.createAssociatedTokenAccount(
+      payerKeypair.publicKey
+    );
     // Set program to be escrow authority.
     await switchTokenMint.setAuthority(
       escrow,
@@ -2507,7 +2509,7 @@ export class OracleAccount {
       ProgramStateAccount.fromSeed(program);
 
     const switchTokenMint = await programStateAccount.getTokenMint();
-    const wallet = await switchTokenMint.createAccount(
+    const wallet = await switchTokenMint.createAssociatedTokenAccount(
       program.provider.wallet.publicKey
     );
     await switchTokenMint.setAuthority(
