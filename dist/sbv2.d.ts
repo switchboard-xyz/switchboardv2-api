@@ -220,6 +220,10 @@ export interface AggregatorSaveResultParams {
      *  Program token mint.
      */
     tokenMint: PublicKey;
+    /**
+     *  List of parsed oracles.
+     */
+    oracles: Array<any>;
 }
 /**
  * Parameters for creating and setting a history buffer for an aggregator

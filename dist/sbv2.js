@@ -693,13 +693,15 @@ class AggregatorAccount {
         for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
             remainingAccounts.push(aggregator.currentRound.oraclePubkeysData[i]);
         }
+        for (const oracle of params.oracles) {
+            remainingAccounts.push(oracle.tokenAccount);
+        }
         const queuePubkey = aggregator.queuePubkey;
         const queueAccount = new OracleQueueAccount({
             program: this.program,
             publicKey: queuePubkey,
         });
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(this.program, queueAccount, this);
-        const oracleAccountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, aggregator.currentRound.oraclePubkeysData.slice(0, aggregator.oracleRequestBatchSize));
         const escrow = await spl.Token.getAssociatedTokenAddress(spl.ASSOCIATED_TOKEN_PROGRAM_ID, params.tokenMint, this.program.programId, leaseAccount.publicKey);
         const [feedPermissionAccount, feedPermissionBump] = PermissionAccount.fromSeed(this.program, params.queueAuthority, queueAccount.publicKey, this.publicKey);
         const [oraclePermissionAccount, oraclePermissionBump] = PermissionAccount.fromSeed(this.program, params.queueAuthority, queueAccount.publicKey, oracleAccount.publicKey);
