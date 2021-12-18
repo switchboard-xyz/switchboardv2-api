@@ -708,7 +708,7 @@ class AggregatorAccount {
         // this.program.programId,
         // leaseAccount.publicKey
         // );
-        const escrow = await spl.Token.getAssociatedTokenAddress(spl.ASSOCIATED_TOKEN_PROGRAM_ID, params.tokenMint, spl.TOKEN_PROGRAM_ID, leaseAccount.publicKey);
+        const escrow = await spl.Token.getAssociatedTokenAddress(spl.ASSOCIATED_TOKEN_PROGRAM_ID, spl.TOKEN_PROGRAM_ID, params.tokenMint, leaseAccount.publicKey, true);
         const [feedPermissionAccount, feedPermissionBump] = PermissionAccount.fromSeed(this.program, params.queueAuthority, queueAccount.publicKey, this.publicKey);
         const [oraclePermissionAccount, oraclePermissionBump] = PermissionAccount.fromSeed(this.program, params.queueAuthority, queueAccount.publicKey, oracleAccount.publicKey);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);

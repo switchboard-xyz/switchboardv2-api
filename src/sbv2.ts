@@ -1092,9 +1092,10 @@ export class AggregatorAccount {
     // );
     const escrow = await spl.Token.getAssociatedTokenAddress(
       spl.ASSOCIATED_TOKEN_PROGRAM_ID,
-      params.tokenMint,
       spl.TOKEN_PROGRAM_ID,
-      leaseAccount.publicKey
+      params.tokenMint,
+      leaseAccount.publicKey,
+      true
     );
     const [feedPermissionAccount, feedPermissionBump] =
       PermissionAccount.fromSeed(
