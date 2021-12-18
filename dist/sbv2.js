@@ -1177,7 +1177,9 @@ class LeaseAccount {
         try {
             await switchTokenMint.createAssociatedTokenAccountInternal(this.publicKey, escrow);
         }
-        catch { }
+        catch (e) {
+            console.log(e);
+        }
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(program, new OracleQueueAccount({ program, publicKey: queue }), new AggregatorAccount({ program, publicKey: aggregator }));
         return await program.rpc.leaseExtend({
             loadAmount: params.loadAmount,

@@ -1918,7 +1918,9 @@ export class LeaseAccount {
         this.publicKey,
         escrow
       );
-    } catch {}
+    } catch (e) {
+      console.log(e);
+    }
     const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
       program,
       new OracleQueueAccount({ program, publicKey: queue }),
