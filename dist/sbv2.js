@@ -702,7 +702,13 @@ class AggregatorAccount {
             publicKey: queuePubkey,
         });
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(this.program, queueAccount, this);
-        const escrow = await spl.Token.getAssociatedTokenAddress(spl.ASSOCIATED_TOKEN_PROGRAM_ID, params.tokenMint, this.program.programId, leaseAccount.publicKey);
+        // const escrow = await spl.Token.getAssociatedTokenAddress(
+        // spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+        // params.tokenMint,
+        // this.program.programId,
+        // leaseAccount.publicKey
+        // );
+        const escrow = await spl.Token.getAssociatedTokenAddress(spl.ASSOCIATED_TOKEN_PROGRAM_ID, params.tokenMint, spl.TOKEN_PROGRAM_ID, leaseAccount.publicKey);
         const [feedPermissionAccount, feedPermissionBump] = PermissionAccount.fromSeed(this.program, params.queueAuthority, queueAccount.publicKey, this.publicKey);
         const [oraclePermissionAccount, oraclePermissionBump] = PermissionAccount.fromSeed(this.program, params.queueAuthority, queueAccount.publicKey, oracleAccount.publicKey);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
@@ -1168,6 +1174,10 @@ class LeaseAccount {
         const aggregator = lease.aggregator;
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
+        try {
+            await switchTokenMint.createAssociatedTokenAccountInternal(this.publicKey, escrow);
+        }
+        catch { }
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(program, new OracleQueueAccount({ program, publicKey: queue }), new AggregatorAccount({ program, publicKey: aggregator }));
         return await program.rpc.leaseExtend({
             loadAmount: params.loadAmount,
