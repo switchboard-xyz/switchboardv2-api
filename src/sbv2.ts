@@ -1913,14 +1913,6 @@ export class LeaseAccount {
       ProgramStateAccount.fromSeed(program);
     const switchTokenMint = await programStateAccount.getTokenMint();
 
-    try {
-      await (switchTokenMint as any).createAssociatedTokenAccountInternal(
-        this.publicKey,
-        escrow
-      );
-    } catch (e) {
-      console.log(e);
-    }
     const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
       program,
       new OracleQueueAccount({ program, publicKey: queue }),
