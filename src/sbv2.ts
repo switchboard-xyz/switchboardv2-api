@@ -1150,7 +1150,6 @@ export class AggregatorAccount {
         remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
           return { isSigner: false, isWritable: true, pubkey };
         }),
-        signers: [oracleAccount.keypair],
       }
     );
   }

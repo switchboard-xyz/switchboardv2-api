@@ -746,7 +746,6 @@ class AggregatorAccount {
             remainingAccounts: remainingAccounts.map((pubkey) => {
                 return { isSigner: false, isWritable: true, pubkey };
             }),
-            signers: [oracleAccount.keypair],
         });
     }
 }
