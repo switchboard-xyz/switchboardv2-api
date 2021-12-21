@@ -1482,6 +1482,7 @@ class CrankAccount {
     async peakNextReady(n) {
         const now = Math.floor(+new Date() / 1000);
         let crank = await this.loadData();
+        n = n !== null && n !== void 0 ? n : crank.pqSize;
         let items = crank.pqData
             .slice(0, crank.pqSize)
             .sort((a, b) => a.nextTimestamp.sub(b.nextTimestamp))
