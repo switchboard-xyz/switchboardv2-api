@@ -2383,7 +2383,7 @@ export class CrankAccount {
    * @return Pubkey list of Aggregator pubkeys.
    */
   async peakNextReady(n?: number): Promise<Array<PublicKey>> {
-    const now = Math.floor(+new Date() / 1000) + 1;
+    const now = Math.floor(+new Date() / 1000) + 2;
     let crank = await this.loadData();
     n = n ?? crank.pqSize;
     let items = crank.pqData

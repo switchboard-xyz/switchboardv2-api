@@ -1480,7 +1480,7 @@ class CrankAccount {
      * @return Pubkey list of Aggregator pubkeys.
      */
     async peakNextReady(n) {
-        const now = Math.floor(+new Date() / 1000) + 1;
+        const now = Math.floor(+new Date() / 1000) + 2;
         let crank = await this.loadData();
         n = n !== null && n !== void 0 ? n : crank.pqSize;
         let items = crank.pqData
