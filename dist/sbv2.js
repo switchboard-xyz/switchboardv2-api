@@ -1001,7 +1001,11 @@ class OracleQueueAccount {
                 break;
             }
             const pubkeyBuf = buffer.slice(i, i + rowSize);
-            queueData.push(new web3_js_1.PublicKey(pubkeyBuf));
+            const key = new web3_js_1.PublicKey(pubkeyBuf);
+            if (key === web3_js_1.PublicKey.default) {
+                break;
+            }
+            queueData.push(key.toBase58());
         }
         queue.queue = queueData;
         queue.ebuf = undefined;

@@ -1615,7 +1615,11 @@ export class OracleQueueAccount {
         break;
       }
       const pubkeyBuf = buffer.slice(i, i + rowSize);
-      queueData.push(new PublicKey(pubkeyBuf));
+      const key = new PublicKey(pubkeyBuf);
+      if (key === PublicKey.default) {
+        break;
+      }
+      queueData.push(key.toBase58());
     }
     queue.queue = queueData;
     queue.ebuf = undefined;
