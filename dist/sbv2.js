@@ -996,7 +996,7 @@ class OracleQueueAccount {
         const queueData = [];
         const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(queue.dataBuffer))) === null || _a === void 0 ? void 0 : _a.data.slice(8)) !== null && _b !== void 0 ? _b : Buffer.from("");
         const rowSize = 32;
-        for (let i = 0; i < queue.size; i += rowSize) {
+        for (let i = 0; i < buffer.length; i += rowSize) {
             if (buffer.length - i < rowSize) {
                 break;
             }
