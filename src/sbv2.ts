@@ -1610,7 +1610,7 @@ export class OracleQueueAccount {
         await this.program.provider.connection.getAccountInfo(queue.dataBuffer)
       )?.data.slice(8) ?? Buffer.from("");
     const rowSize = 32;
-    for (let i = 0; i < buffer.length; i += rowSize) {
+    for (let i = 0; i < queue.size; i += rowSize) {
       if (buffer.length - i < rowSize) {
         break;
       }
