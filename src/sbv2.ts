@@ -2383,15 +2383,15 @@ export class CrankAccount {
    * @return Pubkey list of Aggregator pubkeys.
    */
   async peakNextReady(n?: number): Promise<Array<PublicKey>> {
-    const now = Math.floor(+new Date() / 1000) + 2;
+    const now = Math.floor(+new Date() / 1000);
     let crank = await this.loadData();
     n = n ?? crank.pqSize;
     let items = crank.pqData
       .slice(0, crank.pqSize)
+      .filter((row: CrankRow) => now >= row.nextTimestamp.toNumber())
       .sort((a: CrankRow, b: CrankRow) => a.nextTimestamp.sub(b.nextTimestamp))
-      .filter((row: CrankRow) => now > row.nextTimestamp.toNumber())
-      .map((item: CrankRow) => item.pubkey)
-      .slice(0, n);
+      .slice(0, n)
+      .map((item: CrankRow) => item.pubkey);
     return items;
   }
   /**
