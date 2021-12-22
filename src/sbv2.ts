@@ -2035,6 +2035,9 @@ export interface CrankPopParams {
    * Nonce to allow consecutive crank pops with the same blockhash.
    */
   nonce?: number;
+  crank: any;
+  queue: any;
+  tokenMint: PublicKey;
 }
 
 /**
@@ -2263,7 +2266,6 @@ export class CrankAccount {
     const remainingAccounts: Array<PublicKey> = [];
     const leaseBumpsMap: Map<string, number> = new Map();
     const permissionBumpsMap: Map<string, number> = new Map();
-    const leasePubkeys = [];
     const queueAccount = new OracleQueueAccount({
       program: this.program,
       publicKey: params.queuePubkey,
@@ -2285,34 +2287,25 @@ export class CrankAccount {
         params.queuePubkey,
         row
       );
-      leasePubkeys.push(leaseAccount.publicKey);
+      const escrow = await spl.Token.getAssociatedTokenAddress(
+        spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+        spl.TOKEN_PROGRAM_ID,
+        params.tokenMint,
+        leaseAccount.publicKey,
+        true
+      );
       remainingAccounts.push(aggregatorAccount.publicKey);
       remainingAccounts.push(leaseAccount.publicKey);
+      remainingAccounts.push(escrow);
       remainingAccounts.push(permissionAccount.publicKey);
       leaseBumpsMap.set(row.toBase58(), leaseBump);
       permissionBumpsMap.set(row.toBase58(), permissionBump);
     }
-    const coder = new anchor.AccountsCoder(this.program.idl);
-
-    const accountDatas = await anchor.utils.rpc.getMultipleAccounts(
-      this.program.provider.connection,
-      [this.publicKey, queueAccount.publicKey].concat(leasePubkeys)
-    );
-    const crank = coder.decode(
-      "CrankAccountData",
-      accountDatas[0].account.data
-    );
-    const queue = coder.decode(
-      "OracleQueueAccountData",
-      accountDatas[1].account.data
-    );
-    accountDatas.slice(2).map((item) => {
-      let decoded = coder.decode("LeaseAccountData", item.account.data);
-      remainingAccounts.push(decoded.escrow);
-    });
     remainingAccounts.sort((a: PublicKey, b: PublicKey) =>
       a.toBuffer().compare(b.toBuffer())
     );
+    const crank = params.crank;
+    const queue = params.queue;
     const leaseBumps: Array<number> = [];
     const permissionBumps: Array<number> = [];
     // Map bumps to the index of their corresponding feeds.

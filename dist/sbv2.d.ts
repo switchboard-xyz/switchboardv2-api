@@ -841,6 +841,9 @@ export interface CrankPopParams {
      * Nonce to allow consecutive crank pops with the same blockhash.
      */
     nonce?: number;
+    crank: any;
+    queue: any;
+    tokenMint: PublicKey;
 }
 /**
  * Parameters for pushing an element into a CrankAccount.
