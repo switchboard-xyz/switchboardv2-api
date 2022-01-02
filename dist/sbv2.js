@@ -1389,8 +1389,9 @@ class CrankAccount {
      * @return TransactionSignature
      */
     async popTxn(params) {
-        var _a, _b, _c, _d;
-        const next = (_a = params.readyPubkeys) !== null && _a !== void 0 ? _a : (await this.peakNextReady(5));
+        var _a, _b, _c, _d, _e;
+        const failOpenOnAccountMismatch = (_a = params.failOpenOnMismatch) !== null && _a !== void 0 ? _a : false;
+        const next = (_b = params.readyPubkeys) !== null && _b !== void 0 ? _b : (await this.peakNextReady(5));
         if (next.length === 0) {
             throw new Error("Crank is not ready to be turned.");
         }
@@ -1423,8 +1424,8 @@ class CrankAccount {
         const permissionBumps = [];
         // Map bumps to the index of their corresponding feeds.
         for (const key of remainingAccounts) {
-            leaseBumps.push((_b = leaseBumpsMap.get(key.toBase58())) !== null && _b !== void 0 ? _b : 0);
-            permissionBumps.push((_c = permissionBumpsMap.get(key.toBase58())) !== null && _c !== void 0 ? _c : 0);
+            leaseBumps.push((_c = leaseBumpsMap.get(key.toBase58())) !== null && _c !== void 0 ? _c : 0);
+            permissionBumps.push((_d = permissionBumpsMap.get(key.toBase58())) !== null && _d !== void 0 ? _d : 0);
         }
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
@@ -1433,7 +1434,8 @@ class CrankAccount {
             stateBump,
             leaseBumps: Buffer.from(leaseBumps),
             permissionBumps: Buffer.from(permissionBumps),
-            nonce: (_d = params.nonce) !== null && _d !== void 0 ? _d : null,
+            nonce: (_e = params.nonce) !== null && _e !== void 0 ? _e : null,
+            failOpenOnAccountMismatch,
         }, {
             accounts: {
                 crank: this.publicKey,

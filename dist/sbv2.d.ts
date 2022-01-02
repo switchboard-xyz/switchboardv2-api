@@ -844,6 +844,7 @@ export interface CrankPopParams {
     crank: any;
     queue: any;
     tokenMint: PublicKey;
+    failOpenOnMismatch?: boolean;
 }
 /**
  * Parameters for pushing an element into a CrankAccount.

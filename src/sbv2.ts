@@ -2038,6 +2038,7 @@ export interface CrankPopParams {
   crank: any;
   queue: any;
   tokenMint: PublicKey;
+  failOpenOnMismatch?: boolean;
 }
 
 /**
@@ -2259,6 +2260,7 @@ export class CrankAccount {
    * @return TransactionSignature
    */
   async popTxn(params: CrankPopParams): Promise<Transaction> {
+    const failOpenOnAccountMismatch = params.failOpenOnMismatch ?? false;
     const next = params.readyPubkeys ?? (await this.peakNextReady(5));
     if (next.length === 0) {
       throw new Error("Crank is not ready to be turned.");
@@ -2326,6 +2328,7 @@ export class CrankAccount {
         leaseBumps: Buffer.from(leaseBumps),
         permissionBumps: Buffer.from(permissionBumps),
         nonce: params.nonce ?? null,
+        failOpenOnAccountMismatch,
       },
       {
         accounts: {
