@@ -66,7 +66,8 @@ export class SwitchboardDecimal {
     const result = new SwitchboardDecimal(mantissa, scale);
     if (big.sub(result.toBig()).abs().gt(new Big(0.00005))) {
       throw new Error(
-        `SwitchboardDecimal: Converted decimal does not match original.`
+        `SwitchboardDecimal: Converted decimal does not match original:\n` +
+          `${result.toBig().toNumber()} vs ${big.toNumber()}`
       );
     }
     return result;

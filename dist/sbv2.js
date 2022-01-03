@@ -74,7 +74,8 @@ class SwitchboardDecimal {
         mantissa = mantissa.mul(new anchor.BN(big.s, 10));
         const result = new SwitchboardDecimal(mantissa, scale);
         if (big.sub(result.toBig()).abs().gt(new big_js_1.default(0.00005))) {
-            throw new Error(`SwitchboardDecimal: Converted decimal does not match original.`);
+            throw new Error(`SwitchboardDecimal: Converted decimal does not match original:\n` +
+                `${result.toBig().toNumber()} vs ${big.toNumber()}`);
         }
         return result;
     }
