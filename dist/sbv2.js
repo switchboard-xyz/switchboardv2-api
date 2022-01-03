@@ -67,13 +67,13 @@ class SwitchboardDecimal {
             mantissa = mantissa.mul(new anchor.BN(10, 10));
             scale += 1;
         }
-        if (scale >= 0) {
+        if (scale < 0) {
             throw new Error(`SwitchboardDecimal: Unexpected negative scale.`);
         }
         // Set sign for the coefficient (mantissa)
         mantissa = mantissa.mul(new anchor.BN(big.s, 10));
         const result = new SwitchboardDecimal(mantissa, scale);
-        if (big.sub(result.toBig()).abs().lt(new big_js_1.default(0.00005))) {
+        if (big.sub(result.toBig()).abs().gt(new big_js_1.default(0.00005))) {
             throw new Error(`SwitchboardDecimal: Converted decimal does not match original.`);
         }
         return result;

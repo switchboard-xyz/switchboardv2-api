@@ -56,7 +56,7 @@ export class SwitchboardDecimal {
       mantissa = mantissa.mul(new anchor.BN(10, 10));
       scale += 1;
     }
-    if (scale >= 0) {
+    if (scale < 0) {
       throw new Error(`SwitchboardDecimal: Unexpected negative scale.`);
     }
 
@@ -64,7 +64,7 @@ export class SwitchboardDecimal {
     mantissa = mantissa.mul(new anchor.BN(big.s, 10));
 
     const result = new SwitchboardDecimal(mantissa, scale);
-    if (big.sub(result.toBig()).abs().lt(new Big(0.00005))) {
+    if (big.sub(result.toBig()).abs().gt(new Big(0.00005))) {
       throw new Error(
         `SwitchboardDecimal: Converted decimal does not match original.`
       );
