@@ -991,13 +991,11 @@ class OracleQueueAccount {
      * Switchboard IDL.
      */
     async loadData() {
-        var _a, _b, _c, _d;
+        var _a, _b;
         const queue = await this.program.account.oracleQueueAccountData.fetch(this.publicKey);
         const queueData = [];
         const buffer = (_b = (_a = (await this.program.provider.connection.getAccountInfo(queue.dataBuffer))) === null || _a === void 0 ? void 0 : _a.data.slice(8)) !== null && _b !== void 0 ? _b : Buffer.from("");
         const rowSize = 32;
-        queue.dataBuffer = (_c = queue.dataBuffer) === null || _c === void 0 ? void 0 : _c.toBase58();
-        queue.authority = (_d = queue.authority) === null || _d === void 0 ? void 0 : _d.toBase58();
         for (let i = 0; i < queue.size * rowSize; i += rowSize) {
             if (buffer.length - i < rowSize) {
                 break;
@@ -1007,7 +1005,7 @@ class OracleQueueAccount {
             if (key === web3_js_1.PublicKey.default) {
                 break;
             }
-            queueData.push(key.toBase58());
+            queueData.push(key);
         }
         queue.queue = queueData;
         queue.ebuf = undefined;
