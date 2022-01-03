@@ -27,7 +27,6 @@ const anchor = __importStar(require("@project-serum/anchor"));
 const spl = __importStar(require("@solana/spl-token"));
 const web3_js_1 = require("@solana/web3.js");
 const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
-const assert_1 = __importDefault(require("assert"));
 const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
 // Devnet Program ID.
@@ -68,11 +67,15 @@ class SwitchboardDecimal {
             mantissa = mantissa.mul(new anchor.BN(10, 10));
             scale += 1;
         }
-        assert_1.default.ok(scale >= 0, `${big.c.length}, ${big.e}`);
+        if (scale >= 0) {
+            throw new Error(`SwitchboardDecimal: Unexpected negative scale.`);
+        }
         // Set sign for the coefficient (mantissa)
         mantissa = mantissa.mul(new anchor.BN(big.s, 10));
         const result = new SwitchboardDecimal(mantissa, scale);
-        assert_1.default.ok(big.sub(result.toBig()).abs().lt(new big_js_1.default(0.00005)), `${result.toBig()} ${big}`);
+        if (big.sub(result.toBig()).abs().lt(new big_js_1.default(0.00005))) {
+            throw new Error(`SwitchboardDecimal: Converted decimal does not match original.`);
+        }
         return result;
     }
     /**

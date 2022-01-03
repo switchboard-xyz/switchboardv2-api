@@ -9,7 +9,6 @@ import {
   TransactionSignature,
 } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
-import assert from "assert";
 import Big from "big.js";
 import * as crypto from "crypto";
 
@@ -57,16 +56,19 @@ export class SwitchboardDecimal {
       mantissa = mantissa.mul(new anchor.BN(10, 10));
       scale += 1;
     }
-    assert.ok(scale >= 0, `${big.c.length}, ${big.e}`);
+    if (scale >= 0) {
+      throw new Error(`SwitchboardDecimal: Unexpected negative scale.`);
+    }
 
     // Set sign for the coefficient (mantissa)
     mantissa = mantissa.mul(new anchor.BN(big.s, 10));
 
     const result = new SwitchboardDecimal(mantissa, scale);
-    assert.ok(
-      big.sub(result.toBig()).abs().lt(new Big(0.00005)),
-      `${result.toBig()} ${big}`
-    );
+    if (big.sub(result.toBig()).abs().lt(new Big(0.00005))) {
+      throw new Error(
+        `SwitchboardDecimal: Converted decimal does not match original.`
+      );
+    }
     return result;
   }
 
