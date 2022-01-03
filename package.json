@@ -62,7 +62,6 @@
     "readline-sync": "^1.4.10",
     "resolve-dir": "^1.0.1",
     "set-interval-async": "1.0.34",
-    "switchboard-v2": "github:switchboard-xyz/switchboardv2-api",
     "ts-proto": "^1.79.0",
     "typescript": "^4.2.4",
     "wait-for-event": "^2.0.1",
