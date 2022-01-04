@@ -99,6 +99,9 @@ export class SwitchboardDecimal {
       mantissa = mantissa.div(TEN);
     }
     let e = c.length - this.scale - 1;
+    if (c.length === 0) {
+      e = 0;
+    }
     let result = new Big(0);
     result.s = s;
     result.c = c;
