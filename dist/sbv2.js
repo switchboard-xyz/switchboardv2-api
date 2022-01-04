@@ -53,19 +53,13 @@ class SwitchboardDecimal {
      * @return a SwitchboardDecimal
      */
     static fromBig(big) {
-        let mantissa = big.c
-            .map((n) => new anchor.BN(n, 10))
-            .reduce((res, n) => {
-            res = res.mul(new anchor.BN(10, 10));
-            res = res.add(n);
-            return res;
-        });
+        let mantissa = new anchor.BN(big.c.join(""), 10);
         // Set the scale. Big.exponenet sets scale from the opposite side
         // SwitchboardDecimal does.
-        let scale = big.c.length - big.e - 1;
-        while (scale < 0) {
-            mantissa = mantissa.mul(new anchor.BN(10, 10));
-            scale += 1;
+        let scale = big.c.slice(1).length - big.e;
+        if (scale < 0) {
+            mantissa = mantissa.mul(new anchor.BN(10, 10).pow(new anchor.BN(Math.abs(scale), 10)));
+            scale = 0;
         }
         if (scale < 0) {
             throw new Error(`SwitchboardDecimal: Unexpected negative scale.`);
@@ -75,7 +69,7 @@ class SwitchboardDecimal {
         const result = new SwitchboardDecimal(mantissa, scale);
         if (big.sub(result.toBig()).abs().gt(new big_js_1.default(0.00005))) {
             throw new Error(`SwitchboardDecimal: Converted decimal does not match original:\n` +
-                `${result.toBig().toNumber()} vs ${big.toNumber()}`);
+                `out: ${result.toBig().toNumber()} vs in: ${big.toNumber()}`);
         }
         return result;
     }
