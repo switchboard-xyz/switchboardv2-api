@@ -88,8 +88,25 @@ class SwitchboardDecimal {
      * @return Big representation
      */
     toBig() {
-        const scale = new big_js_1.default(10).pow(this.scale);
-        return new big_js_1.default(this.mantissa.toString()).div(scale);
+        let mantissa = new anchor.BN(this.mantissa, 10);
+        let s = 1;
+        let c = [];
+        const ZERO = new anchor.BN(0, 10);
+        const TEN = new anchor.BN(10, 10);
+        if (mantissa.lt(ZERO)) {
+            s = -1;
+            mantissa = mantissa.abs();
+        }
+        while (mantissa.gt(ZERO)) {
+            c.unshift(mantissa.mod(TEN).toNumber());
+            mantissa = mantissa.div(TEN);
+        }
+        let e = this.scale - c.slice(1).length;
+        let result = new big_js_1.default(0);
+        result.s = s;
+        result.c = c;
+        result.e = e;
+        return result;
     }
 }
 exports.SwitchboardDecimal = SwitchboardDecimal;

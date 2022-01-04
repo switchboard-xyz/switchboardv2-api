@@ -85,8 +85,25 @@ export class SwitchboardDecimal {
    * @return Big representation
    */
   public toBig(): Big {
-    const scale = new Big(10).pow(this.scale);
-    return new Big(this.mantissa.toString()).div(scale);
+    let mantissa = new anchor.BN(this.mantissa, 10);
+    let s = 1;
+    let c: Array<number> = [];
+    const ZERO = new anchor.BN(0, 10);
+    const TEN = new anchor.BN(10, 10);
+    if (mantissa.lt(ZERO)) {
+      s = -1;
+      mantissa = mantissa.abs();
+    }
+    while (mantissa.gt(ZERO)) {
+      c.unshift(mantissa.mod(TEN).toNumber());
+      mantissa = mantissa.div(TEN);
+    }
+    let e = this.scale - c.slice(1).length;
+    let result = new Big(0);
+    result.s = s;
+    result.c = c;
+    result.e = e;
+    return result;
   }
 }
 
