@@ -64,7 +64,8 @@ export class SwitchboardDecimal {
       throw new Error(
         `SwitchboardDecimal: Converted decimal does not match original:\n` +
           `out: ${result.toBig().toNumber()} vs in: ${big.toNumber()}\n` +
-          `result mantissa and scale: ${result.mantissa.toString()} ${result.scale.toString()}`
+          `-- result mantissa and scale: ${result.mantissa.toString()} ${result.scale.toString()}\n` +
+          `${result} ${result.toBig()}`
       );
     }
     return result;
