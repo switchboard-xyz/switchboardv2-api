@@ -85,6 +85,8 @@ export class SwitchboardDecimal {
    * @return Big representation
    */
   public toBig(): Big {
+    const scale = new Big(10).pow(this.scale);
+    return new Big(this.mantissa.toString(10)).div(scale);
     let mantissa = new anchor.BN(this.mantissa, 10);
     let s = 1;
     let c: Array<number> = [];
@@ -107,13 +109,6 @@ export class SwitchboardDecimal {
     result.c = c;
     result.e = e;
     return result;
-
-    // const decimalIndex = this.mantissa.toString().length - this.scale;
-    // return new Big(
-    // `${this.mantissa.toString().slice(0, decimalIndex)}.${this.mantissa
-    // .toString()
-    // .slice(decimalIndex)}`
-    // );
   }
 }
 
