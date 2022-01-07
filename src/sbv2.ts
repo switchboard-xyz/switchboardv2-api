@@ -12,9 +12,11 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
 
-// Devnet Program ID.
 export const SBV2_DEVNET_PID = new PublicKey(
   "2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG"
+);
+export const SBV2_MAINNET_PID = new PublicKey(
+  "SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f"
 );
 
 /**
