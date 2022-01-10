@@ -101,11 +101,11 @@ class SwitchboardDecimal {
             c.unshift(mantissa.mod(TEN).toNumber());
             mantissa = mantissa.div(TEN);
         }
-        let e = c.length - this.scale - 1;
+        const e = c.length - this.scale - 1;
+        const result = new big_js_1.default(0);
         if (c.length === 0) {
-            e = 0;
+            return result;
         }
-        let result = new big_js_1.default(0);
         result.s = s;
         result.c = c;
         result.e = e;
