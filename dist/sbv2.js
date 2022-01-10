@@ -1574,8 +1574,9 @@ class OracleAccount {
      * @return newly generated OracleAccount.
      */
     static async create(program, params) {
-        var _a, _b;
+        var _a, _b, _c;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
+        const authorityKeypair = (_a = params.oracleAuthority) !== null && _a !== void 0 ? _a : payerKeypair;
         const size = program.account.oracleAccountData.size;
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
@@ -1583,14 +1584,14 @@ class OracleAccount {
         await switchTokenMint.setAuthority(wallet, programStateAccount.publicKey, "AccountOwner", payerKeypair, []);
         const [oracleAccount, oracleBump] = OracleAccount.fromSeed(program, params.queueAccount, wallet);
         await program.rpc.oracleInit({
-            name: ((_a = params.name) !== null && _a !== void 0 ? _a : Buffer.from("")).slice(0, 32),
-            metadata: ((_b = params.metadata) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 128),
+            name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
+            metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 128),
             stateBump,
             oracleBump,
         }, {
             accounts: {
                 oracle: oracleAccount.publicKey,
-                oracleAuthority: payerKeypair.publicKey,
+                oracleAuthority: authorityKeypair.publicKey,
                 queue: params.queueAccount.publicKey,
                 wallet,
                 programState: programStateAccount.publicKey,

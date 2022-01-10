@@ -951,6 +951,10 @@ export interface OracleInitParams {
      */
     metadata?: Buffer;
     /**
+     * If included, this keypair will be the oracle authority.
+     */
+    oracleAuthority?: Keypair;
+    /**
      * Specifies the oracle queue to associate with this OracleAccount.
      */
     queueAccount: OracleQueueAccount;
