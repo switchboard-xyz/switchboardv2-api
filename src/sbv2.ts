@@ -102,7 +102,7 @@ export class SwitchboardDecimal {
     }
     let e = c.length - this.scale - 1;
     if (c.length === 0) {
-      e = 0;
+      return new Big(0);
     }
     let result = new Big(0);
     result.s = s;
