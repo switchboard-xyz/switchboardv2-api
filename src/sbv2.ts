@@ -2447,6 +2447,10 @@ export interface OracleInitParams {
    */
   metadata?: Buffer;
   /**
+   * If included, this keypair will be the oracle authority.
+   */
+  oracleAuthority?: Keypair;
+  /**
    * Specifies the oracle queue to associate with this OracleAccount.
    */
   queueAccount: OracleQueueAccount;
@@ -2535,6 +2539,7 @@ export class OracleAccount {
     const payerKeypair = Keypair.fromSecretKey(
       (program.provider.wallet as any).payer.secretKey
     );
+    const authorityKeypair = params.oracleAuthority ?? payerKeypair;
     const size = program.account.oracleAccountData.size;
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
@@ -2566,7 +2571,7 @@ export class OracleAccount {
       {
         accounts: {
           oracle: oracleAccount.publicKey,
-          oracleAuthority: payerKeypair.publicKey,
+          oracleAuthority: authorityKeypair.publicKey,
           queue: params.queueAccount.publicKey,
           wallet,
           programState: programStateAccount.publicKey,
