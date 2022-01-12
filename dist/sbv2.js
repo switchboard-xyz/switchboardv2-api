@@ -371,7 +371,7 @@ class AggregatorAccount {
      * aggregator info.
      * @return latest feed value
      */
-    async getLatestValue(aggregator) {
+    async getLatestValue(aggregator, decimals = 20) {
         var _a, _b;
         aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
         if (((_b = (_a = aggregator.latestConfirmedRound) === null || _a === void 0 ? void 0 : _a.numSuccess) !== null && _b !== void 0 ? _b : 0) === 0) {
@@ -379,7 +379,11 @@ class AggregatorAccount {
         }
         const mantissa = new big_js_1.default(aggregator.latestConfirmedRound.result.mantissa.toString());
         const scale = aggregator.latestConfirmedRound.result.scale;
-        return mantissa.div(new big_js_1.default(10).pow(scale));
+        const oldDp = big_js_1.default.DP;
+        big_js_1.default.DP = decimals;
+        const result = mantissa.div(new big_js_1.default(10).pow(scale));
+        big_js_1.default.DP = oldDp;
+        return result;
     }
     /**
      * Get the timestamp latest confirmed round stored in the aggregator account.

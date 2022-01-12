@@ -320,7 +320,7 @@ export declare class AggregatorAccount {
      * aggregator info.
      * @return latest feed value
      */
-    getLatestValue(aggregator?: any): Promise<Big>;
+    getLatestValue(aggregator?: any, decimals?: number): Promise<Big>;
     /**
      * Get the timestamp latest confirmed round stored in the aggregator account.
      * @param aggregator Optional parameter representing the already loaded

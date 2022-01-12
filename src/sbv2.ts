@@ -87,7 +87,7 @@ export class SwitchboardDecimal {
    * @return Big representation
    */
   public toBig(): Big {
-    let mantissa = new anchor.BN(this.mantissa, 10);
+    let mantissa: anchor.BN = new anchor.BN(this.mantissa, 10);
     let s = 1;
     let c: Array<number> = [];
     const ZERO = new anchor.BN(0, 10);
@@ -641,7 +641,7 @@ export class AggregatorAccount {
    * aggregator info.
    * @return latest feed value
    */
-  async getLatestValue(aggregator?: any): Promise<Big> {
+  async getLatestValue(aggregator?: any, decimals: number = 20): Promise<Big> {
     aggregator = aggregator ?? (await this.loadData());
     if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
       throw new Error("Aggregator currently holds no value.");
@@ -650,7 +650,11 @@ export class AggregatorAccount {
       aggregator.latestConfirmedRound.result.mantissa.toString()
     );
     const scale = aggregator.latestConfirmedRound.result.scale;
-    return mantissa.div(new Big(10).pow(scale));
+    const oldDp = Big.DP;
+    Big.DP = decimals;
+    const result: Big = mantissa.div(new Big(10).pow(scale));
+    Big.DP = oldDp;
+    return result;
   }
 
   /**
