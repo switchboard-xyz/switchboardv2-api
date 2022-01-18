@@ -797,6 +797,12 @@ export declare class LeaseAccount {
      */
     static create(program: anchor.Program, params: LeaseInitParams): Promise<LeaseAccount>;
     /**
+     * Estimate the time remaining on a given lease
+     * @params void
+     * @returns number milliseconds left in lease (estimate)
+     */
+    estimatedLeaseTimeRemaining(): Promise<number>;
+    /**
      * Adds fund to a LeaseAccount. Note that funds can always be withdrawn by
      * the withdraw authority if one was set on lease initialization.
      * @param program Switchboard program representation holding connection and IDL.
