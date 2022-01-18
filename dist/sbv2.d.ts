@@ -289,6 +289,18 @@ export declare class AggregatorHistoryRow {
     value: Big;
     static from(buf: Buffer): AggregatorHistoryRow;
 }
+export interface AggregatorSetBatchSizeParams {
+    batchSize: number;
+    authority?: Keypair;
+}
+export interface AggregatorSetMinJobsParams {
+    minJobResults: number;
+    authority?: Keypair;
+}
+export interface AggregatorSetMinOraclesParams {
+    minOracleResults: number;
+    authority?: Keypair;
+}
 /**
  * Account type representing an aggregator (data feed).
  */
@@ -368,12 +380,9 @@ export declare class AggregatorAccount {
      * @return newly generated AggregatorAccount.
      */
     static create(program: anchor.Program, params: AggregatorInitParams): Promise<AggregatorAccount>;
-    /**
-     * Create and set a history buffer for the aggregator.
-     * @param program Switchboard program representation holding connection and IDL.
-     * @param params.
-     * @return TransactionSignature of the rpc
-     */
+    setBatchSize(params: AggregatorSetBatchSizeParams): Promise<TransactionSignature>;
+    setMinJobs(params: AggregatorSetMinJobsParams): Promise<TransactionSignature>;
+    setMinOracles(params: AggregatorSetMinOraclesParams): Promise<TransactionSignature>;
     setHistoryBuffer(params: AggregatorSetHistoryBufferParams): Promise<TransactionSignature>;
     /**
      * RPC to add a new job to an aggregtor to be performed on feed updates.
@@ -649,6 +658,10 @@ export interface OracleQueueInitParams {
      */
     unpermissionedFeeds?: boolean;
 }
+export interface OracleQueueSetRewardsParams {
+    rewards: number;
+    authority?: Keypair;
+}
 /**
  * A Switchboard account representing a queue for distributing oracles to
  * permitted data feeds.
@@ -680,6 +693,7 @@ export declare class OracleQueueAccount {
      * @return newly generated OracleQueueAccount.
      */
     static create(program: anchor.Program, params: OracleQueueInitParams): Promise<OracleQueueAccount>;
+    setRewards(params: OracleQueueSetRewardsParams): Promise<TransactionSignature>;
 }
 /**
  * Parameters for initializing a LeaseAccount

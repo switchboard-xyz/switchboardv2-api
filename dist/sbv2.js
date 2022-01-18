@@ -551,12 +551,48 @@ class AggregatorAccount {
         });
         return new AggregatorAccount({ program, keypair: aggregatorAccount });
     }
-    /**
-     * Create and set a history buffer for the aggregator.
-     * @param program Switchboard program representation holding connection and IDL.
-     * @param params.
-     * @return TransactionSignature of the rpc
-     */
+    async setBatchSize(params) {
+        var _a;
+        const program = this.program;
+        const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
+        return await program.rpc.aggregatorSetBatchSize({
+            batchSize: params.batchSize,
+        }, {
+            accounts: {
+                aggregator: this.publicKey,
+                authority: authority.publicKey,
+            },
+            signers: [authority],
+        });
+    }
+    async setMinJobs(params) {
+        var _a;
+        const program = this.program;
+        const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
+        return await program.rpc.aggregatorSetMinJobs({
+            minJobResults: params.minJobResults,
+        }, {
+            accounts: {
+                aggregator: this.publicKey,
+                authority: authority.publicKey,
+            },
+            signers: [authority],
+        });
+    }
+    async setMinOracles(params) {
+        var _a;
+        const program = this.program;
+        const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
+        return await program.rpc.aggregatorSetMinOracles({
+            minOracleResults: params.minOracleResults,
+        }, {
+            accounts: {
+                aggregator: this.publicKey,
+                authority: authority.publicKey,
+            },
+            signers: [authority],
+        });
+    }
     async setHistoryBuffer(params) {
         var _a;
         const buffer = web3_js_1.Keypair.generate();
@@ -1091,6 +1127,19 @@ class OracleQueueAccount {
             ],
         });
         return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
+    }
+    async setRewards(params) {
+        var _a;
+        const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
+        return await this.program.rpc.oracleQueueSetRewards({
+            rewards: params.rewards,
+        }, {
+            signers: [authority],
+            accounts: {
+                queue: this.publicKey,
+                authority: authority.publicKey,
+            },
+        });
     }
 }
 exports.OracleQueueAccount = OracleQueueAccount;

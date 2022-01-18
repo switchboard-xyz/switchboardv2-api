@@ -546,6 +546,20 @@ export class AggregatorHistoryRow {
   }
 }
 
+export interface AggregatorSetBatchSizeParams {
+  batchSize: number;
+  authority?: Keypair;
+}
+
+export interface AggregatorSetMinJobsParams {
+  minJobResults: number;
+  authority?: Keypair;
+}
+
+export interface AggregatorSetMinOraclesParams {
+  minOracleResults: number;
+  authority?: Keypair;
+}
 /**
  * Account type representing an aggregator (data feed).
  */
@@ -862,12 +876,63 @@ export class AggregatorAccount {
     return new AggregatorAccount({ program, keypair: aggregatorAccount });
   }
 
-  /**
-   * Create and set a history buffer for the aggregator.
-   * @param program Switchboard program representation holding connection and IDL.
-   * @param params.
-   * @return TransactionSignature of the rpc
-   */
+  async setBatchSize(
+    params: AggregatorSetBatchSizeParams
+  ): Promise<TransactionSignature> {
+    const program = this.program;
+    const authority = params.authority ?? this.keypair;
+    return await program.rpc.aggregatorSetBatchSize(
+      {
+        batchSize: params.batchSize,
+      },
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          authority: authority.publicKey,
+        },
+        signers: [authority],
+      }
+    );
+  }
+
+  async setMinJobs(
+    params: AggregatorSetMinJobsParams
+  ): Promise<TransactionSignature> {
+    const program = this.program;
+    const authority = params.authority ?? this.keypair;
+    return await program.rpc.aggregatorSetMinJobs(
+      {
+        minJobResults: params.minJobResults,
+      },
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          authority: authority.publicKey,
+        },
+        signers: [authority],
+      }
+    );
+  }
+
+  async setMinOracles(
+    params: AggregatorSetMinOraclesParams
+  ): Promise<TransactionSignature> {
+    const program = this.program;
+    const authority = params.authority ?? this.keypair;
+    return await program.rpc.aggregatorSetMinOracles(
+      {
+        minOracleResults: params.minOracleResults,
+      },
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          authority: authority.publicKey,
+        },
+        signers: [authority],
+      }
+    );
+  }
+
   async setHistoryBuffer(
     params: AggregatorSetHistoryBufferParams
   ): Promise<TransactionSignature> {
@@ -1591,6 +1656,11 @@ export interface OracleQueueInitParams {
   unpermissionedFeeds?: boolean;
 }
 
+export interface OracleQueueSetRewardsParams {
+  rewards: number;
+  authority?: Keypair;
+}
+
 /**
  * A Switchboard account representing a queue for distributing oracles to
  * permitted data feeds.
@@ -1724,6 +1794,24 @@ export class OracleQueueAccount {
       }
     );
     return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
+  }
+
+  async setRewards(
+    params: OracleQueueSetRewardsParams
+  ): Promise<TransactionSignature> {
+    const authority = params.authority ?? this.keypair;
+    return await this.program.rpc.oracleQueueSetRewards(
+      {
+        rewards: params.rewards,
+      },
+      {
+        signers: [authority],
+        accounts: {
+          queue: this.publicKey,
+          authority: authority.publicKey,
+        },
+      }
+    );
   }
 }
 
