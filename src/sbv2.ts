@@ -2017,6 +2017,42 @@ export class LeaseAccount {
   }
 
   /**
+   * Estimate the time remaining on a given lease
+   * @params void
+   * @returns number milliseconds left in lease (estimate)
+   */
+  async estimatedLeaseTimeRemaining(): Promise<number> {
+    // get lease data for escrow + aggregator pubkeys
+    const lease = await this.loadData();
+    const aggregatorAccount = new AggregatorAccount({
+      program: this.program,
+      publicKey: lease.aggregator,
+    });
+    // get aggregator data for minUpdateDelaySeconds + batchSize + queue pubkey
+    const aggregator = await aggregatorAccount.loadData();
+    const queueAccount = new OracleQueueAccount({
+      program: this.program,
+      publicKey: aggregator.queuePubkey,
+    });
+    const queue = await queueAccount.loadData();
+    const batchSize = aggregator.oracleRequestBatchSize + 1;
+    const minUpdateDelaySeconds = aggregator.minUpdateDelaySeconds * 1.5; // account for jitters with * 1.5
+    const updatesPerDay = (60 * 60 * 24) / minUpdateDelaySeconds;
+    const costPerDay = batchSize * queue.reward * updatesPerDay;
+    const oneDay = 24 * 60 * 60 * 1000; // ms in a day
+    const escrowInfo = await this.program.provider.connection.getAccountInfo(
+      lease.escrow
+    );
+    const data = Buffer.from(escrowInfo.data);
+    const accountInfo = spl.AccountLayout.decode(data);
+    const balance = spl.u64.fromBuffer(accountInfo.amount).toNumber();
+    const endDate = new Date();
+    endDate.setTime(endDate.getTime() + (balance * oneDay) / costPerDay);
+    const timeLeft = endDate.getTime() - new Date().getTime();
+    return timeLeft;
+  }
+
+  /**
    * Adds fund to a LeaseAccount. Note that funds can always be withdrawn by
    * the withdraw authority if one was set on lease initialization.
    * @param program Switchboard program representation holding connection and IDL.
