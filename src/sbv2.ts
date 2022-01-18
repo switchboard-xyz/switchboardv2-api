@@ -1657,7 +1657,7 @@ export interface OracleQueueInitParams {
 }
 
 export interface OracleQueueSetRewardsParams {
-  rewards: number;
+  rewards: anchor.BN;
   authority?: Keypair;
 }
 

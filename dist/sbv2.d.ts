@@ -659,7 +659,7 @@ export interface OracleQueueInitParams {
     unpermissionedFeeds?: boolean;
 }
 export interface OracleQueueSetRewardsParams {
-    rewards: number;
+    rewards: anchor.BN;
     authority?: Keypair;
 }
 /**
