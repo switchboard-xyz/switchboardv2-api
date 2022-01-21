@@ -1592,7 +1592,7 @@ class CrankAccount {
         let items = crank.pqData
             .slice(0, crank.pqSize)
             .filter((row) => now >= row.nextTimestamp.toNumber())
-            .sort((a, b) => a.nextTimestamp.sub(b.nextTimestamp))
+            // .sort((a: CrankRow, b: CrankRow) => a.nextTimestamp.sub(b.nextTimestamp))
             .slice(0, n)
             .map((item) => item.pubkey);
         return items;
