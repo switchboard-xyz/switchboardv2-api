@@ -24,7 +24,7 @@ export const SBV2_MAINNET_PID = new PublicKey(
 
 /**
  * Load the Switchboard Program ID for a given cluster
- * @param cluster cluster to return program id for (devnet or mainnet-beta)
+ * @param cluster solana cluster to fetch program ID for
  * @return Switchboard Program ID Public Key
  */
 export function loadSwitchboardPid(
@@ -42,27 +42,30 @@ export function loadSwitchboardPid(
 
 /**
  * Load the Switchboard Program for a given cluster
- * @param cluster cluster to return anchor program for (devnet or mainnet-beta)
+ * @param cluster solana cluster to fetch program for
  * @param payerKeypair optional Keypair to use for onchain txns. If ommited, a new keypair will be generated and lacking funds for txns
  * @param connection optional Connection object to use for rpc request
- * @param confirmOptions optional confirm options for rpc request
+ * @param confirmOptions optional confirmation options for rpc request
  * @return Switchboard Program
  */
 export async function loadSwitchboardProgram(
   cluster: "devnet" | "mainnet-beta",
-  payerKeypair = Keypair.generate(),
+  payerKeypair?: Keypair,
   connection = new Connection(clusterApiUrl(cluster)),
   confirmOptions: ConfirmOptions = {
     commitment: "confirmed",
   }
 ): Promise<anchor.Program> {
   const programId = loadSwitchboardPid(cluster);
-  const wallet = new anchor.Wallet(payerKeypair);
+  const wallet: anchor.Wallet = payerKeypair
+    ? new anchor.Wallet(payerKeypair)
+    : new anchor.Wallet(Keypair.generate());
   const provider = new anchor.Provider(connection, wallet, confirmOptions);
 
   const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
-  if (!anchorIdl)
+  if (!anchorIdl) {
     throw new Error(`failed to read idl for ${cluster} ${programId}`);
+  }
 
   return new anchor.Program(anchorIdl, programId, provider);
 }
