@@ -43,7 +43,7 @@ export function loadSwitchboardPid(
 /**
  * Load the Switchboard Program for a given cluster
  * @param cluster solana cluster to fetch program for
- * @param payerKeypair optional Keypair to use for onchain txns. If ommited, a new keypair will be generated and lacking funds for txns
+ * @param payerKeypair optional Keypair to use for onchain txns. If ommited, a dummy keypair will be used and onchain txns will fail
  * @param connection optional Connection object to use for rpc request
  * @param confirmOptions optional confirmation options for rpc request
  * @return Switchboard Program
@@ -56,10 +56,11 @@ export async function loadSwitchboardProgram(
     commitment: "confirmed",
   }
 ): Promise<anchor.Program> {
+  const DEFAULT_KEYPAIR = Keypair.fromSeed(new Uint8Array(32).fill(1));
   const programId = loadSwitchboardPid(cluster);
   const wallet: anchor.Wallet = payerKeypair
     ? new anchor.Wallet(payerKeypair)
-    : new anchor.Wallet(Keypair.generate());
+    : new anchor.Wallet(DEFAULT_KEYPAIR);
   const provider = new anchor.Provider(connection, wallet, confirmOptions);
 
   const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
