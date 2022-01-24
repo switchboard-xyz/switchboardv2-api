@@ -1,6 +1,9 @@
 import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
 import {
+  clusterApiUrl,
+  ConfirmOptions,
+  Connection,
   Keypair,
   PublicKey,
   sendAndConfirmTransaction,
@@ -18,6 +21,55 @@ export const SBV2_DEVNET_PID = new PublicKey(
 export const SBV2_MAINNET_PID = new PublicKey(
   "SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f"
 );
+
+/**
+ * Load the Switchboard Program ID for a given cluster
+ * @param cluster solana cluster to fetch program ID for
+ * @return Switchboard Program ID Public Key
+ */
+export function loadSwitchboardPid(
+  cluster: "devnet" | "mainnet-beta"
+): PublicKey {
+  switch (cluster) {
+    case "devnet":
+      return SBV2_DEVNET_PID;
+    case "mainnet-beta":
+      return SBV2_MAINNET_PID;
+    default:
+      throw new Error(`no Switchboard PID associated with cluster ${cluster}`);
+  }
+}
+
+/**
+ * Load the Switchboard Program for a given cluster
+ * @param cluster solana cluster to fetch program for
+ * @param payerKeypair optional Keypair to use for onchain txns. If ommited, a dummy keypair will be used and onchain txns will fail
+ * @param connection optional Connection object to use for rpc request
+ * @param confirmOptions optional confirmation options for rpc request
+ * @return Switchboard Program
+ */
+export async function loadSwitchboardProgram(
+  cluster: "devnet" | "mainnet-beta",
+  payerKeypair?: Keypair,
+  connection = new Connection(clusterApiUrl(cluster)),
+  confirmOptions: ConfirmOptions = {
+    commitment: "confirmed",
+  }
+): Promise<anchor.Program> {
+  const DEFAULT_KEYPAIR = Keypair.fromSeed(new Uint8Array(32).fill(1));
+  const programId = loadSwitchboardPid(cluster);
+  const wallet: anchor.Wallet = payerKeypair
+    ? new anchor.Wallet(payerKeypair)
+    : new anchor.Wallet(DEFAULT_KEYPAIR);
+  const provider = new anchor.Provider(connection, wallet, confirmOptions);
+
+  const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
+  if (!anchorIdl) {
+    throw new Error(`failed to read idl for ${cluster} ${programId}`);
+  }
+
+  return new anchor.Program(anchorIdl, programId, provider);
+}
 
 /**
  * Switchboard precisioned representation of numbers.
