@@ -41,32 +41,28 @@ export function loadSwitchboardPid(
 }
 
 /**
- * Load the Switchboard Program ID for a given cluster
+ * Load the Switchboard Program for a given cluster
  * @param cluster cluster to return anchor program for (devnet or mainnet-beta)
- * @param payerKeypair optional Keypair to use. Required if making on-chain transactions
+ * @param payerKeypair optional Keypair to use for onchain txns. If ommited, a new keypair will be generated and lacking funds for txns
  * @param connection optional Connection object to use for rpc request
  * @param confirmOptions optional confirm options for rpc request
  * @return Switchboard Program
  */
 export async function loadSwitchboardProgram(
   cluster: "devnet" | "mainnet-beta",
-  payerKeypair?: Keypair,
-  connection?: Connection,
-  confirmOptions?: ConfirmOptions
+  payerKeypair = Keypair.generate(),
+  connection = new Connection(clusterApiUrl(cluster)),
+  confirmOptions: ConfirmOptions = {
+    commitment: "confirmed",
+  }
 ): Promise<anchor.Program> {
   const programId = loadSwitchboardPid(cluster);
-  const conn = connection || new Connection(clusterApiUrl(cluster));
-  const wallet = new anchor.Wallet(
-    payerKeypair || anchor.web3.Keypair.generate()
-  );
-  const provider = new anchor.Provider(
-    conn,
-    wallet,
-    confirmOptions || {}
-  );
+  const wallet = new anchor.Wallet(payerKeypair);
+  const provider = new anchor.Provider(connection, wallet, confirmOptions);
 
   const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
-  if (!anchorIdl) throw new Error(`failed to read idl for ${programId}`);
+  if (!anchorIdl)
+    throw new Error(`failed to read idl for ${cluster} ${programId}`);
 
   return new anchor.Program(anchorIdl, programId, provider);
 }
