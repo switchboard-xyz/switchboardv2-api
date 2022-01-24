@@ -1,6 +1,9 @@
 import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
 import {
+  clusterApiUrl,
+  ConfirmOptions,
+  Connection,
   Keypair,
   PublicKey,
   sendAndConfirmTransaction,
@@ -18,6 +21,55 @@ export const SBV2_DEVNET_PID = new PublicKey(
 export const SBV2_MAINNET_PID = new PublicKey(
   "SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f"
 );
+
+/**
+ * Load the Switchboard Program ID for a given cluster
+ * @param cluster cluster to return program id for (devnet or mainnet-beta)
+ * @return Switchboard Program ID Public Key
+ */
+export function loadSwitchboardPid(
+  cluster: "devnet" | "mainnet-beta"
+): PublicKey {
+  switch (cluster) {
+    case "devnet":
+      return SBV2_DEVNET_PID;
+    case "mainnet-beta":
+      return SBV2_MAINNET_PID;
+    default:
+      throw new Error(`no Switchboard PID associated with cluster ${cluster}`);
+  }
+}
+
+/**
+ * Load the Switchboard Program ID for a given cluster
+ * @param cluster cluster to return anchor program for (devnet or mainnet-beta)
+ * @param payerKeypair optional Keypair to use. Required if making on-chain transactions
+ * @param connection optional Connection object to use for rpc request
+ * @param confirmOptions optional confirm options for rpc request
+ * @return Switchboard Program
+ */
+export async function loadSwitchboardProgram(
+  cluster: "devnet" | "mainnet-beta",
+  payerKeypair?: Keypair,
+  connection?: Connection,
+  confirmOptions?: ConfirmOptions
+): Promise<anchor.Program> {
+  const programId = loadSwitchboardPid(cluster);
+  const conn = connection || new Connection(clusterApiUrl(cluster));
+  const wallet = new anchor.Wallet(
+    payerKeypair || anchor.web3.Keypair.generate()
+  );
+  const provider = new anchor.Provider(
+    conn,
+    wallet,
+    confirmOptions || {}
+  );
+
+  const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
+  if (!anchorIdl) throw new Error(`failed to read idl for ${programId}`);
+
+  return new anchor.Program(anchorIdl, programId, provider);
+}
 
 /**
  * Switchboard precisioned representation of numbers.
