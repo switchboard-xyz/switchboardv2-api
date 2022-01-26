@@ -978,7 +978,6 @@ class PermissionAccount {
                 systemProgram: web3_js_1.SystemProgram.programId,
                 payer: program.provider.wallet.publicKey,
             },
-            signers: [permissionAccount.keypair],
         });
         return new PermissionAccount({
             program,
@@ -1235,6 +1234,14 @@ class LeaseAccount {
             signers: [params.funderAuthority],
         });
         return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
+    }
+    async getBalance() {
+        const lease = await this.loadData();
+        const escrowInfo = await this.program.provider.connection.getAccountInfo(lease.escrow);
+        const data = Buffer.from(escrowInfo.data);
+        const accountInfo = spl.AccountLayout.decode(data);
+        const balance = spl.u64.fromBuffer(accountInfo.amount).toNumber();
+        return balance;
     }
     /**
      * Estimate the time remaining on a given lease

@@ -1528,7 +1528,6 @@ export class PermissionAccount {
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
         },
-        signers: [permissionAccount.keypair],
       }
     );
     return new PermissionAccount({
@@ -2014,6 +2013,17 @@ export class LeaseAccount {
       }
     );
     return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
+  }
+
+  async getBalance(): Promise<number> {
+    const lease = await this.loadData();
+    const escrowInfo = await this.program.provider.connection.getAccountInfo(
+      lease.escrow
+    );
+    const data = Buffer.from(escrowInfo.data);
+    const accountInfo = spl.AccountLayout.decode(data);
+    const balance = spl.u64.fromBuffer(accountInfo.amount).toNumber();
+    return balance;
   }
 
   /**

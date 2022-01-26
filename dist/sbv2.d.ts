@@ -796,6 +796,7 @@ export declare class LeaseAccount {
      * @return newly generated LeaseAccount.
      */
     static create(program: anchor.Program, params: LeaseInitParams): Promise<LeaseAccount>;
+    getBalance(): Promise<number>;
     /**
      * Estimate the time remaining on a given lease
      * @params void
