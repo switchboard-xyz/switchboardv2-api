@@ -2016,6 +2016,13 @@ export class LeaseAccount {
   }
 
   async getBalance(): Promise<number> {
+    const [programStateAccount] = ProgramStateAccount.fromSeed(this.program);
+    const switchTokenMint = await programStateAccount.getTokenMint();
+    const mintData = await this.program.provider.connection.getAccountInfo(
+      switchTokenMint.publicKey
+    );
+    const mintInfo = spl.MintLayout.decode(mintData);
+    // const decimals = spl.u8.fromBuffer(mintInfo.decimals).toNumber();
     const lease = await this.loadData();
     const escrowInfo = await this.program.provider.connection.getAccountInfo(
       lease.escrow
@@ -2023,7 +2030,7 @@ export class LeaseAccount {
     const data = Buffer.from(escrowInfo.data);
     const accountInfo = spl.AccountLayout.decode(data);
     const balance = spl.u64.fromBuffer(accountInfo.amount).toNumber();
-    return balance;
+    return balance / mintInfo.decimals;
   }
 
   /**
