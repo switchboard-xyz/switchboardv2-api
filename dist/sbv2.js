@@ -1236,17 +1236,19 @@ class LeaseAccount {
         return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
     }
     async getBalance() {
-        const [programStateAccount] = ProgramStateAccount.fromSeed(this.program);
-        const switchTokenMint = await programStateAccount.getTokenMint();
-        const mintData = await this.program.provider.connection.getAccountInfo(switchTokenMint.publicKey);
-        const mintInfo = spl.MintLayout.decode(mintData);
+        // const [programStateAccount] = ProgramStateAccount.fromSeed(this.program);
+        // const switchTokenMint = await programStateAccount.getTokenMint();
+        // const mintData = await this.program.provider.connection.getAccountInfo(
+        // switchTokenMint.publicKey
+        // );
+        // const mintInfo = spl.MintLayout.decode(mintData);
         // const decimals = spl.u8.fromBuffer(mintInfo.decimals).toNumber();
         const lease = await this.loadData();
         const escrowInfo = await this.program.provider.connection.getAccountInfo(lease.escrow);
         const data = Buffer.from(escrowInfo.data);
         const accountInfo = spl.AccountLayout.decode(data);
         const balance = spl.u64.fromBuffer(accountInfo.amount).toNumber();
-        return balance / mintInfo.decimals;
+        return balance; // / mintInfo.decimals;
     }
     /**
      * Estimate the time remaining on a given lease
