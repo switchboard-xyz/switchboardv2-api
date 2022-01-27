@@ -655,12 +655,13 @@ export class AggregatorAccount {
    * aggregator info.
    * @return latest feed value
    */
-  async getLatestValue(aggregator?: any, decimals: number = 20): Promise<Big> {
+  async getLatestValue(
+    aggregator?: any,
+    decimals: number = 20
+  ): Promise<Big | null> {
     aggregator = aggregator ?? (await this.loadData());
     if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
-      throw new Error(
-        `Aggregator ${this.publicKey.toString()} currently holds no value.`
-      );
+      return null;
     }
     const mantissa = new Big(
       aggregator.latestConfirmedRound.result.mantissa.toString()

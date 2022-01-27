@@ -375,7 +375,7 @@ class AggregatorAccount {
         var _a, _b;
         aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
         if (((_b = (_a = aggregator.latestConfirmedRound) === null || _a === void 0 ? void 0 : _a.numSuccess) !== null && _b !== void 0 ? _b : 0) === 0) {
-            throw new Error(`Aggregator ${this.publicKey.toString()} currently holds no value.`);
+            return null;
         }
         const mantissa = new big_js_1.default(aggregator.latestConfirmedRound.result.mantissa.toString());
         const scale = aggregator.latestConfirmedRound.result.scale;
