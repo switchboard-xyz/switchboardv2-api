@@ -658,7 +658,9 @@ export class AggregatorAccount {
   async getLatestValue(aggregator?: any, decimals: number = 20): Promise<Big> {
     aggregator = aggregator ?? (await this.loadData());
     if ((aggregator.latestConfirmedRound?.numSuccess ?? 0) === 0) {
-      throw new Error("Aggregator currently holds no value.");
+      throw new Error(
+        `Aggregator ${this.publicKey.toString()} currently holds no value.`
+      );
     }
     const mantissa = new Big(
       aggregator.latestConfirmedRound.result.mantissa.toString()
