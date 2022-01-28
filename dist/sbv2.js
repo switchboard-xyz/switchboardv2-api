@@ -1790,6 +1790,14 @@ class OracleAccount {
             signers: [params.oracleAuthority],
         });
     }
+    async getBalance() {
+        const oracle = await this.loadData();
+        const escrowInfo = await this.program.provider.connection.getAccountInfo(oracle.tokenAccount);
+        const data = Buffer.from(escrowInfo.data);
+        const accountInfo = spl.AccountLayout.decode(data);
+        const balance = spl.u64.fromBuffer(accountInfo.amount).toNumber();
+        return balance; // / mintInfo.decimals;
+    }
 }
 exports.OracleAccount = OracleAccount;
 //# sourceMappingURL=sbv2.js.map

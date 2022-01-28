@@ -1042,4 +1042,5 @@ export declare class OracleAccount {
      * Withdraw stake and/or rewards from an OracleAccount.
      */
     withdraw(params: OracleWithdrawParams): Promise<TransactionSignature>;
+    getBalance(): Promise<number>;
 }
