@@ -1986,12 +1986,10 @@ export class LeaseAccount {
       true
     );
 
-    try {
-      await (switchTokenMint as any).createAssociatedTokenAccountInternal(
-        leaseAccount.publicKey,
-        escrow
-      );
-    } catch {}
+    await (switchTokenMint as any).createAssociatedTokenAccountInternal(
+      leaseAccount.publicKey,
+      escrow
+    );
     await program.rpc.leaseInit(
       {
         loadAmount: params.loadAmount,
