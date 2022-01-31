@@ -259,7 +259,7 @@ export declare class SwitchboardError {
      */
     name: string;
     /**
-     *  Numerical SwitchboardError reporesentation.
+     *  Numerical SwitchboardError representation.
      */
     code: number;
     /**
