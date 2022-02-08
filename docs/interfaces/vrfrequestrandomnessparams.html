@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>CrankPushParams | @switchboard-xyz/switchboard-v2</title>
+	<title>VrfRequestRandomnessParams | @switchboard-xyz/switchboard-v2</title>
 	<meta name="description" content="Documentation for @switchboard-xyz/switchboard-v2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,28 +55,21 @@
 					<a href="../modules.html">@switchboard-xyz/switchboard-v2</a>
 				</li>
 				<li>
-					<a href="crankpushparams.html">CrankPushParams</a>
+					<a href="vrfrequestrandomnessparams.html">VrfRequestRandomnessParams</a>
 				</li>
 			</ul>
-			<h1>Interface CrankPushParams</h1>
+			<h1>Interface VrfRequestRandomnessParams</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>Parameters for pushing an element into a CrankAccount.</p>
-					</div>
-				</div>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">CrankPushParams</span>
+						<span class="target">VrfRequestRandomnessParams</span>
 					</li>
 				</ul>
 			</section>
@@ -87,7 +80,9 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="crankpushparams.html#aggregatoraccount" class="tsd-kind-icon">aggregator<wbr>Account</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="vrfrequestrandomnessparams.html#authority" class="tsd-kind-icon">authority</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="vrfrequestrandomnessparams.html#payer" class="tsd-kind-icon">payer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="vrfrequestrandomnessparams.html#payerauthority" class="tsd-kind-icon">payer<wbr>Authority</a></li>
 							</ul>
 						</section>
 					</div>
@@ -96,19 +91,34 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="aggregatoraccount" class="tsd-anchor"></a>
-					<h3>aggregator<wbr>Account</h3>
-					<div class="tsd-signature tsd-kind-icon">aggregator<wbr>Account<span class="tsd-signature-symbol">:</span> <a href="../classes/aggregatoraccount.html" class="tsd-signature-type" data-tsd-kind="Class">AggregatorAccount</a></div>
+					<a name="authority" class="tsd-anchor"></a>
+					<h3>authority</h3>
+					<div class="tsd-signature tsd-kind-icon">authority<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Keypair</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/b984e62/src/sbv2.ts#L2225">sbv2.ts:2225</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/b984e62/src/sbv2.ts#L2899">sbv2.ts:2899</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Specifies the aggregator to push onto the crank.</p>
-						</div>
-					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="payer" class="tsd-anchor"></a>
+					<h3>payer</h3>
+					<div class="tsd-signature tsd-kind-icon">payer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/b984e62/src/sbv2.ts#L2900">sbv2.ts:2900</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="payerauthority" class="tsd-anchor"></a>
+					<h3>payer<wbr>Authority</h3>
+					<div class="tsd-signature tsd-kind-icon">payer<wbr>Authority<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Keypair</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/b984e62/src/sbv2.ts#L2901">sbv2.ts:2901</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 		</div>
@@ -125,10 +135,16 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="crankpushparams.html" class="tsd-kind-icon">Crank<wbr>Push<wbr>Params</a>
+						<a href="vrfrequestrandomnessparams.html" class="tsd-kind-icon">Vrf<wbr>Request<wbr>Randomness<wbr>Params</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="crankpushparams.html#aggregatoraccount" class="tsd-kind-icon">aggregator<wbr>Account</a>
+								<a href="vrfrequestrandomnessparams.html#authority" class="tsd-kind-icon">authority</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="vrfrequestrandomnessparams.html#payer" class="tsd-kind-icon">payer</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="vrfrequestrandomnessparams.html#payerauthority" class="tsd-kind-icon">payer<wbr>Authority</a>
 							</li>
 						</ul>
 					</li>
