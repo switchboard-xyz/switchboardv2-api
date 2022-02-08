@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
-import { Keypair, PublicKey, Transaction, TransactionSignature } from "@solana/web3.js";
+import { AccountMeta, Keypair, PublicKey, Transaction, TransactionSignature } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
@@ -1043,4 +1043,81 @@ export declare class OracleAccount {
      */
     withdraw(params: OracleWithdrawParams): Promise<TransactionSignature>;
     getBalance(): Promise<number>;
+}
+/**
+ * Parameters for a VrfInit request.
+ */
+export interface VrfInitParams {
+    /**
+     *  Vrf account authority to configure the account
+     */
+    authority: PublicKey;
+}
+/**
+ * Parameters for a VrfSetCallback request.
+ */
+export interface VrfSetCallbackParams {
+    authority: Keypair;
+    cpiProgramId: PublicKey;
+    accountList: Array<AccountMeta>;
+    instruction: Buffer;
+}
+export interface VrfProveAndVerifyParams {
+    proof: Buffer;
+}
+export interface VrfRequestRandomnessParams {
+    authority: Keypair;
+    payer: PublicKey;
+    payerAuthority: Keypair;
+}
+export interface VrfProveParams {
+    proof: Buffer;
+    oracleAccount: OracleAccount;
+    oracleAuthority: Keypair;
+}
+/**
+ * A Switchboard VRF account.
+ */
+export declare class VrfAccount {
+    program: anchor.Program;
+    publicKey: PublicKey;
+    keypair?: Keypair;
+    /**
+     * CrankAccount constructor
+     * @param params initialization params.
+     */
+    constructor(params: AccountParams);
+    /**
+     * Load and parse VrfAccount data based on the program IDL.
+     * @return VrfAccount data parsed in accordance with the
+     * Switchboard IDL.
+     */
+    loadData(): Promise<any>;
+    /**
+     * Get the size of a VrfAccount on chain.
+     * @return size.
+     */
+    size(): number;
+    /**
+     * Create and initialize the VrfAccount.
+     * @param program Switchboard program representation holding connection and IDL.
+     * @param params.
+     * @return newly generated VrfAccount.
+     */
+    static create(program: anchor.Program, params: VrfInitParams): Promise<VrfAccount>;
+    /**
+     * Set the callback CPI when vrf verification is successful.
+     */
+    setCallback(params: VrfSetCallbackParams): Promise<TransactionSignature>;
+    /**
+     * Trigger new randomness production on the vrf account
+     */
+    requestRandomness(params: VrfRequestRandomnessParams): Promise<void>;
+    /**
+     * Attempt the maximum amount of turns remaining on the vrf verify crank.
+     * This will automatically call the vrf callback (if set) when completed.
+     */
+    proveAndVerify(params: VrfProveParams): Promise<Array<TransactionSignature>>;
+    prove(params: VrfProveParams): Promise<TransactionSignature>;
+    verify(): Promise<Array<TransactionSignature>>;
 }

@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
+exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
 const anchor = __importStar(require("@project-serum/anchor"));
 const spl = __importStar(require("@solana/spl-token"));
 const web3_js_1 = require("@solana/web3.js");
@@ -1800,4 +1800,208 @@ class OracleAccount {
     }
 }
 exports.OracleAccount = OracleAccount;
+/**
+ * A Switchboard VRF account.
+ */
+class VrfAccount {
+    /**
+     * CrankAccount constructor
+     * @param params initialization params.
+     */
+    constructor(params) {
+        var _a;
+        if (params.keypair === undefined && params.publicKey === undefined) {
+            throw new Error(`${this.constructor.name}: User must provide either a publicKey or keypair for account use.`);
+        }
+        if (params.keypair !== undefined && params.publicKey !== undefined) {
+            if (params.publicKey !== params.keypair.publicKey) {
+                throw new Error(`${this.constructor.name}: provided pubkey and keypair mismatch.`);
+            }
+        }
+        this.program = params.program;
+        this.keypair = params.keypair;
+        this.publicKey = (_a = params.publicKey) !== null && _a !== void 0 ? _a : this.keypair.publicKey;
+    }
+    /**
+     * Load and parse VrfAccount data based on the program IDL.
+     * @return VrfAccount data parsed in accordance with the
+     * Switchboard IDL.
+     */
+    async loadData() {
+        const vrf = await this.program.account.crankAccountData.fetch(this.publicKey);
+        vrf.ebuf = undefined;
+        return vrf;
+    }
+    /**
+     * Get the size of a VrfAccount on chain.
+     * @return size.
+     */
+    size() {
+        return this.program.account.vrfAccountData.size;
+    }
+    /**
+     * Create and initialize the VrfAccount.
+     * @param program Switchboard program representation holding connection and IDL.
+     * @param params.
+     * @return newly generated VrfAccount.
+     */
+    static async create(program, params) {
+        var _a;
+        const keypair = anchor.web3.Keypair.generate();
+        const size = program.account.vrfAccountData.size;
+        await program.rpc.vrfInit({}, {
+            accounts: {
+                vrf: keypair.publicKey,
+                authority: (_a = params.authority) !== null && _a !== void 0 ? _a : keypair.publicKey,
+            },
+            instructions: [
+                anchor.web3.SystemProgram.createAccount({
+                    fromPubkey: program.provider.wallet.publicKey,
+                    newAccountPubkey: keypair.publicKey,
+                    space: size,
+                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
+                    programId: program.programId,
+                }),
+            ],
+            signers: [keypair],
+        });
+        return new VrfAccount({ program, keypair });
+    }
+    /**
+     * Set the callback CPI when vrf verification is successful.
+     */
+    async setCallback(params) {
+        return await this.program.rpc.vrfSetCallback(params, {
+            accounts: {
+                vrf: this.publicKey,
+                authority: params.authority.publicKey,
+            },
+            signers: [params.authority],
+        });
+    }
+    /**
+     * Trigger new randomness production on the vrf account
+     */
+    async requestRandomness(params) {
+        const vrf = await this.loadData();
+        const queueAccount = new OracleQueueAccount({
+            program: this.program,
+            publicKey: vrf.oracleQueue,
+        });
+        const queue = await queueAccount.loadData();
+        const queueAuthority = queue.authority;
+        const authority = vrf.authority;
+        const dataBuffer = queue.dataBuffer;
+        const escrow = vrf.escorw;
+        const payer = params.payer;
+        const payerAuthority = params.payerAuthority;
+        const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
+        const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, this.publicKey);
+        const tokenProgram = spl.TOKEN_PROGRAM_ID;
+        const recentBlockhashes = web3_js_1.SYSVAR_RECENT_BLOCKHASHES_PUBKEY;
+        await this.program.rpc.requestRandomness({
+            stateBump,
+            permissionBump,
+        }, {
+            accounts: {
+                authority: authority.publicKey,
+                vrf: this.publicKey,
+                oracleQueue: queueAccount.publicKey,
+                queueAuthority,
+                dataBuffer,
+                permission: permissionAccount.publicKey,
+                escrow,
+                payerWallet: payer,
+                payerAuthority: payerAuthority.publicKey,
+                recentBlockhashes,
+                programState: stateAccount.publicKey,
+                tokenProgram,
+            },
+            signers: [authority, payerAuthority],
+        });
+    }
+    /**
+     * Attempt the maximum amount of turns remaining on the vrf verify crank.
+     * This will automatically call the vrf callback (if set) when completed.
+     */
+    async proveAndVerify(params) {
+        await this.prove(params);
+        return await this.verify();
+    }
+    async prove(params) {
+        const vrf = await this.loadData();
+        let idx = -1;
+        for (let i = 0; i < vrf.buildersLen; ++i) {
+            const builder = vrf.builders[i];
+            const producerKey = builder.producer;
+            if (producerKey.equals(params.oracleAccount.publicKey)) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx === -1) {
+            throw new Error("OracleProofRequestNotFoundError");
+        }
+        return await this.program.rpc.prove({
+            proof: params.proof,
+            idx,
+        }, {
+            accounts: {
+                vrf: this.publicKey,
+                oracle: params.oracleAccount.publicKey,
+                randomnessProducer: params.oracleAuthority.publicKey,
+            },
+            signers: [params.oracleAuthority],
+        });
+    }
+    // TODO: may want to skip preflight for this.
+    async verify() {
+        const txs = [];
+        const vrf = await this.loadData();
+        let counter = 0;
+        for (let i = 0; i < vrf.txRemaining; ++i) {
+            txs.push({
+                tx: this.program.transaction.vrfVerify({
+                    nonce: i,
+                }, {
+                    accounts: {
+                        vrf: this.publicKey,
+                    },
+                }),
+            });
+        }
+        return await sendAll(this.program.provider, txs);
+    }
+}
+exports.VrfAccount = VrfAccount;
+async function sendAll(provider, reqs) {
+    const opts = provider.opts;
+    const blockhash = await provider.connection.getRecentBlockhash(opts.preflightCommitment);
+    let txs = reqs.map((r) => {
+        let tx = r.tx;
+        let signers = r.signers;
+        if (signers === undefined) {
+            signers = [];
+        }
+        tx.feePayer = provider.wallet.publicKey;
+        tx.recentBlockhash = blockhash.blockhash;
+        signers
+            .filter((s) => s !== undefined)
+            .forEach((kp) => {
+            tx.partialSign(kp);
+        });
+        return tx;
+    });
+    const signedTxs = await provider.wallet.signAllTransactions(txs);
+    const promises = [];
+    for (let k = 0; k < txs.length; k += 1) {
+        const tx = signedTxs[k];
+        const rawTx = tx.serialize();
+        promises.push(provider.connection.sendRawTransaction(rawTx, opts));
+    }
+    return await Promise.all(promises);
+}
+function getPayer(program) {
+    return web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
+}
 //# sourceMappingURL=sbv2.js.map
