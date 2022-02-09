@@ -1828,7 +1828,7 @@ class VrfAccount {
      * Switchboard IDL.
      */
     async loadData() {
-        const vrf = await this.program.account.crankAccountData.fetch(this.publicKey);
+        const vrf = await this.program.account.vrfAccountData.fetch(this.publicKey);
         vrf.ebuf = undefined;
         return vrf;
     }

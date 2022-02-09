@@ -2954,7 +2954,7 @@ export class VrfAccount {
    * Switchboard IDL.
    */
   async loadData(): Promise<any> {
-    const vrf: any = await this.program.account.crankAccountData.fetch(
+    const vrf: any = await this.program.account.vrfAccountData.fetch(
       this.publicKey
     );
     vrf.ebuf = undefined;
