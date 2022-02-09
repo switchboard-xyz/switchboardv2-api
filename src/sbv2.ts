@@ -3118,13 +3118,15 @@ export class VrfAccount {
   async prove(params: VrfProveParams): Promise<TransactionSignature> {
     const vrf = await this.loadData();
     let idx = -1;
+    let producerKey = PublicKey.default;
     for (let i = 0; i < vrf.buildersLen; ++i) {
       const builder = vrf.builders[i];
-      const producerKey = builder.producer;
-      if (producerKey.equals(params.oracleAccount.publicKey)) {
-        idx = i;
-        break;
-      }
+      producerKey = builder.producer;
+      break;
+      // if (producerKey.equals(params.oracleAccount.publicKey)) {
+      // idx = i;
+      // break;
+      // }
     }
     if (idx === -1) {
       throw new Error("OracleProofRequestNotFoundError");
