@@ -2017,35 +2017,39 @@ class VrfAccount {
 }
 exports.VrfAccount = VrfAccount;
 async function sendAll(provider, reqs) {
-    const opts = provider.opts;
-    const blockhash = await provider.connection.getRecentBlockhash(opts.preflightCommitment);
-    let txs = reqs.map((r) => {
-        let tx = r.tx;
-        let signers = r.signers;
-        if (signers === undefined) {
-            signers = [];
-        }
-        tx.feePayer = provider.wallet.publicKey;
-        tx.recentBlockhash = blockhash.blockhash;
-        signers
-            .filter((s) => s !== undefined)
-            .forEach((kp) => {
-            tx.partialSign(kp);
+    let res = [];
+    try {
+        const opts = provider.opts;
+        const blockhash = await provider.connection.getRecentBlockhash(opts.preflightCommitment);
+        let txs = reqs.map((r) => {
+            let tx = r.tx;
+            let signers = r.signers;
+            if (signers === undefined) {
+                signers = [];
+            }
+            tx.feePayer = provider.wallet.publicKey;
+            tx.recentBlockhash = blockhash.blockhash;
+            signers
+                .filter((s) => s !== undefined)
+                .forEach((kp) => {
+                tx.partialSign(kp);
+            });
+            return tx;
         });
-        return tx;
-    });
-    const signedTxs = await provider.wallet.signAllTransactions(txs);
-    const promises = [];
-    for (let k = 0; k < txs.length; k += 1) {
-        const tx = signedTxs[k];
-        const rawTx = tx.serialize();
-        promises.push(provider.connection.sendRawTransaction(rawTx, {
-            maxRetries: Math.max(3, opts.maxRetries),
-            // skipPreflight: true,
-            skipPreflight: false,
-        }));
+        const signedTxs = await provider.wallet.signAllTransactions(txs);
+        const promises = [];
+        for (let k = 0; k < txs.length; k += 1) {
+            const tx = signedTxs[k];
+            const rawTx = tx.serialize();
+            promises.push(provider.connection.sendRawTransaction(rawTx, {
+                maxRetries: Math.max(3, opts.maxRetries),
+                skipPreflight: true,
+            }));
+        }
+        return await Promise.all(promises);
     }
-    return await Promise.all(promises);
+    catch (e) { }
+    return res;
 }
 function getPayer(program) {
     return web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
