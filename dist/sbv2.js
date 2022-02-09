@@ -1848,7 +1848,7 @@ class VrfAccount {
     static async create(program, params) {
         var _a;
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
-        const keypair = anchor.web3.Keypair.generate();
+        const keypair = params.keypair;
         const size = program.account.vrfAccountData.size;
         await program.rpc.vrfInit({
             stateBump,

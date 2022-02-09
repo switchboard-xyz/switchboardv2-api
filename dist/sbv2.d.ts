@@ -1046,7 +1046,7 @@ export declare class OracleAccount {
 }
 export interface Callback {
     programId: PublicKey;
-    accountList: Array<AccountMeta>;
+    accounts: Array<AccountMeta>;
     ixData: Buffer;
 }
 /**
@@ -1059,6 +1059,10 @@ export interface VrfInitParams {
     authority: PublicKey;
     queue: OracleQueueAccount;
     callback: Callback;
+    /**
+     *  Keypair to use for the vrf account.
+     */
+    keypair: Keypair;
 }
 /**
  * Parameters for a VrfSetCallback request.

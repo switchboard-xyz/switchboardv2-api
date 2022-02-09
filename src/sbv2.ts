@@ -2873,7 +2873,7 @@ export class OracleAccount {
 
 export interface Callback {
   programId: PublicKey;
-  accountList: Array<AccountMeta>;
+  accounts: Array<AccountMeta>;
   ixData: Buffer;
 }
 
@@ -2887,6 +2887,10 @@ export interface VrfInitParams {
   authority: PublicKey;
   queue: OracleQueueAccount;
   callback: Callback;
+  /**
+   *  Keypair to use for the vrf account.
+   */
+  keypair: Keypair;
 }
 /**
  * Parameters for a VrfSetCallback request.
@@ -2977,7 +2981,7 @@ export class VrfAccount {
   ): Promise<VrfAccount> {
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
-    const keypair = anchor.web3.Keypair.generate();
+    const keypair = params.keypair;
     const size = program.account.vrfAccountData.size;
     await program.rpc.vrfInit(
       {
