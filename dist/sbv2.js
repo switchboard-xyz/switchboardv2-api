@@ -1909,11 +1909,9 @@ class VrfAccount {
         });
         const queue = await queueAccount.loadData();
         const queueAuthority = queue.authority;
-        const authority = params.authority;
         const dataBuffer = queue.dataBuffer;
         const escrow = vrf.escrow;
         const payer = params.payer;
-        const payerAuthority = params.payerAuthority;
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, this.publicKey);
         const tokenProgram = spl.TOKEN_PROGRAM_ID;
@@ -1923,7 +1921,7 @@ class VrfAccount {
             permissionBump,
         }, {
             accounts: {
-                authority: authority.publicKey,
+                authority: params.authority.publicKey,
                 vrf: this.publicKey,
                 oracleQueue: queueAccount.publicKey,
                 queueAuthority,
@@ -1931,12 +1929,12 @@ class VrfAccount {
                 permission: permissionAccount.publicKey,
                 escrow,
                 payerWallet: payer,
-                payerAuthority: payerAuthority.publicKey,
+                payerAuthority: params.payerAuthority.publicKey,
                 recentBlockhashes,
                 programState: stateAccount.publicKey,
                 tokenProgram,
             },
-            signers: [authority, payerAuthority],
+            signers: [params.authority, params.payerAuthority],
         });
     }
     /**
