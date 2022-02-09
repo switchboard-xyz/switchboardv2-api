@@ -1858,6 +1858,7 @@ class VrfAccount {
         catch (e) {
             console.log(e);
         }
+        await switchTokenMint.setAuthority(escrow, programStateAccount.publicKey, "AccountOwner", keypair, []);
         await program.rpc.vrfInit({
             stateBump,
             callback: params.callback,
