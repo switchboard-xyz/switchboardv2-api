@@ -1967,7 +1967,7 @@ class VrfAccount {
         }, {
             accounts: {
                 vrf: this.publicKey,
-                oracle: params.oracleAccount.publicKey,
+                oracle: producerKey,
                 randomnessProducer: params.oracleAuthority.publicKey,
             },
             signers: [params.oracleAuthority],
