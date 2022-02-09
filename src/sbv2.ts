@@ -3159,6 +3159,7 @@ export class VrfAccount {
       // idx = i;
       // break;
       // }
+      idx = i;
       break;
     }
     if (idx === -1) {
