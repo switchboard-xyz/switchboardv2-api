@@ -3123,9 +3123,10 @@ export class VrfAccount {
       idx = i;
       const builder = vrf.builders[i];
       producerKey = builder.producer;
-      if (producerKey.equals(params.oracleAccount.publicKey)) {
-        break;
-      }
+      // if (producerKey.equals(params.oracleAccount.publicKey)) {
+      // break;
+      // }
+      break;
     }
     if (idx === -1) {
       throw new Error("OracleProofRequestNotFoundError");
@@ -3146,7 +3147,6 @@ export class VrfAccount {
     );
   }
 
-  // TODO: may want to skip preflight for this.
   async verify(
     oracle: OracleAccount,
     tryCount: number = 276
@@ -3155,10 +3155,11 @@ export class VrfAccount {
     const txs: Array<any> = [];
     const vrf = await this.loadData();
     for (let i = 0; i < vrf.callback.accountsLen; ++i) {
-      if (oracle.publicKey.equals(vrf.callback.accounts[i].pubkey)) {
-        idx = i;
-        break;
-      }
+      // if (oracle.publicKey.equals(vrf.callback.accounts[i].pubkey)) {
+      // idx = i;
+      // break;
+      // }
+      break;
     }
     if (idx === -1) {
       throw new Error("OracleNotFoundError");
@@ -3237,7 +3238,8 @@ async function sendAll(
     promises.push(
       provider.connection.sendRawTransaction(rawTx, {
         maxRetries: Math.max(3, opts.maxRetries),
-        skipPreflight: true,
+        // skipPreflight: true,
+        skipPreflight: false,
       })
     );
   }
