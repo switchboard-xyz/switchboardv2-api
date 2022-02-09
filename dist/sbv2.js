@@ -1993,7 +1993,7 @@ class VrfAccount {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const oracleData = await oracle.loadData();
         const oracleWallet = oracleData.tokenAccount;
-        const oracleAuthority = oracleData.authority;
+        const oracleAuthority = oracleData.oracleAuthority;
         for (let i = 0; i < tryCount; ++i) {
             txs.push({
                 tx: this.program.transaction.vrfVerify({
