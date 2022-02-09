@@ -1850,12 +1850,24 @@ class VrfAccount {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const keypair = params.keypair;
         const size = program.account.vrfAccountData.size;
+        const switchTokenMint = await programStateAccount.getTokenMint();
+        const escrow = await spl.Token.getAssociatedTokenAddress(switchTokenMint.associatedProgramId, switchTokenMint.programId, switchTokenMint.publicKey, keypair.publicKey, true);
+        try {
+            await switchTokenMint.createAssociatedTokenAccountInternal(keypair.publicKey, escrow);
+        }
+        catch (e) {
+            console.log(e);
+        }
         await program.rpc.vrfInit({
             stateBump,
+            callback: params.callback,
         }, {
             accounts: {
                 vrf: keypair.publicKey,
                 authority: (_a = params.authority) !== null && _a !== void 0 ? _a : keypair.publicKey,
+                oracleQueue: params.queue.publicKey,
+                programState: programStateAccount.publicKey,
+                tokenProgram: spl.TOKEN_PROGRAM_ID,
             },
             instructions: [
                 anchor.web3.SystemProgram.createAccount({
