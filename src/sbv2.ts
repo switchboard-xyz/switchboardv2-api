@@ -3236,6 +3236,7 @@ async function sendAll(
     const rawTx = tx.serialize();
     promises.push(
       provider.connection.sendRawTransaction(rawTx, {
+        maxRetries: Math.max(3, opts.maxRetries),
         skipPreflight: true,
       })
     );
