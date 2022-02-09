@@ -1953,10 +1953,9 @@ class VrfAccount {
             idx = i;
             const builder = vrf.builders[i];
             producerKey = builder.producer;
-            break;
-            // if (producerKey.equals(params.oracleAccount.publicKey)) {
-            // break;
-            // }
+            if (producerKey.equals(params.oracleAccount.publicKey)) {
+                break;
+            }
         }
         if (idx === -1) {
             throw new Error("OracleProofRequestNotFoundError");
@@ -1984,11 +1983,13 @@ class VrfAccount {
                 break;
             }
         }
+        if (idx === -1) {
+            throw new Error("OracleNotFoundError");
+        }
         let counter = 0;
         const remainingAccounts = vrf.callback.accounts.slice(0, vrf.callback.accountsLen);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const oracleWallet = (await oracle.loadData()).tokenAccount;
-        idx = 0;
         for (let i = 0; i < tryCount; ++i) {
             txs.push({
                 tx: this.program.transaction.vrfVerify({
