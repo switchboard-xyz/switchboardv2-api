@@ -2871,6 +2871,12 @@ export class OracleAccount {
   }
 }
 
+export interface Callback {
+  programId: PublicKey;
+  accountList: Array<AccountMeta>;
+  ixData: Buffer;
+}
+
 /**
  * Parameters for a VrfInit request.
  */
@@ -2879,8 +2885,9 @@ export interface VrfInitParams {
    *  Vrf account authority to configure the account
    */
   authority: PublicKey;
+  queue: OracleQueueAccount;
+  callback: Callback;
 }
-
 /**
  * Parameters for a VrfSetCallback request.
  */
@@ -2968,10 +2975,14 @@ export class VrfAccount {
     program: anchor.Program,
     params: VrfInitParams
   ): Promise<VrfAccount> {
+    const [programStateAccount, stateBump] =
+      ProgramStateAccount.fromSeed(program);
     const keypair = anchor.web3.Keypair.generate();
     const size = program.account.vrfAccountData.size;
     await program.rpc.vrfInit(
-      {},
+      {
+        stateBump,
+      },
       {
         accounts: {
           vrf: keypair.publicKey,
@@ -2998,17 +3009,17 @@ export class VrfAccount {
   /**
    * Set the callback CPI when vrf verification is successful.
    */
-  async setCallback(
-    params: VrfSetCallbackParams
-  ): Promise<TransactionSignature> {
-    return await this.program.rpc.vrfSetCallback(params, {
-      accounts: {
-        vrf: this.publicKey,
-        authority: params.authority.publicKey,
-      },
-      signers: [params.authority],
-    });
-  }
+  // async setCallback(
+  // params: VrfSetCallbackParams
+  // ): Promise<TransactionSignature> {
+  // return await this.program.rpc.vrfSetCallback(params, {
+  // accounts: {
+  // vrf: this.publicKey,
+  // authority: params.authority.publicKey,
+  // },
+  // signers: [params.authority],
+  // });
+  // }
 
   /**
    * Trigger new randomness production on the vrf account
@@ -3070,7 +3081,7 @@ export class VrfAccount {
     params: VrfProveParams
   ): Promise<Array<TransactionSignature>> {
     await this.prove(params);
-    return await this.verify();
+    return await this.verify(params.oracleAccount);
   }
 
   async prove(params: VrfProveParams): Promise<TransactionSignature> {
@@ -3104,21 +3115,48 @@ export class VrfAccount {
   }
 
   // TODO: may want to skip preflight for this.
-  async verify(): Promise<Array<TransactionSignature>> {
+  async verify(
+    oracle: OracleAccount,
+    tryCount: number = 276
+  ): Promise<Array<TransactionSignature>> {
+    let idx = -1;
     const txs: Array<any> = [];
     const vrf = await this.loadData();
+    for (let i = 0; i < vrf.callback.accountsLen; ++i) {
+      if (oracle.publicKey.equals(vrf.callback.accounts[i].pubkey)) {
+        idx = i;
+        break;
+      }
+    }
     let counter = 0;
+    const remainingAccounts = vrf.callback.accounts.slice(
+      0,
+      vrf.callback.accountsLen
+    );
+    const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
+      this.program
+    );
+    const oracleWallet = (await oracle.loadData()).tokenAccount;
 
-    for (let i = 0; i < vrf.txRemaining; ++i) {
+    for (let i = 0; i < tryCount; ++i) {
       txs.push({
         tx: this.program.transaction.vrfVerify(
           {
             nonce: i,
+            stateBump,
+            idx,
           },
           {
             accounts: {
               vrf: this.publicKey,
+              callbackPid: vrf.callback.programId,
+              tokenProgram: spl.TOKEN_PROGRAM_ID,
+              escrow: vrf.escrow,
+              programState: programStateAccount.publicKey,
+              oracle: oracle.publicKey,
+              oracleWallet,
             },
+            remainingAccounts,
           }
         ),
       });

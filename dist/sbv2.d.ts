@@ -1044,6 +1044,11 @@ export declare class OracleAccount {
     withdraw(params: OracleWithdrawParams): Promise<TransactionSignature>;
     getBalance(): Promise<number>;
 }
+export interface Callback {
+    programId: PublicKey;
+    accountList: Array<AccountMeta>;
+    ixData: Buffer;
+}
 /**
  * Parameters for a VrfInit request.
  */
@@ -1052,6 +1057,8 @@ export interface VrfInitParams {
      *  Vrf account authority to configure the account
      */
     authority: PublicKey;
+    queue: OracleQueueAccount;
+    callback: Callback;
 }
 /**
  * Parameters for a VrfSetCallback request.
@@ -1108,7 +1115,6 @@ export declare class VrfAccount {
     /**
      * Set the callback CPI when vrf verification is successful.
      */
-    setCallback(params: VrfSetCallbackParams): Promise<TransactionSignature>;
     /**
      * Trigger new randomness production on the vrf account
      */
@@ -1119,5 +1125,5 @@ export declare class VrfAccount {
      */
     proveAndVerify(params: VrfProveParams): Promise<Array<TransactionSignature>>;
     prove(params: VrfProveParams): Promise<TransactionSignature>;
-    verify(): Promise<Array<TransactionSignature>>;
+    verify(oracle: OracleAccount, tryCount?: number): Promise<Array<TransactionSignature>>;
 }

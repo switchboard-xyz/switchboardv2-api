@@ -1847,9 +1847,12 @@ class VrfAccount {
      */
     static async create(program, params) {
         var _a;
+        const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const keypair = anchor.web3.Keypair.generate();
         const size = program.account.vrfAccountData.size;
-        await program.rpc.vrfInit({}, {
+        await program.rpc.vrfInit({
+            stateBump,
+        }, {
             accounts: {
                 vrf: keypair.publicKey,
                 authority: (_a = params.authority) !== null && _a !== void 0 ? _a : keypair.publicKey,
@@ -1870,15 +1873,17 @@ class VrfAccount {
     /**
      * Set the callback CPI when vrf verification is successful.
      */
-    async setCallback(params) {
-        return await this.program.rpc.vrfSetCallback(params, {
-            accounts: {
-                vrf: this.publicKey,
-                authority: params.authority.publicKey,
-            },
-            signers: [params.authority],
-        });
-    }
+    // async setCallback(
+    // params: VrfSetCallbackParams
+    // ): Promise<TransactionSignature> {
+    // return await this.program.rpc.vrfSetCallback(params, {
+    // accounts: {
+    // vrf: this.publicKey,
+    // authority: params.authority.publicKey,
+    // },
+    // signers: [params.authority],
+    // });
+    // }
     /**
      * Trigger new randomness production on the vrf account
      */
@@ -1926,7 +1931,7 @@ class VrfAccount {
      */
     async proveAndVerify(params) {
         await this.prove(params);
-        return await this.verify();
+        return await this.verify(params.oracleAccount);
     }
     async prove(params) {
         const vrf = await this.loadData();
@@ -1955,18 +1960,37 @@ class VrfAccount {
         });
     }
     // TODO: may want to skip preflight for this.
-    async verify() {
+    async verify(oracle, tryCount = 276) {
+        let idx = -1;
         const txs = [];
         const vrf = await this.loadData();
+        for (let i = 0; i < vrf.callback.accountsLen; ++i) {
+            if (oracle.publicKey.equals(vrf.callback.accounts[i].pubkey)) {
+                idx = i;
+                break;
+            }
+        }
         let counter = 0;
-        for (let i = 0; i < vrf.txRemaining; ++i) {
+        const remainingAccounts = vrf.callback.accounts.slice(0, vrf.callback.accountsLen);
+        const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
+        const oracleWallet = (await oracle.loadData()).tokenAccount;
+        for (let i = 0; i < tryCount; ++i) {
             txs.push({
                 tx: this.program.transaction.vrfVerify({
                     nonce: i,
+                    stateBump,
+                    idx,
                 }, {
                     accounts: {
                         vrf: this.publicKey,
+                        callbackPid: vrf.callback.programId,
+                        tokenProgram: spl.TOKEN_PROGRAM_ID,
+                        escrow: vrf.escrow,
+                        programState: programStateAccount.publicKey,
+                        oracle: oracle.publicKey,
+                        oracleWallet,
                     },
+                    remainingAccounts,
                 }),
             });
         }
