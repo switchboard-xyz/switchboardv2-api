@@ -3008,6 +3008,7 @@ export class VrfAccount {
       {
         accounts: {
           vrf: keypair.publicKey,
+          escrow,
           authority: params.authority ?? keypair.publicKey,
           oracleQueue: params.queue.publicKey,
           programState: programStateAccount.publicKey,

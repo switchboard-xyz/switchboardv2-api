@@ -1864,6 +1864,7 @@ class VrfAccount {
         }, {
             accounts: {
                 vrf: keypair.publicKey,
+                escrow,
                 authority: (_a = params.authority) !== null && _a !== void 0 ? _a : keypair.publicKey,
                 oracleQueue: params.queue.publicKey,
                 programState: programStateAccount.publicKey,
