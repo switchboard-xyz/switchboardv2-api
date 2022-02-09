@@ -1918,7 +1918,7 @@ class VrfAccount {
         const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, this.publicKey);
         const tokenProgram = spl.TOKEN_PROGRAM_ID;
         const recentBlockhashes = web3_js_1.SYSVAR_RECENT_BLOCKHASHES_PUBKEY;
-        await this.program.rpc.requestRandomness({
+        await this.program.rpc.vrfRequestRandomness({
             stateBump,
             permissionBump,
         }, {
@@ -1961,7 +1961,7 @@ class VrfAccount {
         if (idx === -1) {
             throw new Error("OracleProofRequestNotFoundError");
         }
-        return await this.program.rpc.prove({
+        return await this.program.rpc.vrfProve({
             proof: params.proof,
             idx,
         }, {

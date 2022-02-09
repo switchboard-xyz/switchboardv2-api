@@ -3081,7 +3081,7 @@ export class VrfAccount {
     );
     const tokenProgram = spl.TOKEN_PROGRAM_ID;
     const recentBlockhashes = SYSVAR_RECENT_BLOCKHASHES_PUBKEY;
-    await this.program.rpc.requestRandomness(
+    await this.program.rpc.vrfRequestRandomness(
       {
         stateBump,
         permissionBump,
@@ -3131,7 +3131,7 @@ export class VrfAccount {
     if (idx === -1) {
       throw new Error("OracleProofRequestNotFoundError");
     }
-    return await this.program.rpc.prove(
+    return await this.program.rpc.vrfProve(
       {
         proof: params.proof,
         idx,
