@@ -167,7 +167,7 @@ export class ProgramStateAccount {
       );
     }
     if (params.keypair !== undefined && params.publicKey !== undefined) {
-      if (params.publicKey !== params.keypair.publicKey) {
+      if (!params.publicKey.equals(params.keypair.publicKey)) {
         throw new Error(
           `${this.constructor.name}: provided pubkey and keypair mismatch.`
         );
@@ -582,7 +582,7 @@ export class AggregatorAccount {
       );
     }
     if (params.keypair !== undefined && params.publicKey !== undefined) {
-      if (params.publicKey !== params.keypair.publicKey) {
+      if (!params.publicKey.equals(params.keypair.publicKey)) {
         throw new Error(
           `${this.constructor.name}: provided pubkey and keypair mismatch.`
         );
@@ -1304,7 +1304,7 @@ export class JobAccount {
       );
     }
     if (params.keypair !== undefined && params.publicKey !== undefined) {
-      if (params.publicKey !== params.keypair.publicKey) {
+      if (!params.publicKey.equals(params.keypair.publicKey)) {
         throw new Error(
           `${this.constructor.name}: provided pubkey and keypair mismatch.`
         );
@@ -1464,7 +1464,7 @@ export class PermissionAccount {
       );
     }
     if (params.keypair !== undefined && params.publicKey !== undefined) {
-      if (params.publicKey !== params.keypair.publicKey) {
+      if (!params.publicKey.equals(params.keypair.publicKey)) {
         throw new Error(
           `${this.constructor.name}: provided pubkey and keypair mismatch.`
         );
@@ -1686,7 +1686,7 @@ export class OracleQueueAccount {
       );
     }
     if (params.keypair !== undefined && params.publicKey !== undefined) {
-      if (params.publicKey !== params.keypair.publicKey) {
+      if (!params.publicKey.equals(params.keypair.publicKey)) {
         throw new Error(
           `${this.constructor.name}: provided pubkey and keypair mismatch.`
         );
@@ -1906,7 +1906,7 @@ export class LeaseAccount {
       );
     }
     if (params.keypair !== undefined && params.publicKey !== undefined) {
-      if (params.publicKey !== params.keypair.publicKey) {
+      if (!params.publicKey.equals(params.keypair.publicKey)) {
         throw new Error(
           `${this.constructor.name}: provided pubkey and keypair mismatch.`
         );
@@ -2267,7 +2267,7 @@ export class CrankAccount {
       );
     }
     if (params.keypair !== undefined && params.publicKey !== undefined) {
-      if (params.publicKey !== params.keypair.publicKey) {
+      if (!params.publicKey.equals(params.keypair.publicKey)) {
         throw new Error(
           `${this.constructor.name}: provided pubkey and keypair mismatch.`
         );
@@ -2647,7 +2647,7 @@ export class OracleAccount {
       );
     }
     if (params.keypair !== undefined && params.publicKey !== undefined) {
-      if (params.publicKey !== params.keypair.publicKey) {
+      if (!params.publicKey.equals(params.keypair.publicKey)) {
         throw new Error(
           `${this.constructor.name}: provided pubkey and keypair mismatch.`
         );
@@ -2937,7 +2937,7 @@ export class VrfAccount {
       );
     }
     if (params.keypair !== undefined && params.publicKey !== undefined) {
-      if (params.publicKey !== params.keypair.publicKey) {
+      if (!params.publicKey.equals(params.keypair.publicKey)) {
         throw new Error(
           `${this.constructor.name}: provided pubkey and keypair mismatch.`
         );

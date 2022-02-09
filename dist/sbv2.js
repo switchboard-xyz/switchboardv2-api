@@ -127,7 +127,7 @@ class ProgramStateAccount {
             throw new Error(`${this.constructor.name}: User must provide either a publicKey or keypair for account use.`);
         }
         if (params.keypair !== undefined && params.publicKey !== undefined) {
-            if (params.publicKey !== params.keypair.publicKey) {
+            if (!params.publicKey.equals(params.keypair.publicKey)) {
                 throw new Error(`${this.constructor.name}: provided pubkey and keypair mismatch.`);
             }
         }
@@ -305,7 +305,7 @@ class AggregatorAccount {
             throw new Error(`${this.constructor.name}: User must provide either a publicKey or keypair for account use.`);
         }
         if (params.keypair !== undefined && params.publicKey !== undefined) {
-            if (params.publicKey !== params.keypair.publicKey) {
+            if (!params.publicKey.equals(params.keypair.publicKey)) {
                 throw new Error(`${this.constructor.name}: provided pubkey and keypair mismatch.`);
             }
         }
@@ -825,7 +825,7 @@ class JobAccount {
             throw new Error(`${this.constructor.name}: User must provide either a publicKey or keypair for account use.`);
         }
         if (params.keypair !== undefined && params.publicKey !== undefined) {
-            if (params.publicKey !== params.keypair.publicKey) {
+            if (!params.publicKey.equals(params.keypair.publicKey)) {
                 throw new Error(`${this.constructor.name}: provided pubkey and keypair mismatch.`);
             }
         }
@@ -927,7 +927,7 @@ class PermissionAccount {
             throw new Error(`${this.constructor.name}: User must provide either a publicKey or keypair for account use.`);
         }
         if (params.keypair !== undefined && params.publicKey !== undefined) {
-            if (params.publicKey !== params.keypair.publicKey) {
+            if (!params.publicKey.equals(params.keypair.publicKey)) {
                 throw new Error(`${this.constructor.name}: provided pubkey and keypair mismatch.`);
             }
         }
@@ -1036,7 +1036,7 @@ class OracleQueueAccount {
             throw new Error(`${this.constructor.name}: User must provide either a publicKey or keypair for account use.`);
         }
         if (params.keypair !== undefined && params.publicKey !== undefined) {
-            if (params.publicKey !== params.keypair.publicKey) {
+            if (!params.publicKey.equals(params.keypair.publicKey)) {
                 throw new Error(`${this.constructor.name}: provided pubkey and keypair mismatch.`);
             }
         }
@@ -1157,7 +1157,7 @@ class LeaseAccount {
             throw new Error(`${this.constructor.name}: User must provide either a publicKey or keypair for account use.`);
         }
         if (params.keypair !== undefined && params.publicKey !== undefined) {
-            if (params.publicKey !== params.keypair.publicKey) {
+            if (!params.publicKey.equals(params.keypair.publicKey)) {
                 throw new Error(`${this.constructor.name}: provided pubkey and keypair mismatch.`);
             }
         }
@@ -1380,7 +1380,7 @@ class CrankAccount {
             throw new Error(`${this.constructor.name}: User must provide either a publicKey or keypair for account use.`);
         }
         if (params.keypair !== undefined && params.publicKey !== undefined) {
-            if (params.publicKey !== params.keypair.publicKey) {
+            if (!params.publicKey.equals(params.keypair.publicKey)) {
                 throw new Error(`${this.constructor.name}: provided pubkey and keypair mismatch.`);
             }
         }
@@ -1644,7 +1644,7 @@ class OracleAccount {
             throw new Error(`${this.constructor.name}: User must provide either a publicKey or keypair for account use.`);
         }
         if (params.keypair !== undefined && params.publicKey !== undefined) {
-            if (params.publicKey !== params.keypair.publicKey) {
+            if (!params.publicKey.equals(params.keypair.publicKey)) {
                 throw new Error(`${this.constructor.name}: provided pubkey and keypair mismatch.`);
             }
         }
@@ -1814,7 +1814,7 @@ class VrfAccount {
             throw new Error(`${this.constructor.name}: User must provide either a publicKey or keypair for account use.`);
         }
         if (params.keypair !== undefined && params.publicKey !== undefined) {
-            if (params.publicKey !== params.keypair.publicKey) {
+            if (!params.publicKey.equals(params.keypair.publicKey)) {
                 throw new Error(`${this.constructor.name}: provided pubkey and keypair mismatch.`);
             }
         }
