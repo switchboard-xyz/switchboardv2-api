@@ -3234,7 +3234,11 @@ async function sendAll(
   for (let k = 0; k < txs.length; k += 1) {
     const tx = signedTxs[k];
     const rawTx = tx.serialize();
-    promises.push(provider.connection.sendRawTransaction(rawTx, opts));
+    promises.push(
+      provider.connection.sendRawTransaction(rawTx, {
+        skipPreflight: true,
+      })
+    );
   }
   return await Promise.all(promises);
 }
