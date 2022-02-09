@@ -1950,11 +1950,11 @@ class VrfAccount {
         let idx = -1;
         let producerKey = web3_js_1.PublicKey.default;
         for (let i = 0; i < vrf.buildersLen; ++i) {
+            idx = i;
             const builder = vrf.builders[i];
             producerKey = builder.producer;
             break;
             // if (producerKey.equals(params.oracleAccount.publicKey)) {
-            // idx = i;
             // break;
             // }
         }

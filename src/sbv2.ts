@@ -3120,11 +3120,11 @@ export class VrfAccount {
     let idx = -1;
     let producerKey = PublicKey.default;
     for (let i = 0; i < vrf.buildersLen; ++i) {
+      idx = i;
       const builder = vrf.builders[i];
       producerKey = builder.producer;
       break;
       // if (producerKey.equals(params.oracleAccount.publicKey)) {
-      // idx = i;
       // break;
       // }
     }
