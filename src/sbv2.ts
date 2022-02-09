@@ -3175,7 +3175,7 @@ export class VrfAccount {
     );
     const oracleData = await oracle.loadData();
     const oracleWallet = oracleData.tokenAccount;
-    const oracleAuthority = oracleData.authority;
+    const oracleAuthority: PublicKey = oracleData.authority;
 
     for (let i = 0; i < tryCount; ++i) {
       txs.push({
