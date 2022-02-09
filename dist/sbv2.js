@@ -1909,7 +1909,7 @@ class VrfAccount {
         });
         const queue = await queueAccount.loadData();
         const queueAuthority = queue.authority;
-        const authority = vrf.authority;
+        const authority = params.authority;
         const dataBuffer = queue.dataBuffer;
         const escrow = vrf.escorw;
         const payer = params.payer;
