@@ -1911,7 +1911,7 @@ class VrfAccount {
         const queueAuthority = queue.authority;
         const authority = params.authority;
         const dataBuffer = queue.dataBuffer;
-        const escrow = vrf.escorw;
+        const escrow = vrf.escrow;
         const payer = params.payer;
         const payerAuthority = params.payerAuthority;
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
