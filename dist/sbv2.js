@@ -1991,7 +1991,9 @@ class VrfAccount {
         let counter = 0;
         const remainingAccounts = vrf.callback.accounts.slice(0, vrf.callback.accountsLen);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
-        const oracleWallet = (await oracle.loadData()).tokenAccount;
+        const oracleData = await oracle.loadData();
+        const oracleWallet = oracleData.tokenAccount;
+        const oracleAuthority = oracleData.authority;
         for (let i = 0; i < tryCount; ++i) {
             txs.push({
                 tx: this.program.transaction.vrfVerify({
@@ -2006,6 +2008,7 @@ class VrfAccount {
                         escrow: vrf.escrow,
                         programState: programStateAccount.publicKey,
                         oracle: oracle.publicKey,
+                        oracleAuthority,
                         oracleWallet,
                     },
                     remainingAccounts,
