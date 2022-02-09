@@ -3036,7 +3036,7 @@ export class VrfAccount {
         signers: [keypair],
       }
     );
-    return new VrfAccount({ program, keypair });
+    return new VrfAccount({ program, keypair, publicKey: keypair.publicKey });
   }
 
   /**
