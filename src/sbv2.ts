@@ -3171,6 +3171,7 @@ export class VrfAccount {
     );
     const oracleWallet = (await oracle.loadData()).tokenAccount;
 
+    idx = 0;
     for (let i = 0; i < tryCount; ++i) {
       txs.push({
         tx: this.program.transaction.vrfVerify(
