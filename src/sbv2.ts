@@ -3122,16 +3122,14 @@ export class VrfAccount {
     const vrf = await this.loadData();
     let idx = -1;
     let producerKey = PublicKey.default;
-    for (let i = 0; i < vrf.buildersLen; ++i) {
-      idx = i;
-      const builder = vrf.builders[i];
+    for (idx = 0; idx < vrf.buildersLen; ++idx) {
+      const builder = vrf.builders[idx];
       producerKey = builder.producer;
-      // if (producerKey.equals(params.oracleAccount.publicKey)) {
-      // break;
-      // }
-      break;
+      if (producerKey.equals(params.oracleAccount.publicKey)) {
+        break;
+      }
     }
-    if (idx === -1) {
+    if (idx === vrf.buildersLen) {
       throw new Error("OracleProofRequestNotFoundError");
     }
     return await this.program.rpc.vrfProve(
@@ -3158,15 +3156,12 @@ export class VrfAccount {
     let idx = -1;
     const txs: Array<any> = [];
     const vrf = await this.loadData();
-    for (let i = 0; i < vrf.callback.accountsLen; ++i) {
-      // if (oracle.publicKey.equals(vrf.callback.accounts[i].pubkey)) {
-      // idx = i;
-      // break;
-      // }
-      idx = i;
-      break;
+    for (idx = 0; idx < vrf.callback.accountsLen; ++idx) {
+      if (oracle.publicKey.equals(vrf.callback.accounts[idx].pubkey)) {
+        break;
+      }
     }
-    if (idx === -1) {
+    if (idx === vrf.callback.accountsLen) {
       throw new Error("OracleNotFoundError");
     }
     let counter = 0;
