@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>AccountParams | @switchboard-xyz/switchboard-v2</title>
+	<title>Callback | @switchboard-xyz/switchboard-v2</title>
 	<meta name="description" content="Documentation for @switchboard-xyz/switchboard-v2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,28 +55,21 @@
 					<a href="../modules.html">@switchboard-xyz/switchboard-v2</a>
 				</li>
 				<li>
-					<a href="accountparams.html">AccountParams</a>
+					<a href="callback.html">Callback</a>
 				</li>
 			</ul>
-			<h1>Interface AccountParams</h1>
+			<h1>Interface Callback</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>Input parameters for constructing wrapped representations of Switchboard accounts.</p>
-					</div>
-				</div>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">AccountParams</span>
+						<span class="target">Callback</span>
 					</li>
 				</ul>
 			</section>
@@ -87,9 +80,9 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="accountparams.html#keypair" class="tsd-kind-icon">keypair</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="accountparams.html#program" class="tsd-kind-icon">program</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="accountparams.html#publickey" class="tsd-kind-icon">public<wbr>Key</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callback.html#accounts" class="tsd-kind-icon">accounts</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callback.html#ixdata" class="tsd-kind-icon">ix<wbr>Data</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="callback.html#programid" class="tsd-kind-icon">program<wbr>Id</a></li>
 							</ul>
 						</section>
 					</div>
@@ -98,50 +91,34 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="keypair" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> keypair</h3>
-					<div class="tsd-signature tsd-kind-icon">keypair<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Keypair</span></div>
+					<a name="accounts" class="tsd-anchor"></a>
+					<h3>accounts</h3>
+					<div class="tsd-signature tsd-kind-icon">accounts<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">AccountMeta</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ae8f937/src/sbv2.ts#L134">sbv2.ts:134</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ae8f937/src/sbv2.ts#L2876">sbv2.ts:2876</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Keypair of the account being referenced. This may not always be populated.</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="program" class="tsd-anchor"></a>
-					<h3>program</h3>
-					<div class="tsd-signature tsd-kind-icon">program<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Program</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Idl</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<a name="ixdata" class="tsd-anchor"></a>
+					<h3>ix<wbr>Data</h3>
+					<div class="tsd-signature tsd-kind-icon">ix<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ae8f937/src/sbv2.ts#L125">sbv2.ts:125</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ae8f937/src/sbv2.ts#L2877">sbv2.ts:2877</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>program referencing the Switchboard program and IDL.</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="publickey" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> public<wbr>Key</h3>
-					<div class="tsd-signature tsd-kind-icon">public<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
+					<a name="programid" class="tsd-anchor"></a>
+					<h3>program<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">program<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ae8f937/src/sbv2.ts#L130">sbv2.ts:130</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ae8f937/src/sbv2.ts#L2875">sbv2.ts:2875</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Public key of the account being referenced. This will always be populated
-							within the account wrapper.</p>
-						</div>
-					</div>
 				</section>
 			</section>
 		</div>
@@ -158,16 +135,16 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="accountparams.html" class="tsd-kind-icon">Account<wbr>Params</a>
+						<a href="callback.html" class="tsd-kind-icon">Callback</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="accountparams.html#keypair" class="tsd-kind-icon">keypair</a>
+								<a href="callback.html#accounts" class="tsd-kind-icon">accounts</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="accountparams.html#program" class="tsd-kind-icon">program</a>
+								<a href="callback.html#ixdata" class="tsd-kind-icon">ix<wbr>Data</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="accountparams.html#publickey" class="tsd-kind-icon">public<wbr>Key</a>
+								<a href="callback.html#programid" class="tsd-kind-icon">program<wbr>Id</a>
 							</li>
 						</ul>
 					</li>
