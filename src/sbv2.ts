@@ -2904,6 +2904,9 @@ export interface VrfSetCallbackParams {
 
 export interface VrfProveAndVerifyParams {
   proof: Buffer;
+  oracleAccount: OracleAccount;
+  oracleAuthority: Keypair;
+  skipPreflight: boolean;
 }
 
 export interface VrfRequestRandomnessParams {
@@ -3109,10 +3112,10 @@ export class VrfAccount {
    * This will automatically call the vrf callback (if set) when completed.
    */
   async proveAndVerify(
-    params: VrfProveParams
+    params: VrfProveAndVerifyParams
   ): Promise<Array<TransactionSignature>> {
     await this.prove(params);
-    return await this.verify(params.oracleAccount);
+    return await this.verify(params.oracleAccount, params.skipPreflight);
   }
 
   async prove(params: VrfProveParams): Promise<TransactionSignature> {
@@ -3149,7 +3152,8 @@ export class VrfAccount {
 
   async verify(
     oracle: OracleAccount,
-    tryCount: number = 276
+    skipPreflight: boolean = true,
+    tryCount: number = 277
   ): Promise<Array<TransactionSignature>> {
     let idx = -1;
     const txs: Array<any> = [];
@@ -3201,13 +3205,14 @@ export class VrfAccount {
         ),
       });
     }
-    return await sendAll(this.program.provider, txs);
+    return await sendAll(this.program.provider, txs, skipPreflight);
   }
 }
 
 async function sendAll(
   provider: anchor.Provider,
-  reqs: Array<any>
+  reqs: Array<any>,
+  skipPreflight: boolean
 ): Promise<Array<TransactionSignature>> {
   let res: Array<TransactionSignature> = [];
   try {
@@ -3244,7 +3249,7 @@ async function sendAll(
       promises.push(
         provider.connection.sendRawTransaction(rawTx, {
           maxRetries: Math.max(3, opts.maxRetries),
-          skipPreflight: true,
+          skipPreflight,
         })
       );
     }

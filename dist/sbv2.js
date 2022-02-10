@@ -1943,7 +1943,7 @@ class VrfAccount {
      */
     async proveAndVerify(params) {
         await this.prove(params);
-        return await this.verify(params.oracleAccount);
+        return await this.verify(params.oracleAccount, params.skipPreflight);
     }
     async prove(params) {
         const vrf = await this.loadData();
@@ -1973,7 +1973,7 @@ class VrfAccount {
             signers: [params.oracleAuthority],
         });
     }
-    async verify(oracle, tryCount = 276) {
+    async verify(oracle, skipPreflight = true, tryCount = 277) {
         let idx = -1;
         const txs = [];
         const vrf = await this.loadData();
@@ -2015,11 +2015,11 @@ class VrfAccount {
                 }),
             });
         }
-        return await sendAll(this.program.provider, txs);
+        return await sendAll(this.program.provider, txs, skipPreflight);
     }
 }
 exports.VrfAccount = VrfAccount;
-async function sendAll(provider, reqs) {
+async function sendAll(provider, reqs, skipPreflight) {
     let res = [];
     try {
         const opts = provider.opts;
@@ -2046,7 +2046,7 @@ async function sendAll(provider, reqs) {
             const rawTx = tx.serialize();
             promises.push(provider.connection.sendRawTransaction(rawTx, {
                 maxRetries: Math.max(3, opts.maxRetries),
-                skipPreflight: true,
+                skipPreflight,
             }));
         }
         return await Promise.all(promises);

@@ -1075,6 +1075,9 @@ export interface VrfSetCallbackParams {
 }
 export interface VrfProveAndVerifyParams {
     proof: Buffer;
+    oracleAccount: OracleAccount;
+    oracleAuthority: Keypair;
+    skipPreflight: boolean;
 }
 export interface VrfRequestRandomnessParams {
     authority: Keypair;
@@ -1127,7 +1130,7 @@ export declare class VrfAccount {
      * Attempt the maximum amount of turns remaining on the vrf verify crank.
      * This will automatically call the vrf callback (if set) when completed.
      */
-    proveAndVerify(params: VrfProveParams): Promise<Array<TransactionSignature>>;
+    proveAndVerify(params: VrfProveAndVerifyParams): Promise<Array<TransactionSignature>>;
     prove(params: VrfProveParams): Promise<TransactionSignature>;
-    verify(oracle: OracleAccount, tryCount?: number): Promise<Array<TransactionSignature>>;
+    verify(oracle: OracleAccount, skipPreflight?: boolean, tryCount?: number): Promise<Array<TransactionSignature>>;
 }
