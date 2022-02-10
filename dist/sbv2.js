@@ -1914,6 +1914,12 @@ class VrfAccount {
         const payer = params.payer;
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, this.publicKey);
+        try {
+            await permissionAccount.loadData();
+        }
+        catch (_) {
+            throw new Error("A requested permission pda account has not been initialized.");
+        }
         const tokenProgram = spl.TOKEN_PROGRAM_ID;
         const recentBlockhashes = web3_js_1.SYSVAR_RECENT_BLOCKHASHES_PUBKEY;
         await this.program.rpc.vrfRequestRandomness({
