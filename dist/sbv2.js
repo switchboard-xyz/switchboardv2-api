@@ -1580,7 +1580,7 @@ class CrankAccount {
      */
     async pop(params) {
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
-        return await web3_js_1.sendAndConfirmTransaction(this.program.provider.connection, await this.popTxn(params), [payerKeypair]);
+        return await (0, web3_js_1.sendAndConfirmTransaction)(this.program.provider.connection, await this.popTxn(params), [payerKeypair]);
     }
     /**
      * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
@@ -1981,12 +1981,12 @@ class VrfAccount {
         let idx = -1;
         const txs = [];
         const vrf = await this.loadData();
-        for (idx = 0; idx < vrf.callback.accountsLen; ++idx) {
-            if (oracle.publicKey.equals(vrf.callback.accounts[idx].pubkey)) {
+        for (idx = 0; idx < vrf.builders; ++idx) {
+            if (oracle.publicKey.equals(vrf.builders[idx].producer)) {
                 break;
             }
         }
-        if (idx === vrf.callback.accountsLen) {
+        if (idx === vrf.builders.length) {
             throw new Error("OracleNotFoundError");
         }
         let counter = 0;
@@ -2046,7 +2046,6 @@ async function sendAll(provider, reqs, skipPreflight) {
             const tx = signedTxs[k];
             const rawTx = tx.serialize();
             promises.push(provider.connection.sendRawTransaction(rawTx, {
-                maxRetries: Math.max(3, opts.maxRetries),
                 skipPreflight,
             }));
         }

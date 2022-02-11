@@ -3163,12 +3163,12 @@ export class VrfAccount {
     let idx = -1;
     const txs: Array<any> = [];
     const vrf = await this.loadData();
-    for (idx = 0; idx < vrf.callback.accountsLen; ++idx) {
-      if (oracle.publicKey.equals(vrf.callback.accounts[idx].pubkey)) {
+    for (idx = 0; idx < vrf.builders; ++idx) {
+      if (oracle.publicKey.equals(vrf.builders[idx].producer)) {
         break;
       }
     }
-    if (idx === vrf.callback.accountsLen) {
+    if (idx === vrf.builders.length) {
       throw new Error("OracleNotFoundError");
     }
     let counter = 0;
