@@ -3160,15 +3160,12 @@ export class VrfAccount {
     skipPreflight: boolean = true,
     tryCount: number = 277
   ): Promise<Array<TransactionSignature>> {
-    let idx = -1;
     const txs: Array<any> = [];
     const vrf = await this.loadData();
-    for (idx = 0; idx < vrf.builders; ++idx) {
-      if (oracle.publicKey.equals(vrf.builders[idx].producer)) {
-        break;
-      }
-    }
-    if (idx === vrf.builders.length) {
+    const idx = vrf.builders.find((builder) =>
+      oracle.publicKey.equals(builder.producer)
+    );
+    if (idx === -1) {
       throw new Error("OracleNotFoundError");
     }
     let counter = 0;
@@ -3250,7 +3247,6 @@ async function sendAll(
       const rawTx = tx.serialize();
       promises.push(
         provider.connection.sendRawTransaction(rawTx, {
-          maxRetries: Math.max(3, opts.maxRetries),
           skipPreflight,
         })
       );

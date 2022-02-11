@@ -1978,15 +1978,10 @@ class VrfAccount {
         });
     }
     async verify(oracle, skipPreflight = true, tryCount = 277) {
-        let idx = -1;
         const txs = [];
         const vrf = await this.loadData();
-        for (idx = 0; idx < vrf.builders; ++idx) {
-            if (oracle.publicKey.equals(vrf.builders[idx].producer)) {
-                break;
-            }
-        }
-        if (idx === vrf.builders.length) {
+        const idx = vrf.builders.find((builder) => oracle.publicKey.equals(builder.producer));
+        if (idx === -1) {
             throw new Error("OracleNotFoundError");
         }
         let counter = 0;
