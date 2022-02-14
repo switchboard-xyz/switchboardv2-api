@@ -64,6 +64,9 @@ class SwitchboardDecimal {
         if (scale < 0) {
             throw new Error(`SwitchboardDecimal: Unexpected negative scale.`);
         }
+        if (scale > 28) {
+            throw new Error("SwitchboardDecimalExcessiveScaleError");
+        }
         // Set sign for the coefficient (mantissa)
         mantissa = mantissa.mul(new anchor.BN(big.s, 10));
         const result = new SwitchboardDecimal(mantissa, scale);
@@ -906,11 +909,13 @@ var SwitchboardPermission;
 (function (SwitchboardPermission) {
     SwitchboardPermission["PERMIT_ORACLE_HEARTBEAT"] = "permitOracleHeartbeat";
     SwitchboardPermission["PERMIT_ORACLE_QUEUE_USAGE"] = "permitOracleQueueUsage";
+    SwitchboardPermission["PERMIT_VRF_REQUESTS"] = "permitVrfRequests";
 })(SwitchboardPermission = exports.SwitchboardPermission || (exports.SwitchboardPermission = {}));
 var SwitchboardPermissionValue;
 (function (SwitchboardPermissionValue) {
     SwitchboardPermissionValue[SwitchboardPermissionValue["PERMIT_ORACLE_HEARTBEAT"] = 1] = "PERMIT_ORACLE_HEARTBEAT";
     SwitchboardPermissionValue[SwitchboardPermissionValue["PERMIT_ORACLE_QUEUE_USAGE"] = 2] = "PERMIT_ORACLE_QUEUE_USAGE";
+    SwitchboardPermissionValue[SwitchboardPermissionValue["PERMIT_VRF_REQUESTS"] = 4] = "PERMIT_VRF_REQUESTS";
 })(SwitchboardPermissionValue = exports.SwitchboardPermissionValue || (exports.SwitchboardPermissionValue = {}));
 /**
  * A Switchboard account representing a permission or privilege granted by one
@@ -1580,7 +1585,7 @@ class CrankAccount {
      */
     async pop(params) {
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
-        return await (0, web3_js_1.sendAndConfirmTransaction)(this.program.provider.connection, await this.popTxn(params), [payerKeypair]);
+        return await web3_js_1.sendAndConfirmTransaction(this.program.provider.connection, await this.popTxn(params), [payerKeypair]);
     }
     /**
      * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
@@ -2046,7 +2051,9 @@ async function sendAll(provider, reqs, skipPreflight) {
         }
         return await Promise.all(promises);
     }
-    catch (e) { }
+    catch (e) {
+        console.log(e);
+    }
     return res;
 }
 function getPayer(program) {

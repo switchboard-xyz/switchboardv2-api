@@ -534,11 +534,13 @@ export interface PermissionSetParams {
  */
 export declare enum SwitchboardPermission {
     PERMIT_ORACLE_HEARTBEAT = "permitOracleHeartbeat",
-    PERMIT_ORACLE_QUEUE_USAGE = "permitOracleQueueUsage"
+    PERMIT_ORACLE_QUEUE_USAGE = "permitOracleQueueUsage",
+    PERMIT_VRF_REQUESTS = "permitVrfRequests"
 }
 export declare enum SwitchboardPermissionValue {
     PERMIT_ORACLE_HEARTBEAT = 1,
-    PERMIT_ORACLE_QUEUE_USAGE = 2
+    PERMIT_ORACLE_QUEUE_USAGE = 2,
+    PERMIT_VRF_REQUESTS = 4
 }
 /**
  * A Switchboard account representing a permission or privilege granted by one

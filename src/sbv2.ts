@@ -3257,7 +3257,9 @@ async function sendAll(
       );
     }
     return await Promise.all(promises);
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
   return res;
 }
 
