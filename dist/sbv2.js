@@ -1148,7 +1148,7 @@ class OracleQueueAccount {
     async setVrfSettings(params) {
         var _a;
         const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
-        return await this.program.rpc.oracleQueueSetVrfSettings({
+        return await this.program.rpc.oracleQueueVrfConfig({
             unpermissionedVrfEnabled: params.unpermissionedVrf,
         }, {
             signers: [authority],

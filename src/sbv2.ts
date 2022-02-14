@@ -1838,7 +1838,7 @@ export class OracleQueueAccount {
     params: OracleQueueSetVrfSettingsParams
   ): Promise<TransactionSignature> {
     const authority = params.authority ?? this.keypair;
-    return await this.program.rpc.oracleQueueSetVrfSettings(
+    return await this.program.rpc.oracleQueueVrfConfig(
       {
         unpermissionedVrfEnabled: params.unpermissionedVrf,
       },
