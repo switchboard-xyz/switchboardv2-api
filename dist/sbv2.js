@@ -1145,6 +1145,19 @@ class OracleQueueAccount {
             },
         });
     }
+    async setVrfSettings(params) {
+        var _a;
+        const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
+        return await this.program.rpc.oracleQueueSetVrfSettings({
+            unpermissionedVrfEnabled: params.unpermissionedVrf,
+        }, {
+            signers: [authority],
+            accounts: {
+                queue: this.publicKey,
+                authority: authority.publicKey,
+            },
+        });
+    }
 }
 exports.OracleQueueAccount = OracleQueueAccount;
 /**

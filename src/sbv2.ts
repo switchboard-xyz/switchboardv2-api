@@ -1664,10 +1664,20 @@ export interface OracleQueueInitParams {
    * to join the queue.
    */
   unpermissionedFeeds?: boolean;
+  /**
+   * Eanbling this setting means data feeds do not need explicit permission
+   * to request VRF proofs and verifications from this queue.
+   */
+  unpermissionedVrf?: boolean;
 }
 
 export interface OracleQueueSetRewardsParams {
   rewards: anchor.BN;
+  authority?: Keypair;
+}
+
+export interface OracleQueueSetVrfSettingsParams {
+  unpermissionedVrf: boolean;
   authority?: Keypair;
 }
 
@@ -1813,6 +1823,24 @@ export class OracleQueueAccount {
     return await this.program.rpc.oracleQueueSetRewards(
       {
         rewards: params.rewards,
+      },
+      {
+        signers: [authority],
+        accounts: {
+          queue: this.publicKey,
+          authority: authority.publicKey,
+        },
+      }
+    );
+  }
+
+  async setVrfSettings(
+    params: OracleQueueSetVrfSettingsParams
+  ): Promise<TransactionSignature> {
+    const authority = params.authority ?? this.keypair;
+    return await this.program.rpc.oracleQueueSetVrfSettings(
+      {
+        unpermissionedVrfEnabled: params.unpermissionedVrf,
       },
       {
         signers: [authority],

@@ -659,9 +659,18 @@ export interface OracleQueueInitParams {
      * to join the queue.
      */
     unpermissionedFeeds?: boolean;
+    /**
+     * Eanbling this setting means data feeds do not need explicit permission
+     * to request VRF proofs and verifications from this queue.
+     */
+    unpermissionedVrf?: boolean;
 }
 export interface OracleQueueSetRewardsParams {
     rewards: anchor.BN;
+    authority?: Keypair;
+}
+export interface OracleQueueSetVrfSettingsParams {
+    unpermissionedVrf: boolean;
     authority?: Keypair;
 }
 /**
@@ -696,6 +705,7 @@ export declare class OracleQueueAccount {
      */
     static create(program: anchor.Program, params: OracleQueueInitParams): Promise<OracleQueueAccount>;
     setRewards(params: OracleQueueSetRewardsParams): Promise<TransactionSignature>;
+    setVrfSettings(params: OracleQueueSetVrfSettingsParams): Promise<TransactionSignature>;
 }
 /**
  * Parameters for initializing a LeaseAccount
