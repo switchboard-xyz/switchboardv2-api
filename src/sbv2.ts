@@ -60,7 +60,7 @@ export class SwitchboardDecimal {
     if (scale < 0) {
       throw new Error(`SwitchboardDecimal: Unexpected negative scale.`);
     }
-    if (scale > 28) {
+    if (scale >= 28) {
       throw new Error("SwitchboardDecimalExcessiveScaleError");
     }
 

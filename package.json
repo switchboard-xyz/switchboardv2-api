@@ -1,6 +1,6 @@
 {
   "name": "@switchboard-xyz/switchboard-v2",
-  "version": "0.0.41",
+  "version": "0.0.43",
   "description": "API wrapper for intergating with the Switchboardv2 program",
   "keywords": [
     "oracle",
