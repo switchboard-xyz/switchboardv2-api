@@ -60,6 +60,9 @@ export class SwitchboardDecimal {
     if (scale < 0) {
       throw new Error(`SwitchboardDecimal: Unexpected negative scale.`);
     }
+    if (scale > 28) {
+      throw new Error("SwitchboardDecimalExcessiveScaleError");
+    }
 
     // Set sign for the coefficient (mantissa)
     mantissa = mantissa.mul(new anchor.BN(big.s, 10));
@@ -1439,10 +1442,12 @@ export interface PermissionSetParams {
 export enum SwitchboardPermission {
   PERMIT_ORACLE_HEARTBEAT = "permitOracleHeartbeat",
   PERMIT_ORACLE_QUEUE_USAGE = "permitOracleQueueUsage",
+  PERMIT_VRF_REQUESTS = "permitVrfRequests",
 }
 export enum SwitchboardPermissionValue {
   PERMIT_ORACLE_HEARTBEAT = 1 << 0,
   PERMIT_ORACLE_QUEUE_USAGE = 1 << 1,
+  PERMIT_VRF_REQUESTS = 1 << 2,
 }
 /**
  * A Switchboard account representing a permission or privilege granted by one
