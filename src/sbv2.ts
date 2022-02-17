@@ -1,4 +1,5 @@
 import * as anchor from "@project-serum/anchor";
+import TransactionFactory from "@project-serum/anchor/dist/cjs/program/namespace/transaction";
 import * as spl from "@solana/spl-token";
 import {
   AccountMeta,
@@ -10,6 +11,7 @@ import {
   sendAndConfirmTransaction,
   Signer,
   SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+  TransactionInstruction,
 } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
@@ -243,9 +245,7 @@ export class ProgramStateAccount {
     program: anchor.Program,
     params: ProgramInitParams
   ): Promise<ProgramStateAccount> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = getProgramPayer(program);
     const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
     const psa = new ProgramStateAccount({
       program,
@@ -256,28 +256,95 @@ export class ProgramStateAccount {
       await psa.loadData();
       return psa;
     } catch (e) {}
-    let mint = null;
-    let vault = null;
+
+    const recentBlockhash = (
+      await program.provider.connection.getRecentBlockhash()
+    ).blockhash;
+
+    const txn = new Transaction({
+      feePayer: payerKeypair.publicKey,
+      recentBlockhash,
+    });
+
+    const signers: Signer[] = [
+      {
+        publicKey: payerKeypair.publicKey,
+        secretKey: payerKeypair.secretKey,
+      },
+    ];
+
+    let mint: PublicKey;
+    let vault: PublicKey;
+
     if (params.mint === undefined) {
-      const decimals = 9;
-      const token = await spl.Token.createMint(
-        program.provider.connection,
-        payerKeypair,
-        payerKeypair.publicKey,
-        null,
-        decimals,
-        spl.TOKEN_PROGRAM_ID
+      // Create mint
+      const mintKeypair = anchor.web3.Keypair.generate();
+      mint = mintKeypair.publicKey;
+      txn.add(
+        SystemProgram.createAccount({
+          fromPubkey: payerKeypair.publicKey,
+          newAccountPubkey: mintKeypair.publicKey,
+          lamports: await spl.Token.getMinBalanceRentForExemptMint(
+            program.provider.connection
+          ),
+          space: spl.MintLayout.span,
+          programId: spl.TOKEN_PROGRAM_ID,
+        })
       );
-      const tokenVault = await token.createAccount(payerKeypair.publicKey);
-      mint = token.publicKey;
-      await token.mintTo(
-        tokenVault,
-        payerKeypair.publicKey,
-        [payerKeypair],
-        100_000_000
+      txn.add(
+        spl.Token.createInitMintInstruction(
+          spl.TOKEN_PROGRAM_ID,
+          mintKeypair.publicKey,
+          9,
+          payerKeypair.publicKey,
+          null
+        )
       );
-      vault = tokenVault;
+      signers.push({
+        publicKey: mintKeypair.publicKey,
+        secretKey: mintKeypair.secretKey,
+      });
+
+      // Create PSA token vault
+      const tokenVault = anchor.web3.Keypair.generate();
+      vault = tokenVault.publicKey;
+      txn.add(
+        SystemProgram.createAccount({
+          fromPubkey: payerKeypair.publicKey,
+          newAccountPubkey: tokenVault.publicKey,
+          lamports: await spl.Token.getMinBalanceRentForExemptAccount(
+            program.provider.connection
+          ),
+          space: spl.AccountLayout.span,
+          programId: spl.TOKEN_PROGRAM_ID,
+        })
+      );
+      txn.add(
+        spl.Token.createInitAccountInstruction(
+          spl.TOKEN_PROGRAM_ID,
+          mintKeypair.publicKey,
+          tokenVault.publicKey,
+          payerKeypair.publicKey // owner
+        )
+      );
+      signers.push({
+        publicKey: tokenVault.publicKey,
+        secretKey: tokenVault.secretKey,
+      });
+
+      // Mint to tokenVault
+      txn.add(
+        spl.Token.createMintToInstruction(
+          spl.TOKEN_PROGRAM_ID,
+          mintKeypair.publicKey,
+          tokenVault.publicKey,
+          payerKeypair.publicKey,
+          [payerKeypair],
+          100_000_000
+        )
+      );
     } else {
+      // Load existing mint
       mint = params.mint;
       const token = new spl.Token(
         program.provider.connection,
@@ -285,24 +352,62 @@ export class ProgramStateAccount {
         spl.TOKEN_PROGRAM_ID,
         payerKeypair
       );
-      vault = await token.createAccount(payerKeypair.publicKey);
+
+      // Create PSA token vault
+      const tokenVault = anchor.web3.Keypair.generate();
+      vault = tokenVault.publicKey;
+      txn.add(
+        SystemProgram.createAccount({
+          fromPubkey: payerKeypair.publicKey,
+          newAccountPubkey: tokenVault.publicKey,
+          lamports: await spl.Token.getMinBalanceRentForExemptAccount(
+            program.provider.connection
+          ),
+          space: spl.AccountLayout.span,
+          programId: spl.TOKEN_PROGRAM_ID,
+        })
+      );
+      txn.add(
+        spl.Token.createInitAccountInstruction(
+          spl.TOKEN_PROGRAM_ID,
+          mint,
+          tokenVault.publicKey,
+          payerKeypair.publicKey // owner
+        )
+      );
+      signers.push({
+        publicKey: tokenVault.publicKey,
+        secretKey: tokenVault.secretKey,
+      });
     }
-    await program.rpc.programInit(
-      {
-        stateBump,
-      },
-      {
-        accounts: {
-          state: stateAccount.publicKey,
-          authority: payerKeypair.publicKey,
-          tokenMint: mint,
-          vault,
-          payer: payerKeypair.publicKey,
-          systemProgram: SystemProgram.programId,
-          tokenProgram: spl.TOKEN_PROGRAM_ID,
+
+    // Create Program State Account
+    txn.add(
+      program.instruction.programInit(
+        {
+          stateBump,
         },
-      }
+        {
+          accounts: {
+            state: stateAccount.publicKey,
+            authority: payerKeypair.publicKey,
+            tokenMint: mint,
+            vault,
+            payer: payerKeypair.publicKey,
+            systemProgram: SystemProgram.programId,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+          },
+        }
+      )
     );
+
+    await program.provider.connection.sendTransaction(txn, [
+      {
+        publicKey: payerKeypair.publicKey,
+        secretKey: payerKeypair.secretKey,
+      },
+    ]);
+
     return psa;
   }
 
@@ -2722,50 +2827,132 @@ export class OracleAccount {
     program: anchor.Program,
     params: OracleInitParams
   ): Promise<OracleAccount> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (program.provider.wallet as any).payer.secretKey
-    );
+    console.log("creating oracle with txn batching");
+    const payerKeypair = getProgramPayer(program);
     const authorityKeypair = params.oracleAuthority ?? payerKeypair;
     const size = program.account.oracleAccountData.size;
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
-
+    console.log("getting mint");
     const switchTokenMint = await programStateAccount.getTokenMint();
-    const wallet = await switchTokenMint.createAccount(
-      program.provider.wallet.publicKey
+
+    const recentBlockhash = (
+      await program.provider.connection.getRecentBlockhash()
+    ).blockhash;
+
+    const txn = new Transaction({
+      feePayer: payerKeypair.publicKey,
+      recentBlockhash,
+    });
+
+    const signers: Signer[] = [
+      {
+        publicKey: payerKeypair.publicKey,
+        secretKey: payerKeypair.secretKey,
+      },
+      {
+        publicKey: authorityKeypair.publicKey,
+        secretKey: authorityKeypair.secretKey,
+      },
+    ];
+
+    // Create oracle wallet
+    const oracleWallet = anchor.web3.Keypair.generate();
+    txn.add(
+      SystemProgram.createAccount({
+        fromPubkey: payerKeypair.publicKey,
+        newAccountPubkey: oracleWallet.publicKey,
+        lamports: await spl.Token.getMinBalanceRentForExemptAccount(
+          program.provider.connection
+        ),
+        space: spl.AccountLayout.span,
+        programId: spl.TOKEN_PROGRAM_ID,
+      })
     );
-    await switchTokenMint.setAuthority(
-      wallet,
-      programStateAccount.publicKey,
-      "AccountOwner",
-      payerKeypair,
-      []
+    txn.add(
+      spl.Token.createInitAccountInstruction(
+        spl.TOKEN_PROGRAM_ID,
+        switchTokenMint.publicKey,
+        oracleWallet.publicKey,
+        programStateAccount.publicKey // owner
+      )
     );
+    signers.push({
+      publicKey: oracleWallet.publicKey,
+      secretKey: oracleWallet.secretKey,
+    });
+
     const [oracleAccount, oracleBump] = OracleAccount.fromSeed(
       program,
       params.queueAccount,
-      wallet
+      oracleWallet.publicKey
     );
 
-    await program.rpc.oracleInit(
-      {
-        name: (params.name ?? Buffer.from("")).slice(0, 32),
-        metadata: (params.metadata ?? Buffer.from("")).slice(0, 128),
-        stateBump,
-        oracleBump,
-      },
-      {
-        accounts: {
-          oracle: oracleAccount.publicKey,
-          oracleAuthority: authorityKeypair.publicKey,
-          queue: params.queueAccount.publicKey,
-          wallet,
-          programState: programStateAccount.publicKey,
-          systemProgram: SystemProgram.programId,
-          payer: program.provider.wallet.publicKey,
-        },
-      }
+    console.log("adding oracleInit instruction");
+    const oracleSeed: Buffer[] = [
+      Buffer.from("OracleAccountData"),
+      params.queueAccount.publicKey.toBuffer(),
+      oracleWallet.publicKey.toBuffer(),
+      Buffer.from([oracleBump]),
+    ];
+    txn.add(
+      // SystemProgram.allocate({
+      //   accountPubkey: oracleAccount.publicKey,
+      //   space: size,
+      // })
+      // SystemProgram.createAccount({
+      //   fromPubkey: payerKeypair.publicKey,
+      //   newAccountPubkey: oracleAccount.publicKey,
+      //   lamports:
+      //     await program.provider.connection.getMinimumBalanceForRentExemption(
+      //       size
+      //     ),
+      //   space: size,
+      //   programId: program.programId,
+      // })
+      SystemProgram.createAccountWithSeed({
+        fromPubkey: payerKeypair.publicKey,
+        newAccountPubkey: oracleAccount.publicKey,
+        lamports:
+          await program.provider.connection.getMinimumBalanceForRentExemption(
+            size
+          ),
+        space: size,
+        programId: program.programId,
+        seed: Buffer.concat(oracleSeed).toString(),
+        basePubkey: oracleAccount.publicKey,
+      })
     );
+    txn.add(
+      program.instruction.oracleInit(
+        {
+          name: (params.name ?? Buffer.from("")).slice(0, 32),
+          metadata: (params.metadata ?? Buffer.from("")).slice(0, 128),
+          stateBump,
+          oracleBump,
+        },
+        {
+          accounts: {
+            oracle: oracleAccount.publicKey,
+            oracleAuthority: authorityKeypair.publicKey,
+            queue: params.queueAccount.publicKey,
+            wallet: oracleWallet.publicKey,
+            programState: programStateAccount.publicKey,
+            systemProgram: SystemProgram.programId,
+            payer: program.provider.wallet.publicKey,
+          },
+        }
+      )
+    );
+
+    txn.sign(...signers);
+
+    console.log("sending txn");
+    const signature = await program.provider.connection.sendTransaction(
+      txn,
+      signers
+    );
+    console.log(signature);
     return new OracleAccount({ program, publicKey: oracleAccount.publicKey });
   }
 
@@ -3292,8 +3479,8 @@ async function sendAll(
   return res;
 }
 
-function getPayer(program: anchor.Program): Keypair {
+function getProgramPayer(program: anchor.Program): Keypair {
   return Keypair.fromSecretKey(
-    (this.program.provider.wallet as any).payer.secretKey
+    (program.provider.wallet as any).payer.secretKey
   );
 }
