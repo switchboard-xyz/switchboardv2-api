@@ -2894,7 +2894,10 @@ export class OracleAccount {
       params.queueAccount.publicKey.toBuffer(),
       oracleWallet.publicKey.toBuffer(),
       Buffer.from([oracleBump]),
+      program.programId.toBuffer(),
+      Buffer.from("ProgramDerivedAddress"),
     ];
+    const seed = Buffer.concat(oracleSeed).toString();
     txn.add(
       // SystemProgram.allocate({
       //   accountPubkey: oracleAccount.publicKey,
@@ -2919,8 +2922,8 @@ export class OracleAccount {
           ),
         space: size,
         programId: program.programId,
-        seed: Buffer.concat(oracleSeed).toString(),
-        basePubkey: oracleAccount.publicKey,
+        seed,
+        basePubkey: payerKeypair.publicKey,
       })
     );
     txn.add(

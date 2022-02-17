@@ -1800,7 +1800,10 @@ class OracleAccount {
             params.queueAccount.publicKey.toBuffer(),
             oracleWallet.publicKey.toBuffer(),
             Buffer.from([oracleBump]),
+            program.programId.toBuffer(),
+            Buffer.from("ProgramDerivedAddress"),
         ];
+        const seed = Buffer.concat(oracleSeed).toString();
         txn.add(
         // SystemProgram.allocate({
         //   accountPubkey: oracleAccount.publicKey,
@@ -1822,7 +1825,7 @@ class OracleAccount {
             lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
             space: size,
             programId: program.programId,
-            seed: Buffer.concat(oracleSeed).toString(),
+            seed,
             basePubkey: oracleAccount.publicKey,
         }));
         txn.add(program.instruction.oracleInit({
