@@ -1775,6 +1775,45 @@ class OracleAccount {
         });
     }
     /**
+    /**
+     * Inititates a heartbeat for an OracleAccount, signifying oracle is still healthy.
+     * @return TransactionSignature.
+     */
+    async heartbeatTx() {
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
+        const queueAccount = new OracleQueueAccount({
+            program: this.program,
+            publicKey: (await this.loadData()).queuePubkey,
+        });
+        const queue = await queueAccount.loadData();
+        let lastPubkey = this.publicKey;
+        if (queue.size !== 0) {
+            lastPubkey = queue.queue[queue.gcIdx];
+        }
+        const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, queue.authority, queueAccount.publicKey, this.publicKey);
+        try {
+            await permissionAccount.loadData();
+        }
+        catch (_) {
+            throw new Error("A requested permission pda account has not been initialized.");
+        }
+        const oracle = await this.loadData();
+        return this.program.transaction.oracleHeartbeat({
+            permissionBump,
+        }, {
+            accounts: {
+                oracle: this.publicKey,
+                oracleAuthority: payerKeypair.publicKey,
+                tokenAccount: oracle.tokenAccount,
+                gcOracle: lastPubkey,
+                oracleQueue: queueAccount.publicKey,
+                permission: permissionAccount.publicKey,
+                dataBuffer: queue.dataBuffer,
+            },
+            signers: [this.keypair],
+        });
+    }
+    /**
      * Withdraw stake and/or rewards from an OracleAccount.
      */
     async withdraw(params) {

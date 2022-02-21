@@ -1051,6 +1051,12 @@ export declare class OracleAccount {
      */
     heartbeat(): Promise<TransactionSignature>;
     /**
+    /**
+     * Inititates a heartbeat for an OracleAccount, signifying oracle is still healthy.
+     * @return TransactionSignature.
+     */
+    heartbeatTx(): Promise<Transaction>;
+    /**
      * Withdraw stake and/or rewards from an OracleAccount.
      */
     withdraw(params: OracleWithdrawParams): Promise<TransactionSignature>;
