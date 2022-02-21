@@ -2110,7 +2110,7 @@ async function sendAll(provider, reqs, skipPreflight) {
     return res;
 }
 function getPayer(program) {
-    return web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
+    return web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
 }
 exports.getPayer = getPayer;
 //# sourceMappingURL=sbv2.js.map
