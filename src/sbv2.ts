@@ -3344,7 +3344,7 @@ async function sendAll(
   return res;
 }
 
-function getPayer(program: anchor.Program): Keypair {
+export function getPayer(program: anchor.Program): Keypair {
   return Keypair.fromSecretKey(
     (this.program.provider.wallet as any).payer.secretKey
   );

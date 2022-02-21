@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
+exports.getPayer = exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
 const anchor = __importStar(require("@project-serum/anchor"));
 const spl = __importStar(require("@solana/spl-token"));
 const web3_js_1 = require("@solana/web3.js");
@@ -2112,4 +2112,5 @@ async function sendAll(provider, reqs, skipPreflight) {
 function getPayer(program) {
     return web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
 }
+exports.getPayer = getPayer;
 //# sourceMappingURL=sbv2.js.map

@@ -1152,3 +1152,4 @@ export declare class VrfAccount {
     prove(params: VrfProveParams): Promise<TransactionSignature>;
     verify(oracle: OracleAccount, skipPreflight?: boolean, tryCount?: number): Promise<Array<TransactionSignature>>;
 }
+export declare function getPayer(program: anchor.Program): Keypair;
