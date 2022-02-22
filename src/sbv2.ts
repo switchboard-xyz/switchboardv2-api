@@ -3269,34 +3269,37 @@ export class VrfAccount {
     let instructions = [];
     let tx = new Transaction();
     for (let i = 0; i < tryCount; ++i) {
-      let newTx = this.program.transaction.vrfVerify(
-        {
-          nonce: i,
-          stateBump,
-          idx,
-        },
-        {
-          accounts: {
-            vrf: this.publicKey,
-            callbackPid: vrf.callback.programId,
-            tokenProgram: spl.TOKEN_PROGRAM_ID,
-            escrow: vrf.escrow,
-            programState: programStateAccount.publicKey,
-            oracle: oracle.publicKey,
-            oracleAuthority,
-            oracleWallet,
+      txs.push({
+        tx: this.program.transaction.vrfVerify(
+          {
+            nonce: i,
+            stateBump,
+            idx,
           },
-          remainingAccounts,
-        }
-      );
-      try {
-        tx.add(newTx);
-      } catch (e) {
-        txs.push({ tx });
-        tx = newTx;
-      }
+          {
+            accounts: {
+              vrf: this.publicKey,
+              callbackPid: vrf.callback.programId,
+              tokenProgram: spl.TOKEN_PROGRAM_ID,
+              escrow: vrf.escrow,
+              programState: programStateAccount.publicKey,
+              oracle: oracle.publicKey,
+              oracleAuthority,
+              oracleWallet,
+            },
+            remainingAccounts,
+          }
+        ),
+      });
+      // try {
+      // tx.add(newTx);
+      // } catch (e) {
+      // txs.push({ tx });
+      // tx = newTx;
+      // }
+      // txs.push(newTx);
     }
-    txs.push({ tx });
+    // txs.push({ tx });
     return await sendAll(this.program.provider, txs, skipPreflight);
   }
 }
@@ -3314,6 +3317,7 @@ async function sendAll(
     );
 
     let txs = reqs.map((r: any) => {
+      if (r === null || r === undefined) return new Transaction();
       let tx = r.tx;
       let signers = r.signers;
 
