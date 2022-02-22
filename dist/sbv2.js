@@ -2112,7 +2112,7 @@ async function sendAll(provider, reqs, skipPreflight) {
             const rawTx = tx.serialize();
             promises.push(provider.connection.sendRawTransaction(rawTx, {
                 skipPreflight,
-                maxRetries: 15,
+                maxRetries: 100,
             }));
         }
         return await Promise.all(promises);
