@@ -2991,6 +2991,7 @@ export interface VrfProveAndVerifyParams {
   proof: Buffer;
   oracleAccount: OracleAccount;
   oracleAuthority: Keypair;
+  skipPreflight: boolean;
 }
 
 export interface VrfRequestRandomnessParams {
@@ -3235,9 +3236,9 @@ export class VrfAccount {
    */
   async proveAndVerify(
     params: VrfProveAndVerifyParams,
-    skipPreflight: boolean = true,
     tryCount: number = 278
   ): Promise<Array<TransactionSignature>> {
+    const skipPreflight = params.skipPreflight;
     const oracle = params.oracleAccount;
     const txs: Array<any> = [];
     const vrf = await this.loadData();

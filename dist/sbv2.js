@@ -2031,7 +2031,8 @@ class VrfAccount {
      * Attempt the maximum amount of turns remaining on the vrf verify crank.
      * This will automatically call the vrf callback (if set) when completed.
      */
-    async proveAndVerify(params, skipPreflight = true, tryCount = 278) {
+    async proveAndVerify(params, tryCount = 278) {
+        const skipPreflight = params.skipPreflight;
         const oracle = params.oracleAccount;
         const txs = [];
         const vrf = await this.loadData();
