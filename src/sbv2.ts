@@ -201,7 +201,7 @@ export async function packTransactions(
   transactions: Transaction[],
   signers: Keypair[],
   feePayer: PublicKey
-) {
+): Promise<Transaction[]> {
   const instructions = transactions.map((t) => t.instructions).flat();
   const txs = packInstructions(instructions, feePayer);
   const { blockhash } = await connection.getRecentBlockhash("max");
