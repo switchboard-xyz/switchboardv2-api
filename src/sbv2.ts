@@ -10,6 +10,8 @@ import {
   sendAndConfirmTransaction,
   Signer,
   SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+  TransactionInstruction,
+  PACKET_DATA_SIZE,
 } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
@@ -3296,13 +3298,19 @@ export class VrfAccount {
       // txs.push(newTx);
     }
     // txs.push({ tx });
-    return await sendAll(this.program.provider, txs, skipPreflight);
+    return sendAll(
+      this.program.provider,
+      txs,
+      [params.oracleAuthority],
+      skipPreflight
+    );
   }
 }
 
 async function sendAll(
   provider: anchor.Provider,
   reqs: Array<any>,
+  signers: Array<Keypair>,
   skipPreflight: boolean
 ): Promise<Array<TransactionSignature>> {
   let res: Array<TransactionSignature> = [];
@@ -3332,6 +3340,12 @@ async function sendAll(
 
       return tx;
     });
+    txs = await packTransactions(
+      provider.connection,
+      txs,
+      signers,
+      provider.wallet.publicKey
+    );
 
     const signedTxs = await provider.wallet.signAllTransactions(txs);
     const promises = [];
@@ -3345,7 +3359,7 @@ async function sendAll(
         })
       );
     }
-    return await Promise.all(promises);
+    return Promise.all(promises);
   } catch (e) {
     console.log(e);
   }
@@ -3356,4 +3370,126 @@ export function getPayer(program: anchor.Program): Keypair {
   return Keypair.fromSecretKey(
     (program.provider.wallet as any).payer.secretKey
   );
+}
+
+/**
+ * Pack instructions into transactions as tightly as possible
+ * @param instructions Instructions to pack down into transactions
+ * @param feePayer Optional feepayer
+ * @param recentBlockhash Optional blockhash
+ * @returns Transaction[]
+ */
+export function packInstructions(
+  instructions: TransactionInstruction[],
+  feePayer: PublicKey = PublicKey.default,
+  recentBlockhash: string = PublicKey.default.toBase58()
+): Transaction[] {
+  const packed: Transaction[] = [];
+  let currentTransaction = new Transaction();
+  currentTransaction.recentBlockhash = recentBlockhash;
+  currentTransaction.feePayer = feePayer;
+
+  const encodeLength = (bytes: Array<number>, len: number) => {
+    let rem_len = len;
+    for (;;) {
+      let elem = rem_len & 0x7f;
+      rem_len >>= 7;
+      if (rem_len == 0) {
+        bytes.push(elem);
+        break;
+      } else {
+        elem |= 0x80;
+        bytes.push(elem);
+      }
+    }
+  };
+
+  for (let instruction of instructions) {
+    // add the new transaction
+    currentTransaction.add(instruction);
+
+    let sigCount: number[] = [];
+    encodeLength(sigCount, currentTransaction.signatures.length);
+
+    if (
+      PACKET_DATA_SIZE <=
+      currentTransaction.serializeMessage().length +
+        currentTransaction.signatures.length * 64 +
+        sigCount.length
+    ) {
+      // If the aggregator transaction fits, it will serialize without error. We can then push it ahead no problem
+      const trimmedInstruction = currentTransaction.instructions.pop()!;
+
+      // Every serialize adds the instruction signatures as dependencies
+      currentTransaction.signatures = [];
+
+      const overflowInstructions = [trimmedInstruction];
+
+      // add the capped transaction to our transaction - only push it if it works
+      packed.push(currentTransaction);
+
+      currentTransaction = new Transaction();
+      currentTransaction.recentBlockhash = recentBlockhash;
+      currentTransaction.feePayer = feePayer;
+      currentTransaction.instructions = overflowInstructions;
+    }
+  }
+
+  packed.push(currentTransaction);
+
+  return packed; // just return instructions
+}
+
+/**
+ * Repack Transactions and sign them
+ * @param connection Web3.js Connection
+ * @param transactions Transactions to repack
+ * @param signers Signers for each transaction
+ */
+export async function packTransactions(
+  connection: anchor.web3.Connection,
+  transactions: Transaction[],
+  signers: Keypair[],
+  feePayer: PublicKey
+): Promise<Transaction[]> {
+  const instructions = transactions.map((t) => t.instructions).flat();
+  const txs = packInstructions(instructions, feePayer);
+  const { blockhash } = await connection.getRecentBlockhash("max");
+  txs.forEach((t) => {
+    t.recentBlockhash = blockhash;
+  });
+  return signTransactions(txs, signers);
+}
+
+/**
+ * Sign transactions with correct signers
+ * @param transactions array of transactions to sign
+ * @param signers array of keypairs to sign the array of transactions with
+ * @returns transactions signed
+ */
+export function signTransactions(
+  transactions: Transaction[],
+  signers: Keypair[]
+): Transaction[] {
+  // Sign with all the appropriate signers
+  for (let transaction of transactions) {
+    // Get pubkeys of signers needed
+    const sigsNeeded = transaction.instructions
+      .map((instruction) => {
+        const signers = instruction.keys.filter((meta) => meta.isSigner);
+        return signers.map((signer) => signer.pubkey);
+      })
+      .flat();
+
+    // Get matching signers in our supplied array
+    let currentSigners = signers.filter((signer) =>
+      Boolean(sigsNeeded.find((sig) => sig.equals(signer.publicKey)))
+    );
+
+    // Sign all transactions
+    for (let signer of currentSigners) {
+      transaction.partialSign(signer);
+    }
+  }
+  return transactions;
 }

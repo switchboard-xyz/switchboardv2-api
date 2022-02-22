@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPayer = exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
+exports.signTransactions = exports.packTransactions = exports.packInstructions = exports.getPayer = exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
 const anchor = __importStar(require("@project-serum/anchor"));
 const spl = __importStar(require("@solana/spl-token"));
 const web3_js_1 = require("@solana/web3.js");
@@ -2079,11 +2079,11 @@ class VrfAccount {
             // txs.push(newTx);
         }
         // txs.push({ tx });
-        return await sendAll(this.program.provider, txs, skipPreflight);
+        return sendAll(this.program.provider, txs, [params.oracleAuthority], skipPreflight);
     }
 }
 exports.VrfAccount = VrfAccount;
-async function sendAll(provider, reqs, skipPreflight) {
+async function sendAll(provider, reqs, signers, skipPreflight) {
     let res = [];
     try {
         const opts = provider.opts;
@@ -2105,6 +2105,7 @@ async function sendAll(provider, reqs, skipPreflight) {
             });
             return tx;
         });
+        txs = await packTransactions(provider.connection, txs, signers, provider.wallet.publicKey);
         const signedTxs = await provider.wallet.signAllTransactions(txs);
         const promises = [];
         for (let k = 0; k < txs.length; k += 1) {
@@ -2115,7 +2116,7 @@ async function sendAll(provider, reqs, skipPreflight) {
                 maxRetries: 100,
             }));
         }
-        return await Promise.all(promises);
+        return Promise.all(promises);
     }
     catch (e) {
         console.log(e);
@@ -2126,4 +2127,99 @@ function getPayer(program) {
     return web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
 }
 exports.getPayer = getPayer;
+/**
+ * Pack instructions into transactions as tightly as possible
+ * @param instructions Instructions to pack down into transactions
+ * @param feePayer Optional feepayer
+ * @param recentBlockhash Optional blockhash
+ * @returns Transaction[]
+ */
+function packInstructions(instructions, feePayer = web3_js_1.PublicKey.default, recentBlockhash = web3_js_1.PublicKey.default.toBase58()) {
+    const packed = [];
+    let currentTransaction = new web3_js_1.Transaction();
+    currentTransaction.recentBlockhash = recentBlockhash;
+    currentTransaction.feePayer = feePayer;
+    const encodeLength = (bytes, len) => {
+        let rem_len = len;
+        for (;;) {
+            let elem = rem_len & 0x7f;
+            rem_len >>= 7;
+            if (rem_len == 0) {
+                bytes.push(elem);
+                break;
+            }
+            else {
+                elem |= 0x80;
+                bytes.push(elem);
+            }
+        }
+    };
+    for (let instruction of instructions) {
+        // add the new transaction
+        currentTransaction.add(instruction);
+        let sigCount = [];
+        encodeLength(sigCount, currentTransaction.signatures.length);
+        if (web3_js_1.PACKET_DATA_SIZE <=
+            currentTransaction.serializeMessage().length +
+                currentTransaction.signatures.length * 64 +
+                sigCount.length) {
+            // If the aggregator transaction fits, it will serialize without error. We can then push it ahead no problem
+            const trimmedInstruction = currentTransaction.instructions.pop();
+            // Every serialize adds the instruction signatures as dependencies
+            currentTransaction.signatures = [];
+            const overflowInstructions = [trimmedInstruction];
+            // add the capped transaction to our transaction - only push it if it works
+            packed.push(currentTransaction);
+            currentTransaction = new web3_js_1.Transaction();
+            currentTransaction.recentBlockhash = recentBlockhash;
+            currentTransaction.feePayer = feePayer;
+            currentTransaction.instructions = overflowInstructions;
+        }
+    }
+    packed.push(currentTransaction);
+    return packed; // just return instructions
+}
+exports.packInstructions = packInstructions;
+/**
+ * Repack Transactions and sign them
+ * @param connection Web3.js Connection
+ * @param transactions Transactions to repack
+ * @param signers Signers for each transaction
+ */
+async function packTransactions(connection, transactions, signers, feePayer) {
+    const instructions = transactions.map((t) => t.instructions).flat();
+    const txs = packInstructions(instructions, feePayer);
+    const { blockhash } = await connection.getRecentBlockhash("max");
+    txs.forEach((t) => {
+        t.recentBlockhash = blockhash;
+    });
+    return signTransactions(txs, signers);
+}
+exports.packTransactions = packTransactions;
+/**
+ * Sign transactions with correct signers
+ * @param transactions array of transactions to sign
+ * @param signers array of keypairs to sign the array of transactions with
+ * @returns transactions signed
+ */
+function signTransactions(transactions, signers) {
+    // Sign with all the appropriate signers
+    for (let transaction of transactions) {
+        // Get pubkeys of signers needed
+        const sigsNeeded = transaction.instructions
+            .map((instruction) => {
+            const signers = instruction.keys.filter((meta) => meta.isSigner);
+            return signers.map((signer) => signer.pubkey);
+        })
+            .flat();
+        // Get matching signers in our supplied array
+        let currentSigners = signers.filter((signer) => Boolean(sigsNeeded.find((sig) => sig.equals(signer.publicKey))));
+        // Sign all transactions
+        for (let signer of currentSigners) {
+            transaction.partialSign(signer);
+        }
+    }
+    return transactions;
+}
+exports.signTransactions = signTransactions;
 //# sourceMappingURL=sbv2.js.map

@@ -132,6 +132,9 @@
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function"><a href="modules.html#getpayer" class="tsd-kind-icon">get<wbr>Payer</a></li>
+								<li class="tsd-kind-function"><a href="modules.html#packinstructions" class="tsd-kind-icon">pack<wbr>Instructions</a></li>
+								<li class="tsd-kind-function"><a href="modules.html#packtransactions" class="tsd-kind-icon">pack<wbr>Transactions</a></li>
+								<li class="tsd-kind-function"><a href="modules.html#signtransactions" class="tsd-kind-icon">sign<wbr>Transactions</a></li>
 							</ul>
 						</section>
 					</div>
@@ -145,7 +148,7 @@
 					<div class="tsd-signature tsd-kind-icon">SBV2_<wbr>DEVNET_<wbr>PID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ca4d4df/src/sbv2.ts#L18">sbv2.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/3569073/src/sbv2.ts#L20">sbv2.ts:20</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -155,7 +158,7 @@
 					<div class="tsd-signature tsd-kind-icon">SBV2_<wbr>MAINNET_<wbr>PID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ca4d4df/src/sbv2.ts#L21">sbv2.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/3569073/src/sbv2.ts#L23">sbv2.ts:23</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -172,7 +175,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ca4d4df/src/sbv2.ts#L3355">sbv2.ts:3355</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/3569073/src/sbv2.ts#L3369">sbv2.ts:3369</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -182,6 +185,134 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Keypair</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="packinstructions" class="tsd-anchor"></a>
+					<h3>pack<wbr>Instructions</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">pack<wbr>Instructions<span class="tsd-signature-symbol">(</span>instructions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">TransactionInstruction</span><span class="tsd-signature-symbol">[]</span>, feePayer<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PublicKey</span>, recentBlockhash<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Transaction</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/3569073/src/sbv2.ts#L3382">sbv2.ts:3382</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Pack instructions into transactions as tightly as possible</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>instructions: <span class="tsd-signature-type">TransactionInstruction</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Instructions to pack down into transactions</p>
+									</div>
+								</li>
+								<li>
+									<h5>feePayer: <span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optional feepayer</p>
+									</div>
+								</li>
+								<li>
+									<h5>recentBlockhash: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optional blockhash</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Transaction</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>Transaction[]</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="packtransactions" class="tsd-anchor"></a>
+					<h3>pack<wbr>Transactions</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">pack<wbr>Transactions<span class="tsd-signature-symbol">(</span>connection<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">anchor.web3.Connection</span>, transactions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Transaction</span><span class="tsd-signature-symbol">[]</span>, signers<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Keypair</span><span class="tsd-signature-symbol">[]</span>, feePayer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Transaction</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/3569073/src/sbv2.ts#L3449">sbv2.ts:3449</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Repack Transactions and sign them</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>connection: <span class="tsd-signature-type">anchor.web3.Connection</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Web3.js Connection</p>
+									</div>
+								</li>
+								<li>
+									<h5>transactions: <span class="tsd-signature-type">Transaction</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Transactions to repack</p>
+									</div>
+								</li>
+								<li>
+									<h5>signers: <span class="tsd-signature-type">Keypair</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Signers for each transaction</p>
+									</div>
+								</li>
+								<li>
+									<h5>feePayer: <span class="tsd-signature-type">PublicKey</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Transaction</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="signtransactions" class="tsd-anchor"></a>
+					<h3>sign<wbr>Transactions</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">sign<wbr>Transactions<span class="tsd-signature-symbol">(</span>transactions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Transaction</span><span class="tsd-signature-symbol">[]</span>, signers<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Keypair</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Transaction</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/3569073/src/sbv2.ts#L3470">sbv2.ts:3470</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sign transactions with correct signers</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>transactions: <span class="tsd-signature-type">Transaction</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>array of transactions to sign</p>
+									</div>
+								</li>
+								<li>
+									<h5>signers: <span class="tsd-signature-type">Keypair</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>array of keypairs to sign the array of transactions with</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Transaction</span><span class="tsd-signature-symbol">[]</span></h4>
+							<p>transactions signed</p>
 						</li>
 					</ul>
 				</section>
@@ -340,6 +471,15 @@
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="modules.html#getpayer" class="tsd-kind-icon">get<wbr>Payer</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#packinstructions" class="tsd-kind-icon">pack<wbr>Instructions</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#packtransactions" class="tsd-kind-icon">pack<wbr>Transactions</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#signtransactions" class="tsd-kind-icon">sign<wbr>Transactions</a>
 					</li>
 				</ul>
 			</nav>

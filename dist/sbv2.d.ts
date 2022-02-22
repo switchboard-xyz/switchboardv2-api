@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
-import { AccountMeta, Keypair, PublicKey, Transaction, TransactionSignature } from "@solana/web3.js";
+import { AccountMeta, Keypair, PublicKey, Transaction, TransactionSignature, TransactionInstruction } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
@@ -1152,3 +1152,25 @@ export declare class VrfAccount {
     proveAndVerify(params: VrfProveAndVerifyParams, tryCount?: number): Promise<Array<TransactionSignature>>;
 }
 export declare function getPayer(program: anchor.Program): Keypair;
+/**
+ * Pack instructions into transactions as tightly as possible
+ * @param instructions Instructions to pack down into transactions
+ * @param feePayer Optional feepayer
+ * @param recentBlockhash Optional blockhash
+ * @returns Transaction[]
+ */
+export declare function packInstructions(instructions: TransactionInstruction[], feePayer?: PublicKey, recentBlockhash?: string): Transaction[];
+/**
+ * Repack Transactions and sign them
+ * @param connection Web3.js Connection
+ * @param transactions Transactions to repack
+ * @param signers Signers for each transaction
+ */
+export declare function packTransactions(connection: anchor.web3.Connection, transactions: Transaction[], signers: Keypair[], feePayer: PublicKey): Promise<Transaction[]>;
+/**
+ * Sign transactions with correct signers
+ * @param transactions array of transactions to sign
+ * @param signers array of keypairs to sign the array of transactions with
+ * @returns transactions signed
+ */
+export declare function signTransactions(transactions: Transaction[], signers: Keypair[]): Transaction[];
