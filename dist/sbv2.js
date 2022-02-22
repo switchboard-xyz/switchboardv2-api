@@ -1887,6 +1887,7 @@ class VrfAccount {
     async loadData() {
         const vrf = await this.program.account.vrfAccountData.fetch(this.publicKey);
         vrf.ebuf = undefined;
+        vrf.builders = vrf.builders.slice(0, vrf.buildersLen);
         return vrf;
     }
     /**

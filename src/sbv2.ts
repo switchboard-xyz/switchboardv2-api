@@ -3046,6 +3046,7 @@ export class VrfAccount {
       this.publicKey
     );
     vrf.ebuf = undefined;
+    vrf.builders = vrf.builders.slice(0, vrf.buildersLen);
     return vrf;
   }
 
