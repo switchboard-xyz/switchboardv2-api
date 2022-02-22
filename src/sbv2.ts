@@ -2991,7 +2991,6 @@ export interface VrfProveAndVerifyParams {
   proof: Buffer;
   oracleAccount: OracleAccount;
   oracleAuthority: Keypair;
-  skipPreflight: boolean;
 }
 
 export interface VrfRequestRandomnessParams {
@@ -3200,17 +3199,6 @@ export class VrfAccount {
     );
   }
 
-  /**
-   * Attempt the maximum amount of turns remaining on the vrf verify crank.
-   * This will automatically call the vrf callback (if set) when completed.
-   */
-  async proveAndVerify(
-    params: VrfProveAndVerifyParams
-  ): Promise<Array<TransactionSignature>> {
-    await this.prove(params);
-    return await this.verify(params.oracleAccount, params.skipPreflight);
-  }
-
   async prove(params: VrfProveParams): Promise<TransactionSignature> {
     const vrf = await this.loadData();
     let idx = -1;
@@ -3241,11 +3229,16 @@ export class VrfAccount {
     );
   }
 
-  async verify(
-    oracle: OracleAccount,
+  /**
+   * Attempt the maximum amount of turns remaining on the vrf verify crank.
+   * This will automatically call the vrf callback (if set) when completed.
+   */
+  async proveAndVerify(
+    params: VrfProveAndVerifyParams,
     skipPreflight: boolean = true,
-    tryCount: number = 277
+    tryCount: number = 278
   ): Promise<Array<TransactionSignature>> {
+    const oracle = params.oracleAccount;
     const txs: Array<any> = [];
     const vrf = await this.loadData();
     const idx = vrf.builders.find((builder: any) =>
@@ -3270,11 +3263,12 @@ export class VrfAccount {
     let tx = new Transaction();
     for (let i = 0; i < tryCount; ++i) {
       txs.push({
-        tx: this.program.transaction.vrfVerify(
+        tx: this.program.transaction.vrfproveAndVerify(
           {
             nonce: i,
             stateBump,
             idx,
+            proof: params.proof,
           },
           {
             accounts: {
@@ -3288,6 +3282,7 @@ export class VrfAccount {
               oracleWallet,
             },
             remainingAccounts,
+            signers: [params.oracleAuthority],
           }
         ),
       });

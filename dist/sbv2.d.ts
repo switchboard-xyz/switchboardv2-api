@@ -1095,7 +1095,6 @@ export interface VrfProveAndVerifyParams {
     proof: Buffer;
     oracleAccount: OracleAccount;
     oracleAuthority: Keypair;
-    skipPreflight: boolean;
 }
 export interface VrfRequestRandomnessParams {
     authority: Keypair;
@@ -1144,12 +1143,11 @@ export declare class VrfAccount {
      * Trigger new randomness production on the vrf account
      */
     requestRandomness(params: VrfRequestRandomnessParams): Promise<void>;
+    prove(params: VrfProveParams): Promise<TransactionSignature>;
     /**
      * Attempt the maximum amount of turns remaining on the vrf verify crank.
      * This will automatically call the vrf callback (if set) when completed.
      */
-    proveAndVerify(params: VrfProveAndVerifyParams): Promise<Array<TransactionSignature>>;
-    prove(params: VrfProveParams): Promise<TransactionSignature>;
-    verify(oracle: OracleAccount, skipPreflight?: boolean, tryCount?: number): Promise<Array<TransactionSignature>>;
+    proveAndVerify(params: VrfProveAndVerifyParams, skipPreflight?: boolean, tryCount?: number): Promise<Array<TransactionSignature>>;
 }
 export declare function getPayer(program: anchor.Program): Keypair;

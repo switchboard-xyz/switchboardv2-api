@@ -2001,14 +2001,6 @@ class VrfAccount {
             signers: [params.authority, params.payerAuthority],
         });
     }
-    /**
-     * Attempt the maximum amount of turns remaining on the vrf verify crank.
-     * This will automatically call the vrf callback (if set) when completed.
-     */
-    async proveAndVerify(params) {
-        await this.prove(params);
-        return await this.verify(params.oracleAccount, params.skipPreflight);
-    }
     async prove(params) {
         const vrf = await this.loadData();
         let idx = -1;
@@ -2035,7 +2027,12 @@ class VrfAccount {
             signers: [params.oracleAuthority],
         });
     }
-    async verify(oracle, skipPreflight = true, tryCount = 277) {
+    /**
+     * Attempt the maximum amount of turns remaining on the vrf verify crank.
+     * This will automatically call the vrf callback (if set) when completed.
+     */
+    async proveAndVerify(params, skipPreflight = true, tryCount = 278) {
+        const oracle = params.oracleAccount;
         const txs = [];
         const vrf = await this.loadData();
         const idx = vrf.builders.find((builder) => oracle.publicKey.equals(builder.producer));
@@ -2052,10 +2049,11 @@ class VrfAccount {
         let tx = new web3_js_1.Transaction();
         for (let i = 0; i < tryCount; ++i) {
             txs.push({
-                tx: this.program.transaction.vrfVerify({
+                tx: this.program.transaction.vrfproveAndVerify({
                     nonce: i,
                     stateBump,
                     idx,
+                    proof: params.proof,
                 }, {
                     accounts: {
                         vrf: this.publicKey,
@@ -2068,6 +2066,7 @@ class VrfAccount {
                         oracleWallet,
                     },
                     remainingAccounts,
+                    signers: [params.oracleAuthority],
                 }),
             });
             // try {
