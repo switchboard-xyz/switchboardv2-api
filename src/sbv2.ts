@@ -3266,30 +3266,37 @@ export class VrfAccount {
     const oracleWallet = oracleData.tokenAccount;
     const oracleAuthority: PublicKey = oracleData.oracleAuthority;
 
+    let instructions = [];
+    let tx = new Transaction();
     for (let i = 0; i < tryCount; ++i) {
-      txs.push({
-        tx: this.program.transaction.vrfVerify(
-          {
-            nonce: i,
-            stateBump,
-            idx,
+      let newTx = this.program.transaction.vrfVerify(
+        {
+          nonce: i,
+          stateBump,
+          idx,
+        },
+        {
+          accounts: {
+            vrf: this.publicKey,
+            callbackPid: vrf.callback.programId,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+            escrow: vrf.escrow,
+            programState: programStateAccount.publicKey,
+            oracle: oracle.publicKey,
+            oracleAuthority,
+            oracleWallet,
           },
-          {
-            accounts: {
-              vrf: this.publicKey,
-              callbackPid: vrf.callback.programId,
-              tokenProgram: spl.TOKEN_PROGRAM_ID,
-              escrow: vrf.escrow,
-              programState: programStateAccount.publicKey,
-              oracle: oracle.publicKey,
-              oracleAuthority,
-              oracleWallet,
-            },
-            remainingAccounts,
-          }
-        ),
-      });
+          remainingAccounts,
+        }
+      );
+      try {
+        tx.add(newTx);
+      } catch (e) {
+        txs.push({ tx });
+        tx = newTx;
+      }
     }
+    txs.push({ tx });
     return await sendAll(this.program.provider, txs, skipPreflight);
   }
 }
@@ -3334,7 +3341,7 @@ async function sendAll(
       promises.push(
         provider.connection.sendRawTransaction(rawTx, {
           skipPreflight,
-          maxRetries: 20,
+          maxRetries: 100,
         })
       );
     }

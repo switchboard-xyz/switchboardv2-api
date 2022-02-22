@@ -2048,27 +2048,35 @@ class VrfAccount {
         const oracleData = await oracle.loadData();
         const oracleWallet = oracleData.tokenAccount;
         const oracleAuthority = oracleData.oracleAuthority;
+        let instructions = [];
+        let tx = new web3_js_1.Transaction();
         for (let i = 0; i < tryCount; ++i) {
-            txs.push({
-                tx: this.program.transaction.vrfVerify({
-                    nonce: i,
-                    stateBump,
-                    idx,
-                }, {
-                    accounts: {
-                        vrf: this.publicKey,
-                        callbackPid: vrf.callback.programId,
-                        tokenProgram: spl.TOKEN_PROGRAM_ID,
-                        escrow: vrf.escrow,
-                        programState: programStateAccount.publicKey,
-                        oracle: oracle.publicKey,
-                        oracleAuthority,
-                        oracleWallet,
-                    },
-                    remainingAccounts,
-                }),
+            let newTx = this.program.transaction.vrfVerify({
+                nonce: i,
+                stateBump,
+                idx,
+            }, {
+                accounts: {
+                    vrf: this.publicKey,
+                    callbackPid: vrf.callback.programId,
+                    tokenProgram: spl.TOKEN_PROGRAM_ID,
+                    escrow: vrf.escrow,
+                    programState: programStateAccount.publicKey,
+                    oracle: oracle.publicKey,
+                    oracleAuthority,
+                    oracleWallet,
+                },
+                remainingAccounts,
             });
+            try {
+                tx.add(newTx);
+            }
+            catch (e) {
+                txs.push({ tx });
+                tx = newTx;
+            }
         }
+        txs.push({ tx });
         return await sendAll(this.program.provider, txs, skipPreflight);
     }
 }
@@ -2100,7 +2108,7 @@ async function sendAll(provider, reqs, skipPreflight) {
             const rawTx = tx.serialize();
             promises.push(provider.connection.sendRawTransaction(rawTx, {
                 skipPreflight,
-                maxRetries: 20,
+                maxRetries: 100,
             }));
         }
         return await Promise.all(promises);
