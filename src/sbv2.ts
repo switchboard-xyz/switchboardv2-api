@@ -197,14 +197,14 @@ export function packInstructions(
  * @param signers Signers for each transaction
  */
 export async function packTransactions(
-  connection: anchor.web3.Connection,
+  connection: Connection,
   transactions: Transaction[],
   signers: Keypair[],
   feePayer: PublicKey
 ): Promise<Transaction[]> {
   const instructions = transactions.map((t) => t.instructions).flat();
   const txs = packInstructions(instructions, feePayer);
-  const { blockhash } = await connection.getRecentBlockhash("confirmed");
+  const { blockhash } = await connection.getLatestBlockhash("confirmed");
   txs.forEach((t) => {
     t.recentBlockhash = blockhash;
   });
