@@ -3345,7 +3345,7 @@ async function sendAll(
       promises.push(
         provider.connection.sendRawTransaction(rawTx, {
           skipPreflight,
-          maxRetries: 100,
+          maxRetries: 15,
         })
       );
     }
