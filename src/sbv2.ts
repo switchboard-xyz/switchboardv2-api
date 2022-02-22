@@ -3264,7 +3264,7 @@ export class VrfAccount {
     let tx = new Transaction();
     for (let i = 0; i < tryCount; ++i) {
       txs.push({
-        tx: this.program.transaction.vrfproveAndVerify(
+        tx: this.program.transaction.vrfProveAndVerify(
           {
             nonce: i,
             stateBump,
