@@ -5,6 +5,8 @@ import {
   AccountMeta,
   Keypair,
   PublicKey,
+  Connection,
+  PACKET_DATA_SIZE,
   SystemProgram,
   Transaction,
   TransactionSignature,
@@ -118,6 +120,128 @@ export class SwitchboardDecimal {
     result.e = e;
     return result;
   }
+}
+
+/**
+ * Pack instructions into transactions as tightly as possible
+ * @param instructions Instructions to pack down into transactions
+ * @param feePayer Optional feepayer
+ * @param recentBlockhash Optional blockhash
+ * @returns Transaction[]
+ */
+export function packInstructions(
+  instructions: TransactionInstruction[],
+  feePayer: PublicKey = PublicKey.default,
+  recentBlockhash: string = PublicKey.default.toBase58()
+): Transaction[] {
+  const packed: Transaction[] = [];
+  let currentTransaction = new Transaction();
+  currentTransaction.recentBlockhash = recentBlockhash;
+  currentTransaction.feePayer = feePayer;
+
+  const encodeLength = (bytes: Array<number>, len: number) => {
+    let rem_len = len;
+    for (;;) {
+      let elem = rem_len & 0x7f;
+      rem_len >>= 7;
+      if (rem_len == 0) {
+        bytes.push(elem);
+        break;
+      } else {
+        elem |= 0x80;
+        bytes.push(elem);
+      }
+    }
+  };
+
+  for (let instruction of instructions) {
+    // add the new transaction
+    currentTransaction.add(instruction);
+
+    let sigCount: number[] = [];
+    encodeLength(sigCount, currentTransaction.signatures.length);
+
+    if (
+      PACKET_DATA_SIZE <=
+      currentTransaction.serializeMessage().length +
+        currentTransaction.signatures.length * 64 +
+        sigCount.length
+    ) {
+      // If the aggregator transaction fits, it will serialize without error. We can then push it ahead no problem
+      const trimmedInstruction = currentTransaction.instructions.pop()!;
+
+      // Every serialize adds the instruction signatures as dependencies
+      currentTransaction.signatures = [];
+
+      const overflowInstructions = [trimmedInstruction];
+
+      // add the capped transaction to our transaction - only push it if it works
+      packed.push(currentTransaction);
+
+      currentTransaction = new Transaction();
+      currentTransaction.recentBlockhash = recentBlockhash;
+      currentTransaction.feePayer = feePayer;
+      currentTransaction.instructions = overflowInstructions;
+    }
+  }
+
+  packed.push(currentTransaction);
+
+  return packed; // just return instructions
+}
+
+/**
+ * Repack Transactions and sign them
+ * @param connection Web3.js Connection
+ * @param transactions Transactions to repack
+ * @param signers Signers for each transaction
+ */
+export async function packTransactions(
+  connection: anchor.web3.Connection,
+  transactions: Transaction[],
+  signers: Keypair[],
+  feePayer: PublicKey
+) {
+  const instructions = transactions.map((t) => t.instructions).flat();
+  const txs = packInstructions(instructions, feePayer);
+  const { blockhash } = await connection.getRecentBlockhash("max");
+  txs.forEach((t) => {
+    t.recentBlockhash = blockhash;
+  });
+  return signTransactions(txs, signers);
+}
+
+/**
+ * Sign transactions with correct signers
+ * @param transactions array of transactions to sign
+ * @param signers array of keypairs to sign the array of transactions with
+ * @returns transactions signed
+ */
+export function signTransactions(
+  transactions: Transaction[],
+  signers: Keypair[]
+): Transaction[] {
+  // Sign with all the appropriate signers
+  for (let transaction of transactions) {
+    // Get pubkeys of signers needed
+    const sigsNeeded = transaction.instructions
+      .map((instruction) => {
+        const signers = instruction.keys.filter((meta) => meta.isSigner);
+        return signers.map((signer) => signer.pubkey);
+      })
+      .flat();
+
+    // Get matching signers in our supplied array
+    let currentSigners = signers.filter((signer) =>
+      Boolean(sigsNeeded.find((sig) => sig.equals(signer.publicKey)))
+    );
+
+    // Sign all transactions
+    for (let signer of currentSigners) {
+      transaction.partialSign(signer);
+    }
+  }
+  return transactions;
 }
 
 /**
