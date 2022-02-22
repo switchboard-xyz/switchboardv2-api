@@ -1,4 +1,4 @@
 {
-    "entryPoints": ["docs/index.ts"],
-    "out": "docs"
+  "entryPoints": ["src/sbv2.ts"],
+  "out": "docs"
 }

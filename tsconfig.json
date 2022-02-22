@@ -16,16 +16,12 @@
     "esModuleInterop": true,
     "allowJs": true,
     "checkJs": false,
-    "types": [
-      "mocha",
-      "node",
-      "long",
-    ],
+    "types": ["mocha", "node", "long"],
     "sourceMap": true,
     "outDir": "dist"
   },
   "typedocOptions": {
-    "entryPoints": ["docs/index.ts"],
+    "entryPoints": ["src/sbv2.ts"],
     "out": "docs"
   },
   "include": ["src/*"],
