@@ -2,6 +2,7 @@
 import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
 import { Keypair, PublicKey, Transaction, TransactionSignature } from "@solana/web3.js";
+import { InstructionData } from "@solana/spl-governance";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
@@ -502,6 +503,8 @@ export interface PermissionInitParams {
      *  The authority that is allowed to set permissions for this account.
      */
     authority: PublicKey;
+    realm?: PublicKey;
+    communityMint?: PublicKey;
 }
 /**
  * Parameters for setting a permission in a PermissionAccount
@@ -518,7 +521,12 @@ export interface PermissionSetParams {
     /**
      *  Specifies whether to enable or disable the permission.
      */
+    realm?: PublicKey;
     enable: boolean;
+    granter?: PublicKey;
+    grantee?: PublicKey;
+    addinProgram?: PublicKey;
+    govProgram?: PublicKey;
 }
 /**
  * An enum representing all known permission types for Switchboard.
@@ -566,6 +574,7 @@ export declare class PermissionAccount {
      * @return newly generated PermissionAccount.
      */
     static create(program: anchor.Program, params: PermissionInitParams): Promise<PermissionAccount>;
+    static createWithGovernance(payer: Keypair, sbProgram: anchor.Program, sbAddinProgram: anchor.Program, govProgram: PublicKey, params: PermissionInitParams): Promise<PermissionAccount>;
     /**
      * Loads a PermissionAccount from the expected PDA seed format.
      * @param authority The authority pubkey to be incorporated into the account seed.
@@ -580,6 +589,8 @@ export declare class PermissionAccount {
      * @return TransactionSignature.
      */
     set(params: PermissionSetParams): Promise<TransactionSignature>;
+    setWithGovernance(params: PermissionSetParams): Promise<TransactionSignature>;
+    setWithGovernanceId(params: PermissionSetParams): Promise<InstructionData>;
 }
 /**
  * Parameters for initializing OracleQueueAccount
@@ -649,6 +660,10 @@ export interface OracleQueueInitParams {
      */
     unpermissionedFeeds?: boolean;
 }
+export interface OracleQueueChangeAdminParams {
+    oldAdmin: Keypair;
+    newAdmin: PublicKey;
+}
 /**
  * A Switchboard account representing a queue for distributing oracles to
  * permitted data feeds.
@@ -673,6 +688,7 @@ export declare class OracleQueueAccount {
      * @return size.
      */
     size(): number;
+    changeAdmin(program: anchor.Program, params: OracleQueueChangeAdminParams): Promise<any>;
     /**
      * Create and initialize the OracleQueueAccount.
      * @param program Switchboard program representation holding connection and IDL.

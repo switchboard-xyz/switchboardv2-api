@@ -8,6 +8,21 @@ import {
   Transaction,
   TransactionSignature,
 } from "@solana/web3.js";
+import {
+  withCreateRealm,
+  MintMaxVoteWeightSource,
+  withCreateGovernance,
+  GovernanceConfig,
+  withDepositGoverningTokens,
+  VoteThresholdPercentage,
+  //VoteWeightSource,
+  VoteTipping,
+  getTokenOwnerRecordAddress,
+  withCreateTokenOwnerRecord,
+  getGovernanceProgramVersion,
+  InstructionData,
+  AccountMetaData,
+} from "@solana/spl-governance";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
@@ -1338,6 +1353,10 @@ export interface PermissionInitParams {
    *  The authority that is allowed to set permissions for this account.
    */
   authority: PublicKey;
+
+  realm?: PublicKey;
+
+  communityMint?: PublicKey;
 }
 
 /**
@@ -1351,11 +1370,17 @@ export interface PermissionSetParams {
   /**
    *  The authority controlling this permission.
    */
-  authority: Keypair;
+  authority?: Keypair;
+  authorityPubkey?: PublicKey;
   /**
    *  Specifies whether to enable or disable the permission.
    */
+  realm?: PublicKey,
   enable: boolean;
+  granter?: PublicKey,
+  grantee?: PublicKey,
+  addinProgram?: PublicKey,
+  govProgram?: PublicKey,
 }
 
 /**
@@ -1468,6 +1493,91 @@ export class PermissionAccount {
     });
   }
 
+  static async createWithGovernance(
+      payer: Keypair,
+      sbProgram: anchor.Program,
+      sbAddinProgram: anchor.Program,
+      govProgram: PublicKey,
+      params: PermissionInitParams
+    ): Promise<PermissionAccount> {
+
+      const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
+        sbProgram,
+        params.authority,
+        params.granter,
+        params.grantee
+      );
+
+      /*console.log(sbProgram.provider.connection);
+      let permissionData = await sbProgram.provider.connection.getAccountInfo(permissionAccount.publicKey);
+      console.log(`${permissionData.owner.toBase58()} == ${sbProgram.programId}`);*/
+
+      const [voterWeightRecord, voterWeightBump] = anchor.utils.publicKey.findProgramAddressSync([
+        Buffer.from("VoterWeightAccount"),
+        params.grantee.toBytes(),
+        params.realm.toBytes(),
+      ], sbAddinProgram.programId);
+
+      /*let voterData = await sbProgram.provider.connection.getAccountInfo(voterWeightRecord);
+      console.log(`${voterData.owner.toBase58()} == ${sbAddinProgram.programId}`);*/
+
+      const [addinState, addinBump] = anchor.utils.publicKey.findProgramAddressSync([
+        Buffer.from("SBAddin"),
+      ], sbAddinProgram.programId);
+
+      let addinData = await sbProgram.provider.connection.getAccountInfo(addinState);
+      console.log(`${addinData.owner.toBase58()} == ${sbAddinProgram.programId}`);
+
+      const [tokenOwnerRecord, tokenOwnerBump] = anchor.utils.publicKey.findProgramAddressSync(
+      [
+        Buffer.from("governance"),
+        params.realm.toBuffer(),
+        params.communityMint.toBuffer(),
+        params.grantee.toBuffer(),
+      ], govProgram);
+
+      console.log(`is actually ${tokenOwnerRecord.toBase58()}`);
+      let tokenOwnerData = await sbProgram.provider.connection.getAccountInfo(tokenOwnerRecord);
+      console.log(`${tokenOwnerData.owner.toBase58()} == ${govProgram}`);
+
+      const [sbProgramState, sbProgramBump] = anchor.utils.publicKey.findProgramAddressSync(
+      [
+        Buffer.from("STATE"),
+      ], sbProgram.programId); 
+
+      await sbProgram.rpc.permissionInitWithGov(
+        {
+          permissionBump,
+          voterWeightBump,
+          tokenOwnerBump,
+          addinBump,
+          stateBump: sbProgramBump,
+        },
+        {
+          accounts: {
+            permission: permissionAccount.publicKey,
+            authority: params.authority,
+            granter: params.granter,
+            grantee: params.grantee,
+            addinProgram: sbAddinProgram.programId,
+            govProgram: govProgram,
+            voterWeightRecord: voterWeightRecord,
+            addinState: addinState,
+            realm: params.realm,
+            tokenOwnerRecord: tokenOwnerRecord,
+            systemProgram: SystemProgram.programId,
+            payer: payer.publicKey,
+            stateAccount: sbProgramState,
+          },
+          signers: [payer],
+        }
+      );
+      return new PermissionAccount({
+        program: sbProgram,
+        publicKey: permissionAccount.publicKey,
+      });
+    }
+
   /**
    * Loads a PermissionAccount from the expected PDA seed format.
    * @param authority The authority pubkey to be incorporated into the account seed.
@@ -1515,6 +1625,236 @@ export class PermissionAccount {
       }
     );
   }
+
+  async setWithGovernance(params: PermissionSetParams): Promise<TransactionSignature> {
+
+    const permission = new Map<string, null>();
+    permission.set(params.permission.toString(), null);
+
+    const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
+      this.program,
+      params.authority.publicKey,
+      params.granter,
+      params.grantee
+    );
+
+    console.log(`
+      ${params.grantee.toBase58()},
+      ${params.realm.toBase58()},
+      ${params.addinProgram.toBase58()},
+    `);
+
+    const [voterWeightRecord, voterWeightBump] = anchor.utils.publicKey.findProgramAddressSync([
+      Buffer.from("VoterWeightAccount"),
+      params.grantee.toBytes(),
+      params.realm.toBytes(),
+    ], params.addinProgram);
+    console.log(`sbv2 voterWeightRecrd: ${voterWeightRecord.toBase58()}`);
+
+    const [addinState, addinBump] = anchor.utils.publicKey.findProgramAddressSync([
+      Buffer.from("SBAddin"),
+    ], params.addinProgram);
+    console.log(`sbv2 addinState: ${addinState.toBase58()}`);
+
+    const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(
+      this.program
+    );
+
+    let [realmAdminRecord, realmAdminRecordBump] = await PublicKey.findProgramAddress(
+      [
+        Buffer.from('RealmAdminRecord'),
+        params.realm.toBytes(),
+      ],
+      this.program.programId,
+    );
+
+    /*console.log(`
+      ${this.publicKey.toBase58()},
+      ${params.authority.publicKey.toBase58()},
+      ${voterWeightRecord.toBase58()},
+      ${addinState.toBase58()},
+      ${stateAccount.toBase58()},
+      ${params.granter.toBase58()},
+      ${params.grantee.toBase58()},
+      ${params.realm.toBase58()},
+      ${realmAdminRecord.toBase58()},
+      ${params.addinProgram.toBase58()},
+    `);*/
+
+    console.log("realm admin");
+    console.log(realmAdminRecord.toBase58());
+
+    return await this.program.rpc.permissionSetWithGov(
+      {
+        permission: Object.fromEntries(permission),
+        enable: params.enable,
+        addinBump: addinBump,
+        voterWeightBump: voterWeightBump,
+        stateBump: stateBump,
+        permissionBump: permissionBump,
+        realmAdminRecordBump: realmAdminRecordBump,
+      },
+      {
+        accounts: {
+          permission: this.publicKey,
+          authority: params.authority.publicKey,
+          voterWeightAccount: voterWeightRecord,
+          addinState: addinState,
+          stateAccount: stateAccount.publicKey,
+          granter: params.granter,
+          grantee: params.grantee,
+          realm: params.realm,
+          realmAdminRecord: realmAdminRecord,
+          addinProgram: params.addinProgram,
+        },
+        signers: [params.authority],
+      }
+    );
+  }
+
+  async setWithGovernanceId(params: PermissionSetParams): Promise<InstructionData> {
+
+      const permission = new Map<string, null>();
+      permission.set(params.permission.toString(), null);
+
+      const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
+        this.program,
+        params.authority.publicKey,
+        params.granter,
+        params.grantee
+      );
+
+      console.log(`
+        ${params.grantee.toBase58()},
+        ${params.realm.toBase58()},
+        ${params.addinProgram.toBase58()},
+      `);
+
+      const [voterWeightRecord, voterWeightBump] = anchor.utils.publicKey.findProgramAddressSync([
+        Buffer.from("VoterWeightAccount"),
+        params.grantee.toBytes(),
+        params.realm.toBytes(),
+      ], params.addinProgram);
+      console.log(`sbv2 voterWeightRecrd: ${voterWeightRecord.toBase58()}`);
+
+      const [addinState, addinBump] = anchor.utils.publicKey.findProgramAddressSync([
+        Buffer.from("SBAddin"),
+      ], params.addinProgram);
+      console.log(`sbv2 addinState: ${addinState.toBase58()}`);
+
+      const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(
+        this.program
+      );
+
+      let [realmAdminRecord, realmAdminRecordBump] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from('RealmAdminRecord'),
+          params.realm.toBytes(),
+        ],
+        this.program.programId,
+      );
+
+      console.log("realm admin");
+      console.log(realmAdminRecord.toBase58());
+
+      let tx = await this.program.transaction.permissionSetWithGov(
+        {
+          permission: Object.fromEntries(permission),
+          enable: params.enable,
+          addinBump: addinBump,
+          voterWeightBump: voterWeightBump,
+          stateBump: stateBump,
+          permissionBump: permissionBump,
+          realmAdminRecordBump: realmAdminRecordBump,
+        },
+        {
+          accounts: {
+            permission: this.publicKey,
+            authority: params.authorityPubkey,
+            voterWeightAccount: voterWeightRecord,
+            addinState: addinState,
+            stateAccount: stateAccount.publicKey,
+            granter: params.granter,
+            grantee: params.grantee,
+            realm: params.realm,
+            realmAdminRecord: realmAdminRecord,
+            addinProgram: params.addinProgram,
+          },
+          signers: [params.authorityPubkey],
+        }
+      );
+
+      let instruction = tx.instructions[0];
+      let id = new InstructionData({
+        programId: this.program.programId,
+        accounts: [
+          // permission
+          new AccountMetaData({
+            pubkey: this.publicKey,
+            isWritable: true,
+            isSigner: false,
+          }),
+          // authority
+          new AccountMetaData({
+            pubkey: params.authority.publicKey,
+            isWritable: false,
+            isSigner: true,
+          }),
+          // voterWeight
+          new AccountMetaData({
+            pubkey: voterWeightRecord,
+            isWritable: true,
+            isSigner: false,
+          }),
+          // addinState
+          new AccountMetaData({
+            pubkey: addinState,
+            isWritable: false,
+            isSigner: false,
+          }),
+          // stateAccount
+          new AccountMetaData({
+            pubkey: stateAccount.publicKey,
+            isWritable: false,
+            isSigner: false,
+          }),
+          // granter
+          new AccountMetaData({
+            pubkey: params.granter,
+            isWritable: false,
+            isSigner: false,
+          }),
+          // grantee
+          new AccountMetaData({
+            pubkey: params.grantee,
+            isWritable: false,
+            isSigner: false,
+          }),
+          // realm
+          new AccountMetaData({
+            pubkey: params.realm,
+            isWritable: false,
+            isSigner: false,
+          }),
+          // realm admin record
+          new AccountMetaData({
+            pubkey: realmAdminRecord,
+            isWritable: false,
+            isSigner: false,
+          }),
+          // addin program
+          new AccountMetaData({
+            pubkey: params.addinProgram,
+            isWritable: false,
+            isSigner: false,
+          }),
+        ],
+        data: instruction.data
+      });
+      return id;
+
+    }
+
 }
 
 /**
@@ -1587,6 +1927,11 @@ export interface OracleQueueInitParams {
   unpermissionedFeeds?: boolean;
 }
 
+export interface OracleQueueChangeAdminParams {
+  oldAdmin: Keypair,
+  newAdmin: PublicKey,
+}
+
 /**
  * A Switchboard account representing a queue for distributing oracles to
  * permitted data feeds.
@@ -1655,6 +2000,20 @@ export class OracleQueueAccount {
    */
   size(): number {
     return this.program.account.oracleQueueAccountData.size;
+  }
+
+  async changeAdmin(
+    program: anchor.Program,
+    params: OracleQueueChangeAdminParams,
+  ) : Promise<any> {
+    await program.rpc.oracleQueueChangeAdmin({}, {
+      accounts: {
+        queue: this.publicKey,
+        authority: params.oldAdmin.publicKey,
+        newAdmin: params.newAdmin
+      },
+      signers: [params.oldAdmin]
+    });
   }
 
   /**
