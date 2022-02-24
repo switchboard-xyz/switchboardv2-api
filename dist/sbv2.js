@@ -476,7 +476,7 @@ class AggregatorAccount {
      * @return Array<OracleJob>
      */
     async loadJobs(aggregator) {
-        const coder = new anchor.AccountsCoder(this.program.idl);
+        const coder = new anchor.BorshAccountsCoder(this.program.idl);
         aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
         const jobAccountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, aggregator.jobPubkeysData.slice(0, aggregator.jobPubkeysSize));
         if (jobAccountDatas === null) {
@@ -489,7 +489,7 @@ class AggregatorAccount {
         return jobs;
     }
     async loadHashes(aggregator) {
-        const coder = new anchor.AccountsCoder(this.program.idl);
+        const coder = new anchor.BorshAccountsCoder(this.program.idl);
         aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
         const jobAccountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, aggregator.jobPubkeysData.slice(0, aggregator.jobPubkeysSize));
         if (jobAccountDatas === null) {
@@ -859,8 +859,8 @@ class JobAccount {
      * Switchboard IDL.
      */
     static decode(program, buf) {
-        const coder = new anchor.Coder(program.idl);
-        return coder.accounts.decode("JobAccountData", buf);
+        const coder = new anchor.BorshAccountsCoder(program.idl);
+        return coder.decode("JobAccountData", buf);
     }
     /**
      * Create and initialize the JobAccount.
@@ -2189,7 +2189,7 @@ exports.packInstructions = packInstructions;
 async function packTransactions(connection, transactions, signers, feePayer) {
     const instructions = transactions.map((t) => t.instructions).flat();
     const txs = packInstructions(instructions, feePayer);
-    const { blockhash } = await connection.getRecentBlockhash("max");
+    const { blockhash } = await connection.getRecentBlockhash("confirmed");
     txs.forEach((t) => {
         t.recentBlockhash = blockhash;
     });

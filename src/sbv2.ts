@@ -783,7 +783,7 @@ export class AggregatorAccount {
    * @return Array<OracleJob>
    */
   async loadJobs(aggregator?: any): Promise<Array<OracleJob>> {
-    const coder = new anchor.AccountsCoder(this.program.idl);
+    const coder = new anchor.BorshAccountsCoder(this.program.idl);
 
     aggregator = aggregator ?? (await this.loadData());
 
@@ -802,7 +802,7 @@ export class AggregatorAccount {
   }
 
   async loadHashes(aggregator?: any): Promise<Array<Buffer>> {
-    const coder = new anchor.AccountsCoder(this.program.idl);
+    const coder = new anchor.BorshAccountsCoder(this.program.idl);
 
     aggregator = aggregator ?? (await this.loadData());
 
@@ -1345,8 +1345,8 @@ export class JobAccount {
    * Switchboard IDL.
    */
   static decode(program: anchor.Program, buf: Buffer): any {
-    const coder = new anchor.Coder(program.idl);
-    return coder.accounts.decode("JobAccountData", buf);
+    const coder = new anchor.BorshAccountsCoder(program.idl);
+    return coder.decode("JobAccountData", buf);
   }
 
   /**
@@ -3454,7 +3454,7 @@ export async function packTransactions(
 ): Promise<Transaction[]> {
   const instructions = transactions.map((t) => t.instructions).flat();
   const txs = packInstructions(instructions, feePayer);
-  const { blockhash } = await connection.getRecentBlockhash("max");
+  const { blockhash } = await connection.getRecentBlockhash("confirmed");
   txs.forEach((t) => {
     t.recentBlockhash = blockhash;
   });
