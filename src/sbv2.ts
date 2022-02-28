@@ -1,6 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
 import {
+  AccountInfo,
   AccountMeta,
   Keypair,
   PublicKey,
@@ -596,6 +597,16 @@ export class AggregatorAccount {
     this.program = params.program;
     this.keypair = params.keypair;
     this.publicKey = params.publicKey ?? this.keypair.publicKey;
+  }
+
+  static decode(
+    program: anchor.Program,
+    accountInfo: AccountInfo<Buffer>
+  ): any {
+    const coder = new anchor.BorshAccountsCoder(program.idl);
+    const key = "AggregatorAccountData";
+    const aggregator = coder.decode(key, accountInfo?.data!);
+    return aggregator;
   }
 
   /**
@@ -1340,16 +1351,6 @@ export class JobAccount {
   }
 
   /**
-   * Load and parse JobAccount data based on the program IDL from a buffer.
-   * @return JobAccount data parsed in accordance with the
-   * Switchboard IDL.
-   */
-  static decode(program: anchor.Program, buf: Buffer): any {
-    const coder = new anchor.BorshAccountsCoder(program.idl);
-    return coder.decode("JobAccountData", buf);
-  }
-
-  /**
    * Create and initialize the JobAccount.
    * @param program Switchboard program representation holding connection and IDL.
    * @param params.
@@ -1399,6 +1400,25 @@ export class JobAccount {
       }
     );
     return new JobAccount({ program, keypair: jobAccount });
+  }
+
+  static decode(
+    program: anchor.Program,
+    accountInfo: AccountInfo<Buffer>
+  ): any {
+    const coder = new anchor.BorshAccountsCoder(program.idl);
+    const key = "JobAccountData";
+    const data = coder.decode(key, accountInfo?.data!);
+    return data;
+  }
+
+  static decodeJob(
+    program: anchor.Program,
+    accountInfo: AccountInfo<Buffer>
+  ): OracleJob {
+    return OracleJob.decodeDelimited(
+      JobAccount.decode(program, accountInfo).data!
+    );
   }
 }
 
@@ -2769,6 +2789,16 @@ export class OracleAccount {
       }
     );
     return new OracleAccount({ program, publicKey: oracleAccount.publicKey });
+  }
+
+  static decode(
+    program: anchor.Program,
+    accountInfo: AccountInfo<Buffer>
+  ): any {
+    const coder = new anchor.BorshAccountsCoder(program.idl);
+    const key = "OracleccountData";
+    const data = coder.decode(key, accountInfo?.data!);
+    return data;
   }
 
   /**

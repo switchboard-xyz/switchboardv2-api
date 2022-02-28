@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
-import { AccountMeta, Keypair, PublicKey, Transaction, TransactionSignature, TransactionInstruction } from "@solana/web3.js";
+import { AccountInfo, AccountMeta, Keypair, PublicKey, Transaction, TransactionSignature, TransactionInstruction } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
@@ -313,6 +313,7 @@ export declare class AggregatorAccount {
      * @param params initialization params.
      */
     constructor(params: AccountParams);
+    static decode(program: anchor.Program, accountInfo: AccountInfo<Buffer>): any;
     /**
      * Returns the aggregator's ID buffer in a stringified format.
      * @param aggregator A preloaded aggregator object.
@@ -482,18 +483,14 @@ export declare class JobAccount {
      */
     loadJob(): Promise<OracleJob>;
     /**
-     * Load and parse JobAccount data based on the program IDL from a buffer.
-     * @return JobAccount data parsed in accordance with the
-     * Switchboard IDL.
-     */
-    static decode(program: anchor.Program, buf: Buffer): any;
-    /**
      * Create and initialize the JobAccount.
      * @param program Switchboard program representation holding connection and IDL.
      * @param params.
      * @return newly generated JobAccount.
      */
     static create(program: anchor.Program, params: JobInitParams): Promise<JobAccount>;
+    static decode(program: anchor.Program, accountInfo: AccountInfo<Buffer>): any;
+    static decodeJob(program: anchor.Program, accountInfo: AccountInfo<Buffer>): OracleJob;
 }
 /**
  * Parameters for initializing PermissionAccount
@@ -1040,6 +1037,7 @@ export declare class OracleAccount {
      * @return newly generated OracleAccount.
      */
     static create(program: anchor.Program, params: OracleInitParams): Promise<OracleAccount>;
+    static decode(program: anchor.Program, accountInfo: AccountInfo<Buffer>): any;
     /**
      * Constructs OracleAccount from the static seed from which it was generated.
      * @return OracleAccount and PDA bump tuple.

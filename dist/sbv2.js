@@ -316,6 +316,12 @@ class AggregatorAccount {
         this.keypair = params.keypair;
         this.publicKey = (_a = params.publicKey) !== null && _a !== void 0 ? _a : this.keypair.publicKey;
     }
+    static decode(program, accountInfo) {
+        const coder = new anchor.BorshAccountsCoder(program.idl);
+        const key = "AggregatorAccountData";
+        const aggregator = coder.decode(key, accountInfo === null || accountInfo === void 0 ? void 0 : accountInfo.data);
+        return aggregator;
+    }
     /**
      * Returns the aggregator's ID buffer in a stringified format.
      * @param aggregator A preloaded aggregator object.
@@ -854,15 +860,6 @@ class JobAccount {
         return switchboard_api_1.OracleJob.decodeDelimited(job.data);
     }
     /**
-     * Load and parse JobAccount data based on the program IDL from a buffer.
-     * @return JobAccount data parsed in accordance with the
-     * Switchboard IDL.
-     */
-    static decode(program, buf) {
-        const coder = new anchor.BorshAccountsCoder(program.idl);
-        return coder.decode("JobAccountData", buf);
-    }
-    /**
      * Create and initialize the JobAccount.
      * @param program Switchboard program representation holding connection and IDL.
      * @param params.
@@ -899,6 +896,15 @@ class JobAccount {
             ],
         });
         return new JobAccount({ program, keypair: jobAccount });
+    }
+    static decode(program, accountInfo) {
+        const coder = new anchor.BorshAccountsCoder(program.idl);
+        const key = "JobAccountData";
+        const data = coder.decode(key, accountInfo === null || accountInfo === void 0 ? void 0 : accountInfo.data);
+        return data;
+    }
+    static decodeJob(program, accountInfo) {
+        return switchboard_api_1.OracleJob.decodeDelimited(JobAccount.decode(program, accountInfo).data);
     }
 }
 exports.JobAccount = JobAccount;
@@ -1720,6 +1726,12 @@ class OracleAccount {
             },
         });
         return new OracleAccount({ program, publicKey: oracleAccount.publicKey });
+    }
+    static decode(program, accountInfo) {
+        const coder = new anchor.BorshAccountsCoder(program.idl);
+        const key = "OracleccountData";
+        const data = coder.decode(key, accountInfo === null || accountInfo === void 0 ? void 0 : accountInfo.data);
+        return data;
     }
     /**
      * Constructs OracleAccount from the static seed from which it was generated.
