@@ -7,6 +7,7 @@ import {
   SystemProgram,
   Transaction,
   TransactionSignature,
+  TransactionInstruction,
 } from "@solana/web3.js";
 import {
   withCreateRealm,
@@ -22,6 +23,7 @@ import {
   getGovernanceProgramVersion,
   InstructionData,
   AccountMetaData,
+  createInstructionData,
 } from "@solana/spl-governance";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
@@ -1349,6 +1351,7 @@ export interface PermissionInitParams {
    *  The receiving account of a permission.
    */
   grantee: PublicKey;
+  oracleOwner?: PublicKey;
   /**
    *  The authority that is allowed to set permissions for this account.
    */
@@ -1370,8 +1373,8 @@ export interface PermissionSetParams {
   /**
    *  The authority controlling this permission.
    */
-  authority?: Keypair;
-  authorityPubkey?: PublicKey;
+  authority?: Keypair,
+  authorityPubkey?: PublicKey,
   /**
    *  Specifies whether to enable or disable the permission.
    */
@@ -1526,19 +1529,20 @@ export class PermissionAccount {
       ], sbAddinProgram.programId);
 
       let addinData = await sbProgram.provider.connection.getAccountInfo(addinState);
-      console.log(`${addinData.owner.toBase58()} == ${sbAddinProgram.programId}`);
 
       const [tokenOwnerRecord, tokenOwnerBump] = anchor.utils.publicKey.findProgramAddressSync(
       [
         Buffer.from("governance"),
         params.realm.toBuffer(),
         params.communityMint.toBuffer(),
-        params.grantee.toBuffer(),
+        //params.grantee.toBuffer(), changed because of the oracle-admin work-around
+        params.oracleOwner.toBuffer(),
       ], govProgram);
 
-      console.log(`is actually ${tokenOwnerRecord.toBase58()}`);
+      console.log("SBV2: tokenOwnerRecord");
+      console.log(tokenOwnerRecord.toBase58());
+
       let tokenOwnerData = await sbProgram.provider.connection.getAccountInfo(tokenOwnerRecord);
-      console.log(`${tokenOwnerData.owner.toBase58()} == ${govProgram}`);
 
       const [sbProgramState, sbProgramBump] = anchor.utils.publicKey.findProgramAddressSync(
       [
@@ -1565,6 +1569,7 @@ export class PermissionAccount {
             addinState: addinState,
             realm: params.realm,
             tokenOwnerRecord: tokenOwnerRecord,
+            tokenOwner: params.oracleOwner,
             systemProgram: SystemProgram.programId,
             payer: payer.publicKey,
             stateAccount: sbProgramState,
@@ -1638,23 +1643,15 @@ export class PermissionAccount {
       params.grantee
     );
 
-    console.log(`
-      ${params.grantee.toBase58()},
-      ${params.realm.toBase58()},
-      ${params.addinProgram.toBase58()},
-    `);
-
     const [voterWeightRecord, voterWeightBump] = anchor.utils.publicKey.findProgramAddressSync([
       Buffer.from("VoterWeightAccount"),
       params.grantee.toBytes(),
       params.realm.toBytes(),
     ], params.addinProgram);
-    console.log(`sbv2 voterWeightRecrd: ${voterWeightRecord.toBase58()}`);
 
     const [addinState, addinBump] = anchor.utils.publicKey.findProgramAddressSync([
       Buffer.from("SBAddin"),
     ], params.addinProgram);
-    console.log(`sbv2 addinState: ${addinState.toBase58()}`);
 
     const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(
       this.program
@@ -1680,9 +1677,6 @@ export class PermissionAccount {
       ${realmAdminRecord.toBase58()},
       ${params.addinProgram.toBase58()},
     `);*/
-
-    console.log("realm admin");
-    console.log(realmAdminRecord.toBase58());
 
     return await this.program.rpc.permissionSetWithGov(
       {
@@ -1712,35 +1706,27 @@ export class PermissionAccount {
     );
   }
 
-  async setWithGovernanceId(params: PermissionSetParams): Promise<InstructionData> {
+  async setWithGovernanceId(params: PermissionSetParams): Promise<TransactionInstruction> {
 
       const permission = new Map<string, null>();
       permission.set(params.permission.toString(), null);
 
       const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
         this.program,
-        params.authority.publicKey,
+        params.authorityPubkey,
         params.granter,
         params.grantee
       );
-
-      console.log(`
-        ${params.grantee.toBase58()},
-        ${params.realm.toBase58()},
-        ${params.addinProgram.toBase58()},
-      `);
 
       const [voterWeightRecord, voterWeightBump] = anchor.utils.publicKey.findProgramAddressSync([
         Buffer.from("VoterWeightAccount"),
         params.grantee.toBytes(),
         params.realm.toBytes(),
       ], params.addinProgram);
-      console.log(`sbv2 voterWeightRecrd: ${voterWeightRecord.toBase58()}`);
 
       const [addinState, addinBump] = anchor.utils.publicKey.findProgramAddressSync([
         Buffer.from("SBAddin"),
       ], params.addinProgram);
-      console.log(`sbv2 addinState: ${addinState.toBase58()}`);
 
       const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(
         this.program
@@ -1753,9 +1739,6 @@ export class PermissionAccount {
         ],
         this.program.programId,
       );
-
-      console.log("realm admin");
-      console.log(realmAdminRecord.toBase58());
 
       let tx = await this.program.transaction.permissionSetWithGov(
         {
@@ -1779,12 +1762,15 @@ export class PermissionAccount {
             realm: params.realm,
             realmAdminRecord: realmAdminRecord,
             addinProgram: params.addinProgram,
-          },
-          signers: [params.authorityPubkey],
+          }
         }
       );
+      //let id = createInstructionData(tx.instructions[0]);
+      return tx.instructions[0];
 
-      let instruction = tx.instructions[0];
+      /*let instruction = tx.instructions[0];
+      console.log("inst:");
+      console.log(instruction);
       let id = new InstructionData({
         programId: this.program.programId,
         accounts: [
@@ -1796,7 +1782,7 @@ export class PermissionAccount {
           }),
           // authority
           new AccountMetaData({
-            pubkey: params.authority.publicKey,
+            pubkey: params.authorityPubkey,
             isWritable: false,
             isSigner: true,
           }),
@@ -1851,7 +1837,7 @@ export class PermissionAccount {
         ],
         data: instruction.data
       });
-      return id;
+      return id;*/
 
     }
 

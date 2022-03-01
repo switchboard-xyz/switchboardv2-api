@@ -1,8 +1,7 @@
 /// <reference types="node" />
 import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
-import { Keypair, PublicKey, Transaction, TransactionSignature } from "@solana/web3.js";
-import { InstructionData } from "@solana/spl-governance";
+import { Keypair, PublicKey, Transaction, TransactionSignature, TransactionInstruction } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
@@ -499,6 +498,7 @@ export interface PermissionInitParams {
      *  The receiving account of a permission.
      */
     grantee: PublicKey;
+    oracleOwner?: PublicKey;
     /**
      *  The authority that is allowed to set permissions for this account.
      */
@@ -517,7 +517,8 @@ export interface PermissionSetParams {
     /**
      *  The authority controlling this permission.
      */
-    authority: Keypair;
+    authority?: Keypair;
+    authorityPubkey?: PublicKey;
     /**
      *  Specifies whether to enable or disable the permission.
      */
@@ -590,7 +591,7 @@ export declare class PermissionAccount {
      */
     set(params: PermissionSetParams): Promise<TransactionSignature>;
     setWithGovernance(params: PermissionSetParams): Promise<TransactionSignature>;
-    setWithGovernanceId(params: PermissionSetParams): Promise<InstructionData>;
+    setWithGovernanceId(params: PermissionSetParams): Promise<TransactionInstruction>;
 }
 /**
  * Parameters for initializing OracleQueueAccount

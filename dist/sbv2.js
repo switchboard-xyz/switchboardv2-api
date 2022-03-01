@@ -26,7 +26,6 @@ exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseA
 const anchor = __importStar(require("@project-serum/anchor"));
 const spl = __importStar(require("@solana/spl-token"));
 const web3_js_1 = require("@solana/web3.js");
-const spl_governance_1 = require("@solana/spl-governance");
 const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
@@ -962,16 +961,16 @@ class PermissionAccount {
             Buffer.from("SBAddin"),
         ], sbAddinProgram.programId);
         let addinData = await sbProgram.provider.connection.getAccountInfo(addinState);
-        console.log(`${addinData.owner.toBase58()} == ${sbAddinProgram.programId}`);
         const [tokenOwnerRecord, tokenOwnerBump] = anchor.utils.publicKey.findProgramAddressSync([
             Buffer.from("governance"),
             params.realm.toBuffer(),
             params.communityMint.toBuffer(),
-            params.grantee.toBuffer(),
+            //params.grantee.toBuffer(), changed because of the oracle-admin work-around
+            params.oracleOwner.toBuffer(),
         ], govProgram);
-        console.log(`is actually ${tokenOwnerRecord.toBase58()}`);
+        console.log("SBV2: tokenOwnerRecord");
+        console.log(tokenOwnerRecord.toBase58());
         let tokenOwnerData = await sbProgram.provider.connection.getAccountInfo(tokenOwnerRecord);
-        console.log(`${tokenOwnerData.owner.toBase58()} == ${govProgram}`);
         const [sbProgramState, sbProgramBump] = anchor.utils.publicKey.findProgramAddressSync([
             Buffer.from("STATE"),
         ], sbProgram.programId);
@@ -993,6 +992,7 @@ class PermissionAccount {
                 addinState: addinState,
                 realm: params.realm,
                 tokenOwnerRecord: tokenOwnerRecord,
+                tokenOwner: params.oracleOwner,
                 systemProgram: web3_js_1.SystemProgram.programId,
                 payer: payer.publicKey,
                 stateAccount: sbProgramState,
@@ -1043,21 +1043,14 @@ class PermissionAccount {
         const permission = new Map();
         permission.set(params.permission.toString(), null);
         const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, params.authority.publicKey, params.granter, params.grantee);
-        console.log(`
-      ${params.grantee.toBase58()},
-      ${params.realm.toBase58()},
-      ${params.addinProgram.toBase58()},
-    `);
         const [voterWeightRecord, voterWeightBump] = anchor.utils.publicKey.findProgramAddressSync([
             Buffer.from("VoterWeightAccount"),
             params.grantee.toBytes(),
             params.realm.toBytes(),
         ], params.addinProgram);
-        console.log(`sbv2 voterWeightRecrd: ${voterWeightRecord.toBase58()}`);
         const [addinState, addinBump] = anchor.utils.publicKey.findProgramAddressSync([
             Buffer.from("SBAddin"),
         ], params.addinProgram);
-        console.log(`sbv2 addinState: ${addinState.toBase58()}`);
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         let [realmAdminRecord, realmAdminRecordBump] = await web3_js_1.PublicKey.findProgramAddress([
             Buffer.from('RealmAdminRecord'),
@@ -1075,8 +1068,6 @@ class PermissionAccount {
           ${realmAdminRecord.toBase58()},
           ${params.addinProgram.toBase58()},
         `);*/
-        console.log("realm admin");
-        console.log(realmAdminRecord.toBase58());
         return await this.program.rpc.permissionSetWithGov({
             permission: Object.fromEntries(permission),
             enable: params.enable,
@@ -1104,29 +1095,20 @@ class PermissionAccount {
     async setWithGovernanceId(params) {
         const permission = new Map();
         permission.set(params.permission.toString(), null);
-        const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, params.authority.publicKey, params.granter, params.grantee);
-        console.log(`
-        ${params.grantee.toBase58()},
-        ${params.realm.toBase58()},
-        ${params.addinProgram.toBase58()},
-      `);
+        const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, params.authorityPubkey, params.granter, params.grantee);
         const [voterWeightRecord, voterWeightBump] = anchor.utils.publicKey.findProgramAddressSync([
             Buffer.from("VoterWeightAccount"),
             params.grantee.toBytes(),
             params.realm.toBytes(),
         ], params.addinProgram);
-        console.log(`sbv2 voterWeightRecrd: ${voterWeightRecord.toBase58()}`);
         const [addinState, addinBump] = anchor.utils.publicKey.findProgramAddressSync([
             Buffer.from("SBAddin"),
         ], params.addinProgram);
-        console.log(`sbv2 addinState: ${addinState.toBase58()}`);
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         let [realmAdminRecord, realmAdminRecordBump] = await web3_js_1.PublicKey.findProgramAddress([
             Buffer.from('RealmAdminRecord'),
             params.realm.toBytes(),
         ], this.program.programId);
-        console.log("realm admin");
-        console.log(realmAdminRecord.toBase58());
         let tx = await this.program.transaction.permissionSetWithGov({
             permission: Object.fromEntries(permission),
             enable: params.enable,
@@ -1138,7 +1120,7 @@ class PermissionAccount {
         }, {
             accounts: {
                 permission: this.publicKey,
-                authority: params.authority.publicKey,
+                authority: params.authorityPubkey,
                 voterWeightAccount: voterWeightRecord,
                 addinState: addinState,
                 stateAccount: stateAccount.publicKey,
@@ -1147,77 +1129,80 @@ class PermissionAccount {
                 realm: params.realm,
                 realmAdminRecord: realmAdminRecord,
                 addinProgram: params.addinProgram,
-            },
-            signers: [params.authority],
+            }
         });
-        let instruction = tx.instructions[0];
-        let id = new spl_governance_1.InstructionData({
-            programId: this.program.programId,
-            accounts: [
-                // permission
-                new spl_governance_1.AccountMetaData({
-                    pubkey: this.publicKey,
-                    isWritable: true,
-                    isSigner: false,
-                }),
-                // authority
-                new spl_governance_1.AccountMetaData({
-                    pubkey: params.authority.publicKey,
-                    isWritable: false,
-                    isSigner: true,
-                }),
-                // voterWeight
-                new spl_governance_1.AccountMetaData({
-                    pubkey: voterWeightRecord,
-                    isWritable: true,
-                    isSigner: false,
-                }),
-                // addinState
-                new spl_governance_1.AccountMetaData({
-                    pubkey: addinState,
-                    isWritable: false,
-                    isSigner: false,
-                }),
-                // stateAccount
-                new spl_governance_1.AccountMetaData({
-                    pubkey: stateAccount.publicKey,
-                    isWritable: false,
-                    isSigner: false,
-                }),
-                // granter
-                new spl_governance_1.AccountMetaData({
-                    pubkey: params.granter,
-                    isWritable: false,
-                    isSigner: false,
-                }),
-                // grantee
-                new spl_governance_1.AccountMetaData({
-                    pubkey: params.grantee,
-                    isWritable: false,
-                    isSigner: false,
-                }),
-                // realm
-                new spl_governance_1.AccountMetaData({
-                    pubkey: params.realm,
-                    isWritable: false,
-                    isSigner: false,
-                }),
-                // realm admin record
-                new spl_governance_1.AccountMetaData({
-                    pubkey: realmAdminRecord,
-                    isWritable: false,
-                    isSigner: false,
-                }),
-                // addin program
-                new spl_governance_1.AccountMetaData({
-                    pubkey: params.addinProgram,
-                    isWritable: false,
-                    isSigner: false,
-                }),
-            ],
-            data: instruction.data
+        //let id = createInstructionData(tx.instructions[0]);
+        return tx.instructions[0];
+        /*let instruction = tx.instructions[0];
+        console.log("inst:");
+        console.log(instruction);
+        let id = new InstructionData({
+          programId: this.program.programId,
+          accounts: [
+            // permission
+            new AccountMetaData({
+              pubkey: this.publicKey,
+              isWritable: true,
+              isSigner: false,
+            }),
+            // authority
+            new AccountMetaData({
+              pubkey: params.authorityPubkey,
+              isWritable: false,
+              isSigner: true,
+            }),
+            // voterWeight
+            new AccountMetaData({
+              pubkey: voterWeightRecord,
+              isWritable: true,
+              isSigner: false,
+            }),
+            // addinState
+            new AccountMetaData({
+              pubkey: addinState,
+              isWritable: false,
+              isSigner: false,
+            }),
+            // stateAccount
+            new AccountMetaData({
+              pubkey: stateAccount.publicKey,
+              isWritable: false,
+              isSigner: false,
+            }),
+            // granter
+            new AccountMetaData({
+              pubkey: params.granter,
+              isWritable: false,
+              isSigner: false,
+            }),
+            // grantee
+            new AccountMetaData({
+              pubkey: params.grantee,
+              isWritable: false,
+              isSigner: false,
+            }),
+            // realm
+            new AccountMetaData({
+              pubkey: params.realm,
+              isWritable: false,
+              isSigner: false,
+            }),
+            // realm admin record
+            new AccountMetaData({
+              pubkey: realmAdminRecord,
+              isWritable: false,
+              isSigner: false,
+            }),
+            // addin program
+            new AccountMetaData({
+              pubkey: params.addinProgram,
+              isWritable: false,
+              isSigner: false,
+            }),
+          ],
+          data: instruction.data
         });
-        return id;
+        return id;*/
     }
 }
 exports.PermissionAccount = PermissionAccount;
