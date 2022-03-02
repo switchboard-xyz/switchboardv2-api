@@ -1143,7 +1143,7 @@ export declare class VrfAccount {
      */
     requestRandomness(params: VrfRequestRandomnessParams): Promise<void>;
     prove(params: VrfProveParams): Promise<TransactionSignature>;
-    verify(tryCount?: number): Promise<Array<TransactionSignature>>;
+    verify(oracle: OracleAccount, tryCount?: number): Promise<Array<TransactionSignature>>;
     /**
      * Attempt the maximum amount of turns remaining on the vrf verify crank.
      * This will automatically call the vrf callback (if set) when completed.

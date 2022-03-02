@@ -2039,9 +2039,8 @@ class VrfAccount {
             signers: [params.oracleAuthority],
         });
     }
-    async verify(tryCount = 278) {
+    async verify(oracle, tryCount = 278) {
         const skipPreflight = true;
-        const oracle = this;
         const txs = [];
         const vrf = await this.loadData();
         const idx = vrf.builders.find((builder) => oracle.publicKey.equals(builder.producer));

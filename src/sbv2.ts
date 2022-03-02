@@ -3262,9 +3262,11 @@ export class VrfAccount {
     );
   }
 
-  async verify(tryCount: number = 278): Promise<Array<TransactionSignature>> {
+  async verify(
+    oracle: OracleAccount,
+    tryCount: number = 278
+  ): Promise<Array<TransactionSignature>> {
     const skipPreflight = true;
-    const oracle = this;
     const txs: Array<any> = [];
     const vrf = await this.loadData();
     const idx = vrf.builders.find((builder: any) =>
