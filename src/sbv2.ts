@@ -3262,6 +3262,66 @@ export class VrfAccount {
     );
   }
 
+  async verify(tryCount: number = 278): Promise<Array<TransactionSignature>> {
+    const skipPreflight = true;
+    const oracle = this;
+    const txs: Array<any> = [];
+    const vrf = await this.loadData();
+    const idx = vrf.builders.find((builder: any) =>
+      oracle.publicKey.equals(builder.producer)
+    );
+    if (idx === -1) {
+      throw new Error("OracleNotFoundError");
+    }
+    let counter = 0;
+    const remainingAccounts = vrf.callback.accounts.slice(
+      0,
+      vrf.callback.accountsLen
+    );
+    const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
+      this.program
+    );
+    const oracleData = await oracle.loadData();
+    const oracleWallet = oracleData.tokenAccount;
+    const oracleAuthority: PublicKey = oracleData.oracleAuthority;
+
+    let instructions = [];
+    let tx = new Transaction();
+    for (let i = 0; i < tryCount; ++i) {
+      txs.push({
+        tx: this.program.transaction.vrfProveAndVerify(
+          {
+            nonce: i,
+            stateBump,
+            idx,
+          },
+          {
+            accounts: {
+              vrf: this.publicKey,
+              callbackPid: vrf.callback.programId,
+              tokenProgram: spl.TOKEN_PROGRAM_ID,
+              escrow: vrf.escrow,
+              programState: programStateAccount.publicKey,
+              oracle: oracle.publicKey,
+              oracleAuthority,
+              oracleWallet,
+            },
+            remainingAccounts,
+          }
+        ),
+      });
+      // try {
+      // tx.add(newTx);
+      // } catch (e) {
+      // txs.push({ tx });
+      // tx = newTx;
+      // }
+      // txs.push(newTx);
+    }
+    // txs.push({ tx });
+    return sendAll(this.program.provider, txs, [], skipPreflight);
+  }
+
   /**
    * Attempt the maximum amount of turns remaining on the vrf verify crank.
    * This will automatically call the vrf callback (if set) when completed.
