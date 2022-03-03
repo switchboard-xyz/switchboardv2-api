@@ -11,6 +11,7 @@ import {
   sendAndConfirmTransaction,
   Signer,
   SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
   TransactionInstruction,
   PACKET_DATA_SIZE,
 } from "@solana/web3.js";
@@ -3307,6 +3308,7 @@ export class VrfAccount {
               oracle: oracle.publicKey,
               oracleAuthority,
               oracleWallet,
+              instructionsSysvar: SYSVAR_INSTRUCTIONS_PUBKEY,
             },
             remainingAccounts,
           }
@@ -3375,6 +3377,7 @@ export class VrfAccount {
               oracle: oracle.publicKey,
               oracleAuthority,
               oracleWallet,
+              instructionsSysvar: SYSVAR_INSTRUCTIONS_PUBKEY,
             },
             remainingAccounts,
             signers: [params.oracleAuthority],
