@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signTransactions = exports.packTransactions = exports.packInstructions = exports.getPayer = exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
+exports.signTransactions = exports.packTransactions = exports.packInstructions = exports.getPayer = exports.sendAll = exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
 const anchor = __importStar(require("@project-serum/anchor"));
 const spl = __importStar(require("@solana/spl-token"));
 const web3_js_1 = require("@solana/web3.js");
@@ -2148,7 +2148,8 @@ async function sendAll(provider, reqs, signers, skipPreflight) {
     let res = [];
     try {
         const opts = provider.opts;
-        const blockhash = await provider.connection.getRecentBlockhash(opts.preflightCommitment);
+        // TODO: maybe finalized
+        const blockhash = await provider.connection.getRecentBlockhash("confirmed");
         let txs = reqs.map((r) => {
             if (r === null || r === undefined)
                 return new web3_js_1.Transaction();
@@ -2174,7 +2175,7 @@ async function sendAll(provider, reqs, signers, skipPreflight) {
             const rawTx = tx.serialize();
             promises.push(provider.connection.sendRawTransaction(rawTx, {
                 skipPreflight,
-                maxRetries: 100,
+                maxRetries: 10,
             }));
         }
         return Promise.all(promises);
@@ -2184,6 +2185,7 @@ async function sendAll(provider, reqs, signers, skipPreflight) {
     }
     return res;
 }
+exports.sendAll = sendAll;
 function getPayer(program) {
     return web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
 }

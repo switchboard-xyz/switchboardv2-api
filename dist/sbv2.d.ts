@@ -1150,6 +1150,7 @@ export declare class VrfAccount {
      */
     proveAndVerify(params: VrfProveAndVerifyParams, tryCount?: number): Promise<Array<TransactionSignature>>;
 }
+export declare function sendAll(provider: anchor.Provider, reqs: Array<any>, signers: Array<Keypair>, skipPreflight: boolean): Promise<Array<TransactionSignature>>;
 export declare function getPayer(program: anchor.Program): Keypair;
 /**
  * Pack instructions into transactions as tightly as possible

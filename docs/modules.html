@@ -134,6 +134,7 @@
 								<li class="tsd-kind-function"><a href="modules.html#getpayer" class="tsd-kind-icon">get<wbr>Payer</a></li>
 								<li class="tsd-kind-function"><a href="modules.html#packinstructions" class="tsd-kind-icon">pack<wbr>Instructions</a></li>
 								<li class="tsd-kind-function"><a href="modules.html#packtransactions" class="tsd-kind-icon">pack<wbr>Transactions</a></li>
+								<li class="tsd-kind-function"><a href="modules.html#sendall" class="tsd-kind-icon">send<wbr>All</a></li>
 								<li class="tsd-kind-function"><a href="modules.html#signtransactions" class="tsd-kind-icon">sign<wbr>Transactions</a></li>
 							</ul>
 						</section>
@@ -148,7 +149,7 @@
 					<div class="tsd-signature tsd-kind-icon">SBV2_<wbr>DEVNET_<wbr>PID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/658002c/src/sbv2.ts#L22">sbv2.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L22">sbv2.ts:22</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -158,7 +159,7 @@
 					<div class="tsd-signature tsd-kind-icon">SBV2_<wbr>MAINNET_<wbr>PID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/658002c/src/sbv2.ts#L25">sbv2.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L25">sbv2.ts:25</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -175,7 +176,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/658002c/src/sbv2.ts#L3464">sbv2.ts:3464</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L3463">sbv2.ts:3463</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -198,7 +199,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/658002c/src/sbv2.ts#L3477">sbv2.ts:3477</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L3476">sbv2.ts:3476</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -242,7 +243,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/658002c/src/sbv2.ts#L3544">sbv2.ts:3544</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L3543">sbv2.ts:3543</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -279,6 +280,38 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="sendall" class="tsd-anchor"></a>
+					<h3>send<wbr>All</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">send<wbr>All<span class="tsd-signature-symbol">(</span>provider<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">anchor.Provider</span>, reqs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span>, signers<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Keypair</span><span class="tsd-signature-symbol">[]</span>, skipPreflight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TransactionSignature</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L3405">sbv2.ts:3405</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>provider: <span class="tsd-signature-type">anchor.Provider</span></h5>
+								</li>
+								<li>
+									<h5>reqs: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>signers: <span class="tsd-signature-type">Keypair</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>skipPreflight: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">TransactionSignature</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
 					<a name="signtransactions" class="tsd-anchor"></a>
 					<h3>sign<wbr>Transactions</h3>
 					<ul class="tsd-signatures tsd-kind-function">
@@ -288,7 +321,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/658002c/src/sbv2.ts#L3565">sbv2.ts:3565</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L3564">sbv2.ts:3564</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -477,6 +510,9 @@
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="modules.html#packtransactions" class="tsd-kind-icon">pack<wbr>Transactions</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#sendall" class="tsd-kind-icon">send<wbr>All</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="modules.html#signtransactions" class="tsd-kind-icon">sign<wbr>Transactions</a>

@@ -3402,7 +3402,7 @@ export class VrfAccount {
   }
 }
 
-async function sendAll(
+export async function sendAll(
   provider: anchor.Provider,
   reqs: Array<any>,
   signers: Array<Keypair>,
@@ -3411,9 +3411,8 @@ async function sendAll(
   let res: Array<TransactionSignature> = [];
   try {
     const opts = provider.opts;
-    const blockhash = await provider.connection.getRecentBlockhash(
-      opts.preflightCommitment
-    );
+    // TODO: maybe finalized
+    const blockhash = await provider.connection.getRecentBlockhash("confirmed");
 
     let txs = reqs.map((r: any) => {
       if (r === null || r === undefined) return new Transaction();
@@ -3450,7 +3449,7 @@ async function sendAll(
       promises.push(
         provider.connection.sendRawTransaction(rawTx, {
           skipPreflight,
-          maxRetries: 100,
+          maxRetries: 10,
         })
       );
     }
