@@ -3,24 +3,25 @@ import * as spl from "@solana/spl-token";
 import {
   AccountInfo,
   AccountMeta,
-  Keypair,
+  ConfirmOptions,
   Connection,
+  Keypair,
+  PACKET_DATA_SIZE,
   PublicKey,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
+  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+  Signer,
   SystemProgram,
   Transaction,
-  TransactionSignature,
-  sendAndConfirmTransaction,
-  Signer,
-  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
-  ConfirmOptions,
-  SYSVAR_INSTRUCTIONS_PUBKEY,
   TransactionInstruction,
-  PACKET_DATA_SIZE,
+  TransactionSignature,
   clusterApiUrl,
+  sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
+import { getGovernance } from "@solana/spl-governance";
 
 /**
  * Switchboard Devnet Program ID
@@ -35,6 +36,10 @@ export const SBV2_DEVNET_PID = new PublicKey(
  */
 export const SBV2_MAINNET_PID = new PublicKey(
   "SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f"
+);
+
+export const GOVERNANCE_PID = new PublicKey(
+  "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
 );
 
 /**
@@ -206,6 +211,11 @@ export interface AccountParams {
  */
 export interface ProgramInitParams {
   mint?: PublicKey;
+  daoMint?: PublicKey;
+}
+export interface ProgramConfigParams {
+  mint?: PublicKey;
+  daoMint?: PublicKey;
 }
 
 /**
@@ -364,6 +374,7 @@ export class ProgramStateAccount {
           payer: payerKeypair.publicKey,
           systemProgram: SystemProgram.programId,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
+          daoMint: params.daoMint,
         },
       }
     );
@@ -1603,6 +1614,36 @@ export class PermissionAccount {
     program: anchor.Program,
     params: PermissionInitParams
   ): Promise<PermissionAccount> {
+    const [programStateAccount, stateBump] =
+      ProgramStateAccount.fromSeed(program);
+    const state = await programStateAccount.loadData();
+    const authorityInfo = await program.provider.connection.getAccountInfo(
+      params.authority
+    );
+    let remainingAccounts = [];
+    if (authorityInfo.owner.equals(GOVERNANCE_PID)) {
+      const governance = (
+        await getGovernance(program.provider.connection, params.authority)
+      ).account;
+      const [tokenOwnerPubkey] = anchor.utils.publicKey.findProgramAddressSync(
+        [
+          Buffer.from("governance"),
+          governance.realm.toBytes(),
+          state.daoMint.toBytes(),
+          params.grantee.toBytes(),
+        ],
+        GOVERNANCE_PID
+      );
+      const [voterWeightPubkey] = anchor.utils.publicKey.findProgramAddressSync(
+        [Buffer.from("VoterWeightRecord"), params.grantee.toBytes()],
+        program.programId
+      );
+      remainingAccounts = [
+        voterWeightPubkey,
+        governance.realm,
+        tokenOwnerPubkey,
+      ];
+    }
     const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
       program,
       params.authority,
@@ -1612,6 +1653,7 @@ export class PermissionAccount {
     await program.rpc.permissionInit(
       {
         permissionBump,
+        stateBump,
       },
       {
         accounts: {
@@ -1621,7 +1663,11 @@ export class PermissionAccount {
           grantee: params.grantee,
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
+          programState: programStateAccount.publicKey,
+          govProgram: GOVERNANCE_PID,
+          daoMint: state.daoMint,
         },
+        remainingAccounts,
       }
     );
     return new PermissionAccount({
@@ -3646,4 +3692,56 @@ export function signTransactions(
     }
   }
   return transactions;
+}
+
+// Create mint with a pre-generated keypair.
+export async function createMint(
+  connection: Connection,
+  payer: Signer,
+  mintAuthority: PublicKey,
+  freezeAuthority: PublicKey | null,
+  decimals: number,
+  programId: PublicKey,
+  mintAccount: Keypair
+): Promise<spl.Token> {
+  const tkn = new spl.Token(
+    connection,
+    mintAccount.publicKey,
+    programId,
+    payer
+  );
+
+  // Allocate memory for the account
+  const balanceNeeded = await spl.Token.getMinBalanceRentForExemptMint(
+    connection
+  );
+
+  const transaction = new Transaction();
+  transaction.add(
+    SystemProgram.createAccount({
+      fromPubkey: payer.publicKey,
+      newAccountPubkey: mintAccount.publicKey,
+      lamports: balanceNeeded,
+      space: spl.MintLayout.span,
+      programId,
+    })
+  );
+
+  transaction.add(
+    spl.Token.createInitMintInstruction(
+      programId,
+      mintAccount.publicKey,
+      decimals,
+      mintAuthority,
+      freezeAuthority
+    )
+  );
+
+  // Send the two instructions
+  await sendAndConfirmTransaction(connection, transaction, [
+    payer,
+    mintAccount,
+  ]);
+
+  return tkn;
 }
