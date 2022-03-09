@@ -132,6 +132,8 @@
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function"><a href="modules.html#getpayer" class="tsd-kind-icon">get<wbr>Payer</a></li>
+								<li class="tsd-kind-function"><a href="modules.html#loadswitchboardpid" class="tsd-kind-icon">load<wbr>Switchboard<wbr>Pid</a></li>
+								<li class="tsd-kind-function"><a href="modules.html#loadswitchboardprogram" class="tsd-kind-icon">load<wbr>Switchboard<wbr>Program</a></li>
 								<li class="tsd-kind-function"><a href="modules.html#packinstructions" class="tsd-kind-icon">pack<wbr>Instructions</a></li>
 								<li class="tsd-kind-function"><a href="modules.html#packtransactions" class="tsd-kind-icon">pack<wbr>Transactions</a></li>
 								<li class="tsd-kind-function"><a href="modules.html#sendall" class="tsd-kind-icon">send<wbr>All</a></li>
@@ -149,9 +151,15 @@
 					<div class="tsd-signature tsd-kind-icon">SBV2_<wbr>DEVNET_<wbr>PID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L22">sbv2.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ddd56f16/src/sbv2.ts#L29">sbv2.ts:29</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Switchboard Devnet Program ID
+							2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable">
 					<a name="sbv2_mainnet_pid" class="tsd-anchor"></a>
@@ -159,9 +167,15 @@
 					<div class="tsd-signature tsd-kind-icon">SBV2_<wbr>MAINNET_<wbr>PID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">PublicKey</span><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L25">sbv2.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ddd56f16/src/sbv2.ts#L36">sbv2.ts:36</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Switchboard Mainnet Program ID
+							SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f</p>
+						</div>
+					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -176,7 +190,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L3463">sbv2.ts:3463</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ddd56f16/src/sbv2.ts#L3523">sbv2.ts:3523</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -190,6 +204,88 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="loadswitchboardpid" class="tsd-anchor"></a>
+					<h3>load<wbr>Switchboard<wbr>Pid</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">load<wbr>Switchboard<wbr>Pid<span class="tsd-signature-symbol">(</span>cluster<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;devnet&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;mainnet-beta&quot;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PublicKey</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ddd56f16/src/sbv2.ts#L45">sbv2.ts:45</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Load the Switchboard Program ID for a given cluster</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>cluster: <span class="tsd-signature-type">&quot;devnet&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;mainnet-beta&quot;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>solana cluster to fetch program ID for</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">PublicKey</span></h4>
+							<p>Switchboard Program ID Public Key</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="loadswitchboardprogram" class="tsd-anchor"></a>
+					<h3>load<wbr>Switchboard<wbr>Program</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">load<wbr>Switchboard<wbr>Program<span class="tsd-signature-symbol">(</span>cluster<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;devnet&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;mainnet-beta&quot;</span>, connection<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Connection</span>, payerKeypair<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Keypair</span>, confirmOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ConfirmOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">anchor.Program</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ddd56f16/src/sbv2.ts#L66">sbv2.ts:66</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Load the Switchboard Program for a given cluster</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>cluster: <span class="tsd-signature-type">&quot;devnet&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;mainnet-beta&quot;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>solana cluster to interact with</p>
+									</div>
+								</li>
+								<li>
+									<h5>connection: <span class="tsd-signature-type">Connection</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>optional Connection object to use for rpc request</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> payerKeypair: <span class="tsd-signature-type">Keypair</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>optional Keypair to use for onchain txns. If ommited, a dummy keypair will be used and onchain txns will fail</p>
+									</div>
+								</li>
+								<li>
+									<h5>confirmOptions: <span class="tsd-signature-type">ConfirmOptions</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>optional confirmation options for rpc request</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">anchor.Program</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>Switchboard Program</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
 					<a name="packinstructions" class="tsd-anchor"></a>
 					<h3>pack<wbr>Instructions</h3>
 					<ul class="tsd-signatures tsd-kind-function">
@@ -199,7 +295,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L3476">sbv2.ts:3476</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ddd56f16/src/sbv2.ts#L3536">sbv2.ts:3536</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -243,7 +339,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L3543">sbv2.ts:3543</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ddd56f16/src/sbv2.ts#L3603">sbv2.ts:3603</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -289,7 +385,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L3405">sbv2.ts:3405</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ddd56f16/src/sbv2.ts#L3465">sbv2.ts:3465</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -321,7 +417,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/91b68f6/src/sbv2.ts#L3564">sbv2.ts:3564</a></li>
+									<li>Defined in <a href="https://github.com/switchboard-xyz/switchboardv2-api/blob/ddd56f16/src/sbv2.ts#L3624">sbv2.ts:3624</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -504,6 +600,12 @@
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="modules.html#getpayer" class="tsd-kind-icon">get<wbr>Payer</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#loadswitchboardpid" class="tsd-kind-icon">load<wbr>Switchboard<wbr>Pid</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#loadswitchboardprogram" class="tsd-kind-icon">load<wbr>Switchboard<wbr>Program</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="modules.html#packinstructions" class="tsd-kind-icon">pack<wbr>Instructions</a>
