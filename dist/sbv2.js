@@ -22,15 +22,63 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signTransactions = exports.packTransactions = exports.packInstructions = exports.getPayer = exports.sendAll = exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
+exports.signTransactions = exports.packTransactions = exports.packInstructions = exports.getPayer = exports.sendAll = exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.loadSwitchboardProgram = exports.loadSwitchboardPid = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
 const anchor = __importStar(require("@project-serum/anchor"));
 const spl = __importStar(require("@solana/spl-token"));
 const web3_js_1 = require("@solana/web3.js");
 const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
+/**
+ * Switchboard Devnet Program ID
+ * 2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG
+ */
 exports.SBV2_DEVNET_PID = new web3_js_1.PublicKey("2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG");
+/**
+ * Switchboard Mainnet Program ID
+ * SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f
+ */
 exports.SBV2_MAINNET_PID = new web3_js_1.PublicKey("SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f");
+/**
+ * Load the Switchboard Program ID for a given cluster
+ * @param cluster solana cluster to fetch program ID for
+ * @return Switchboard Program ID Public Key
+ */
+function loadSwitchboardPid(cluster) {
+    switch (cluster) {
+        case "devnet":
+            return exports.SBV2_DEVNET_PID;
+        case "mainnet-beta":
+            return exports.SBV2_MAINNET_PID;
+        default:
+            throw new Error(`no Switchboard PID associated with cluster ${cluster}`);
+    }
+}
+exports.loadSwitchboardPid = loadSwitchboardPid;
+/**
+ * Load the Switchboard Program for a given cluster
+ * @param cluster solana cluster to interact with
+ * @param connection optional Connection object to use for rpc request
+ * @param payerKeypair optional Keypair to use for onchain txns. If ommited, a dummy keypair will be used and onchain txns will fail
+ * @param confirmOptions optional confirmation options for rpc request
+ * @return Switchboard Program
+ */
+async function loadSwitchboardProgram(cluster, connection = new web3_js_1.Connection(web3_js_1.clusterApiUrl(cluster)), payerKeypair, confirmOptions = {
+    commitment: "confirmed",
+}) {
+    const DEFAULT_KEYPAIR = web3_js_1.Keypair.fromSeed(new Uint8Array(32).fill(1));
+    const programId = loadSwitchboardPid(cluster);
+    const wallet = payerKeypair
+        ? new anchor.Wallet(payerKeypair)
+        : new anchor.Wallet(DEFAULT_KEYPAIR);
+    const provider = new anchor.Provider(connection, wallet, confirmOptions);
+    const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
+    if (!anchorIdl) {
+        throw new Error(`failed to read idl for ${cluster} ${programId}`);
+    }
+    return new anchor.Program(anchorIdl, programId, provider);
+}
+exports.loadSwitchboardProgram = loadSwitchboardProgram;
 /**
  * Switchboard precisioned representation of numbers.
  */

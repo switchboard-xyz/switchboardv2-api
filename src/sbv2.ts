@@ -4,6 +4,7 @@ import {
   AccountInfo,
   AccountMeta,
   Keypair,
+  Connection,
   PublicKey,
   SystemProgram,
   Transaction,
@@ -11,20 +12,79 @@ import {
   sendAndConfirmTransaction,
   Signer,
   SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+  ConfirmOptions,
   SYSVAR_INSTRUCTIONS_PUBKEY,
   TransactionInstruction,
   PACKET_DATA_SIZE,
+  clusterApiUrl,
 } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
 
+/**
+ * Switchboard Devnet Program ID
+ * 2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG
+ */
 export const SBV2_DEVNET_PID = new PublicKey(
   "2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG"
 );
+/**
+ * Switchboard Mainnet Program ID
+ * SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f
+ */
 export const SBV2_MAINNET_PID = new PublicKey(
   "SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f"
 );
+
+/**
+ * Load the Switchboard Program ID for a given cluster
+ * @param cluster solana cluster to fetch program ID for
+ * @return Switchboard Program ID Public Key
+ */
+export function loadSwitchboardPid(
+  cluster: "devnet" | "mainnet-beta"
+): PublicKey {
+  switch (cluster) {
+    case "devnet":
+      return SBV2_DEVNET_PID;
+    case "mainnet-beta":
+      return SBV2_MAINNET_PID;
+    default:
+      throw new Error(`no Switchboard PID associated with cluster ${cluster}`);
+  }
+}
+
+/**
+ * Load the Switchboard Program for a given cluster
+ * @param cluster solana cluster to interact with
+ * @param connection optional Connection object to use for rpc request
+ * @param payerKeypair optional Keypair to use for onchain txns. If ommited, a dummy keypair will be used and onchain txns will fail
+ * @param confirmOptions optional confirmation options for rpc request
+ * @return Switchboard Program
+ */
+export async function loadSwitchboardProgram(
+  cluster: "devnet" | "mainnet-beta",
+  connection = new Connection(clusterApiUrl(cluster)),
+  payerKeypair?: Keypair,
+  confirmOptions: ConfirmOptions = {
+    commitment: "confirmed",
+  }
+): Promise<anchor.Program> {
+  const DEFAULT_KEYPAIR = Keypair.fromSeed(new Uint8Array(32).fill(1));
+  const programId = loadSwitchboardPid(cluster);
+  const wallet: anchor.Wallet = payerKeypair
+    ? new anchor.Wallet(payerKeypair)
+    : new anchor.Wallet(DEFAULT_KEYPAIR);
+  const provider = new anchor.Provider(connection, wallet, confirmOptions);
+
+  const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
+  if (!anchorIdl) {
+    throw new Error(`failed to read idl for ${cluster} ${programId}`);
+  }
+
+  return new anchor.Program(anchorIdl, programId, provider);
+}
 
 /**
  * Switchboard precisioned representation of numbers.

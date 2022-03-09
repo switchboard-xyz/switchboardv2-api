@@ -1,12 +1,35 @@
 /// <reference types="node" />
 import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
-import { AccountInfo, AccountMeta, Keypair, PublicKey, Transaction, TransactionSignature, TransactionInstruction } from "@solana/web3.js";
+import { AccountInfo, AccountMeta, Keypair, PublicKey, Transaction, TransactionSignature, ConfirmOptions, TransactionInstruction } from "@solana/web3.js";
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
+/**
+ * Switchboard Devnet Program ID
+ * 2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG
+ */
 export declare const SBV2_DEVNET_PID: anchor.web3.PublicKey;
+/**
+ * Switchboard Mainnet Program ID
+ * SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f
+ */
 export declare const SBV2_MAINNET_PID: anchor.web3.PublicKey;
+/**
+ * Load the Switchboard Program ID for a given cluster
+ * @param cluster solana cluster to fetch program ID for
+ * @return Switchboard Program ID Public Key
+ */
+export declare function loadSwitchboardPid(cluster: "devnet" | "mainnet-beta"): PublicKey;
+/**
+ * Load the Switchboard Program for a given cluster
+ * @param cluster solana cluster to interact with
+ * @param connection optional Connection object to use for rpc request
+ * @param payerKeypair optional Keypair to use for onchain txns. If ommited, a dummy keypair will be used and onchain txns will fail
+ * @param confirmOptions optional confirmation options for rpc request
+ * @return Switchboard Program
+ */
+export declare function loadSwitchboardProgram(cluster: "devnet" | "mainnet-beta", connection?: anchor.web3.Connection, payerKeypair?: Keypair, confirmOptions?: ConfirmOptions): Promise<anchor.Program>;
 /**
  * Switchboard precisioned representation of numbers.
  */
