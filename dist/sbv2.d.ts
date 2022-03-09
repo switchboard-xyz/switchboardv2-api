@@ -20,7 +20,7 @@ export declare const SBV2_MAINNET_PID: anchor.web3.PublicKey;
  * @param cluster solana cluster to fetch program ID for
  * @return Switchboard Program ID Public Key
  */
-export declare function loadSwitchboardPid(cluster: "devnet" | "mainnet-beta"): PublicKey;
+export declare function getSwitchboardPid(cluster: "devnet" | "mainnet-beta"): PublicKey;
 /**
  * Load the Switchboard Program for a given cluster
  * @param cluster solana cluster to interact with

@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signTransactions = exports.packTransactions = exports.packInstructions = exports.getPayer = exports.sendAll = exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.loadSwitchboardProgram = exports.loadSwitchboardPid = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
+exports.signTransactions = exports.packTransactions = exports.packInstructions = exports.getPayer = exports.sendAll = exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.loadSwitchboardProgram = exports.getSwitchboardPid = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
 const anchor = __importStar(require("@project-serum/anchor"));
 const spl = __importStar(require("@solana/spl-token"));
 const web3_js_1 = require("@solana/web3.js");
@@ -44,7 +44,7 @@ exports.SBV2_MAINNET_PID = new web3_js_1.PublicKey("SW1TCH7qEPTdLsDHRgPuMQjbQxKd
  * @param cluster solana cluster to fetch program ID for
  * @return Switchboard Program ID Public Key
  */
-function loadSwitchboardPid(cluster) {
+function getSwitchboardPid(cluster) {
     switch (cluster) {
         case "devnet":
             return exports.SBV2_DEVNET_PID;
@@ -54,7 +54,7 @@ function loadSwitchboardPid(cluster) {
             throw new Error(`no Switchboard PID associated with cluster ${cluster}`);
     }
 }
-exports.loadSwitchboardPid = loadSwitchboardPid;
+exports.getSwitchboardPid = getSwitchboardPid;
 /**
  * Load the Switchboard Program for a given cluster
  * @param cluster solana cluster to interact with
@@ -67,7 +67,7 @@ async function loadSwitchboardProgram(cluster, connection = new web3_js_1.Connec
     commitment: "confirmed",
 }) {
     const DEFAULT_KEYPAIR = web3_js_1.Keypair.fromSeed(new Uint8Array(32).fill(1));
-    const programId = loadSwitchboardPid(cluster);
+    const programId = getSwitchboardPid(cluster);
     const wallet = payerKeypair
         ? new anchor.Wallet(payerKeypair)
         : new anchor.Wallet(DEFAULT_KEYPAIR);

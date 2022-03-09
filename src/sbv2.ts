@@ -42,7 +42,7 @@ export const SBV2_MAINNET_PID = new PublicKey(
  * @param cluster solana cluster to fetch program ID for
  * @return Switchboard Program ID Public Key
  */
-export function loadSwitchboardPid(
+export function getSwitchboardPid(
   cluster: "devnet" | "mainnet-beta"
 ): PublicKey {
   switch (cluster) {
@@ -72,7 +72,7 @@ export async function loadSwitchboardProgram(
   }
 ): Promise<anchor.Program> {
   const DEFAULT_KEYPAIR = Keypair.fromSeed(new Uint8Array(32).fill(1));
-  const programId = loadSwitchboardPid(cluster);
+  const programId = getSwitchboardPid(cluster);
   const wallet: anchor.Wallet = payerKeypair
     ? new anchor.Wallet(payerKeypair)
     : new anchor.Wallet(DEFAULT_KEYPAIR);
