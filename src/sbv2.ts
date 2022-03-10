@@ -1707,18 +1707,35 @@ export class PermissionAccount {
    * @return TransactionSignature.
    */
   async set(params: PermissionSetParams): Promise<TransactionSignature> {
+    const permissionData = await this.loadData();
+    const authorityInfo = await this.program.provider.connection.getAccountInfo(
+      permissionData.authority
+    );
+    let remainingAccounts = [];
+    let vwb = undefined;
+    if (authorityInfo.owner.equals(GOVERNANCE_PID)) {
+      const [voterWeightPubkey, voterWeightBump] =
+        anchor.utils.publicKey.findProgramAddressSync(
+          [Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()],
+          this.program.programId
+        );
+      vwb = voterWeightBump;
+      remainingAccounts = [voterWeightPubkey];
+    }
     const permission = new Map<string, null>();
     permission.set(params.permission.toString(), null);
     return await this.program.rpc.permissionSet(
       {
         permission: Object.fromEntries(permission),
         enable: params.enable,
+        voterWeightBump: vwb,
       },
       {
         accounts: {
           permission: this.publicKey,
           authority: params.authority.publicKey,
         },
+        remainingAccounts,
         signers: [params.authority],
       }
     );
