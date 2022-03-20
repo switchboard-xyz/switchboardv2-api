@@ -40,7 +40,13 @@ export const SBV2_MAINNET_PID = new PublicKey(
 
 export const GOVERNANCE_PID = new PublicKey(
   "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
+  //"2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend"
 );
+
+/*export const REAL_GOVERNANCE_PID = new PublicKey(
+  "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
+  //"2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend"
+);*/
 
 /**
  * Load the Switchboard Program ID for a given cluster
@@ -1510,6 +1516,7 @@ export interface PermissionInitParams {
    *  The authority that is allowed to set permissions for this account.
    */
   authority: PublicKey;
+  oracleOwner?: PublicKey;
 }
 
 /**
@@ -1630,18 +1637,34 @@ export class PermissionAccount {
           Buffer.from("governance"),
           governance.realm.toBytes(),
           state.daoMint.toBytes(),
-          params.grantee.toBytes(),
+          params.oracleOwner.toBytes(),
         ],
         GOVERNANCE_PID
       );
+      const [realTokenOwnerPubkey] = anchor.utils.publicKey.findProgramAddressSync(
+        [
+          Buffer.from("governance"),
+          governance.realm.toBytes(),
+          state.daoMint.toBytes(),
+          params.oracleOwner.toBytes(),
+        ],
+        GOVERNANCE_PID
+      );
+      console.log(`token owner pubkey: ${tokenOwnerPubkey.toBase58()}`);
+      console.log(`real token owner pubkey: ${realTokenOwnerPubkey.toBase58()}`);
       const [voterWeightPubkey] = anchor.utils.publicKey.findProgramAddressSync(
         [Buffer.from("VoterWeightRecord"), params.grantee.toBytes()],
+        program.programId
+      );
+      const [realmSpawnRecord] = anchor.utils.publicKey.findProgramAddressSync(
+        [Buffer.from("RealmSpawnRecord"), governance.realm.toBytes()],
         program.programId
       );
       remainingAccounts = [
         voterWeightPubkey,
         governance.realm,
         tokenOwnerPubkey,
+        realmSpawnRecord
       ];
     }
     const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
@@ -1650,12 +1673,29 @@ export class PermissionAccount {
       params.granter,
       params.grantee
     );
-    await program.rpc.permissionInit(
+    const payerKeypair = Keypair.fromSecretKey(
+      (program.provider.wallet as any).payer.secretKey
+    );
+    console.log({
+          permission: permissionAccount.publicKey.toBase58(),
+          authority: params.authority.toBase58(),
+          granter: params.granter.toBase58(),
+          grantee: params.grantee.toBase58(),
+          systemProgram: SystemProgram.programId.toBase58(),
+          payer: program.provider.wallet.publicKey.toBase58(),
+          programState: programStateAccount.publicKey.toBase58(),
+          govProgram: GOVERNANCE_PID.toBase58(),
+          daoMint: state.daoMint.toBase58(),
+          oracleOwner: params.oracleOwner.toBase58(),
+    });
+    console.log(remainingAccounts.map((pk) => pk.toBase58()));
+    /*await program.rpc.permissionInit(
       {
         permissionBump,
         stateBump,
       },
       {
+        signers: [payerKeypair],
         accounts: {
           permission: permissionAccount.publicKey,
           authority: params.authority,
@@ -1666,10 +1706,40 @@ export class PermissionAccount {
           programState: programStateAccount.publicKey,
           govProgram: GOVERNANCE_PID,
           daoMint: state.daoMint,
+          oracleOwner: params.oracleOwner,
         },
-        remainingAccounts,
+        remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
+          return { isSigner: false, isWritable: true, pubkey };
+        })
+      }
+    );*/
+    let tx = await program.transaction.permissionInit(
+      {
+        permissionBump,
+        stateBump,
+      },
+      {
+        signers: [payerKeypair],
+        accounts: {
+          permission: permissionAccount.publicKey,
+          authority: params.authority,
+          granter: params.granter,
+          grantee: params.grantee,
+          systemProgram: SystemProgram.programId,
+          payer: program.provider.wallet.publicKey,
+          programState: programStateAccount.publicKey,
+          govProgram: GOVERNANCE_PID,
+          daoMint: state.daoMint,
+          oracleOwner: params.oracleOwner,
+        },
+        remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
+          return { isSigner: false, isWritable: true, pubkey };
+        })
       }
     );
+    await program.provider.connection.sendTransaction(tx, [payerKeypair], {
+      skipPreflight: true,
+    });
     return new PermissionAccount({
       program,
       publicKey: permissionAccount.publicKey,
