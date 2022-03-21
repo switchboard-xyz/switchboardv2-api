@@ -40,9 +40,9 @@ exports.SBV2_DEVNET_PID = new web3_js_1.PublicKey("2TfB33aLaneQb5TNVwyDz3jSZXS6j
  * SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f
  */
 exports.SBV2_MAINNET_PID = new web3_js_1.PublicKey("SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f");
-exports.GOVERNANCE_PID = new web3_js_1.PublicKey("GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
-//"2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend"
-);
+exports.GOVERNANCE_PID = new web3_js_1.PublicKey(
+// "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
+"8zErDSAevezyT8K37pgjczag7GZUJDvfwfKmZMW3vo7f");
 /*export const REAL_GOVERNANCE_PID = new PublicKey(
   "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
   //"2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend"
@@ -1060,7 +1060,7 @@ class PermissionAccount {
                 voterWeightPubkey,
                 governance.realm,
                 tokenOwnerPubkey,
-                realmSpawnRecord
+                realmSpawnRecord,
             ];
         }
         const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(program, params.authority, params.granter, params.grantee);
@@ -1121,10 +1121,10 @@ class PermissionAccount {
             },
             remainingAccounts: remainingAccounts.map((pubkey) => {
                 return { isSigner: false, isWritable: true, pubkey };
-            })
+            }),
         });
         await program.provider.connection.sendTransaction(tx, [payerKeypair], {
-            skipPreflight: true,
+            skipPreflight: false,
         });
         return new PermissionAccount({
             program,
