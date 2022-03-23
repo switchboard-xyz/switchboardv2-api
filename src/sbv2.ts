@@ -39,8 +39,7 @@ export const SBV2_MAINNET_PID = new PublicKey(
 );
 
 export const GOVERNANCE_PID = new PublicKey(
-  //"GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
-  "2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend"
+  "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
 );
 
 /*export const REAL_GOVERNANCE_PID = new PublicKey(
@@ -1654,7 +1653,6 @@ export class PermissionAccount {
         governance.realm,
         tokenOwnerPubkey,
         realmSpawnRecord,
-        params.oracleOwner
       ];
     }
     const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
@@ -1686,7 +1684,7 @@ export class PermissionAccount {
         },
         remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
           return { isSigner: false, isWritable: true, pubkey };
-        })
+        }),
       }
     );
     return new PermissionAccount({
