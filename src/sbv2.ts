@@ -2939,7 +2939,7 @@ export class OracleAccount {
     accountInfo: AccountInfo<Buffer>
   ): any {
     const coder = new anchor.BorshAccountsCoder(program.idl);
-    const key = "OracleccountData";
+    const key = "OracleAccountData";
     const data = coder.decode(key, accountInfo?.data!);
     return data;
   }
