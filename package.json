@@ -37,6 +37,7 @@
     "buffer-layout": "^1.2.0",
     "chan": "^0.6.1",
     "crypto-js": "^4.0.0",
+    "dotenv": "^16.0.0",
     "long": "^4.0.0",
     "protobufjs": "^6.10.2",
     "ts-proto": "^1.79.0",
