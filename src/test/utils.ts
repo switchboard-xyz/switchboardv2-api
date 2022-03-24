@@ -7,7 +7,7 @@ import * as sbv2 from "../sbv2";
 import Big from "big.js";
 import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
 
-const DEFAULT_PUBKEY = new PublicKey("11111111111111111111111111111111");
+export const DEFAULT_PUBKEY = new PublicKey("11111111111111111111111111111111");
 
 export const sleep = (ms: number): Promise<any> =>
   new Promise((s) => setTimeout(s, ms));

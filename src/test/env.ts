@@ -1,11 +1,11 @@
-import { clusterApiUrl, Connection, PublicKey, Keypair } from "@solana/web3.js";
-import { loadSwitchboardProgram } from "../sbv2";
-import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
 import * as sbv2 from "../sbv2";
 import * as anchor from "@project-serum/anchor";
-import { OracleJob } from "@switchboard-xyz/switchboard-api";
+import { clusterApiUrl, Connection, PublicKey, Keypair } from "@solana/web3.js";
+import { loadSwitchboardProgram } from "../sbv2";
 import { getIdlAddress, getProgramDataAddress } from "./utils";
 import fs from "fs";
+import path from "path";
+import chalk from "chalk";
 
 export interface ISwitchboardTestEnvironment {
   programId: PublicKey;
@@ -13,9 +13,8 @@ export interface ISwitchboardTestEnvironment {
   idlAddress: PublicKey;
   programState: PublicKey;
   switchboardVault: PublicKey;
-  usdcMint: PublicKey;
   switchboardMint: PublicKey;
-  authorWallet: PublicKey;
+  tokenWallet: PublicKey;
   queue: PublicKey;
   queueAuthority: PublicKey;
   queueBuffer: PublicKey;
@@ -24,22 +23,17 @@ export interface ISwitchboardTestEnvironment {
   oracle: PublicKey;
   oracleEscrow: PublicKey;
   oraclePermissions: PublicKey;
-  aggregator: PublicKey;
-  aggregatorPermissions: PublicKey;
-  aggregatorJob1: PublicKey;
-  aggregatorLease: PublicKey;
-  leaseEscrow: PublicKey;
 }
 
+/** Contains all of the necessary devnet Switchboard accounts to clone to localnet */
 export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
   programId: PublicKey;
   programDataAddress: PublicKey;
   idlAddress: PublicKey;
   programState: PublicKey;
   switchboardVault: PublicKey;
-  usdcMint: PublicKey;
   switchboardMint: PublicKey;
-  authorWallet: PublicKey;
+  tokenWallet: PublicKey;
   queue: PublicKey;
   queueAuthority: PublicKey;
   queueBuffer: PublicKey;
@@ -48,11 +42,6 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
   oracle: PublicKey;
   oracleEscrow: PublicKey;
   oraclePermissions: PublicKey;
-  aggregator: PublicKey;
-  aggregatorPermissions: PublicKey;
-  aggregatorJob1: PublicKey;
-  aggregatorLease: PublicKey;
-  leaseEscrow: PublicKey;
 
   constructor(ctx: ISwitchboardTestEnvironment) {
     this.programId = ctx.programId;
@@ -60,9 +49,8 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
     this.idlAddress = ctx.idlAddress;
     this.programState = ctx.programState;
     this.switchboardVault = ctx.switchboardVault;
-    this.usdcMint = ctx.usdcMint;
     this.switchboardMint = ctx.switchboardMint;
-    this.authorWallet = ctx.authorWallet;
+    this.tokenWallet = ctx.tokenWallet;
     this.queue = ctx.queue;
     this.queueAuthority = ctx.queueAuthority;
     this.queueBuffer = ctx.queueBuffer;
@@ -71,11 +59,6 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
     this.oracle = ctx.oracle;
     this.oracleEscrow = ctx.oracleEscrow;
     this.oraclePermissions = ctx.oraclePermissions;
-    this.aggregator = ctx.aggregator;
-    this.aggregatorPermissions = ctx.aggregatorPermissions;
-    this.aggregatorJob1 = ctx.aggregatorJob1;
-    this.aggregatorLease = ctx.aggregatorLease;
-    this.leaseEscrow = ctx.leaseEscrow;
   }
 
   private getAccountCloneString(): string {
@@ -85,16 +68,17 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
     return accounts.join(" ");
   }
 
-  public writeENV(filePath: string): void {
+  /** Write the env file to filesystem */
+  public writeEnv(filePath: string): void {
+    const ENV_FILE_PATH = path.join(filePath, "switchboard.env");
     let fileStr = "";
     fileStr += `SWITCHBOARD_PROGRAM_ID="${this.programId.toBase58()}"\n`;
     fileStr += `SWITCHBOARD_PROGRAM_DATA_ADDRESS="${this.programDataAddress.toBase58()}"\n`;
     fileStr += `SWITCHBOARD_IDL_ADDRESS="${this.idlAddress.toBase58()}"\n`;
     fileStr += `SWITCHBOARD_PROGRAM_STATE="${this.programState.toBase58()}"\n`;
     fileStr += `SWITCHBOARD_VAULT="${this.switchboardVault.toBase58()}"\n`;
-    fileStr += `USDC_MINT="${this.usdcMint.toBase58()}"\n`;
     fileStr += `SWITCHBOARD_MINT="${this.switchboardMint.toBase58()}"\n`;
-    fileStr += `AUTHOR_WALLET="${this.authorWallet.toBase58()}"\n`;
+    fileStr += `TOKEN_WALLET="${this.tokenWallet.toBase58()}"\n`;
     fileStr += `ORACLE_QUEUE="${this.queue.toBase58()}"\n`;
     fileStr += `ORACLE_QUEUE_AUTHORITY="${this.queueAuthority.toBase58()}"\n`;
     fileStr += `ORACLE_QUEUE_BUFFER="${this.queueBuffer.toBase58()}"\n`;
@@ -103,17 +87,58 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
     fileStr += `ORACLE="${this.oracle.toBase58()}"\n`;
     fileStr += `ORACLE_ESCROW="${this.oracleEscrow.toBase58()}"\n`;
     fileStr += `ORACLE_PERMISSIONS="${this.oraclePermissions.toBase58()}"\n`;
-    fileStr += `AGGREGATOR="${this.aggregator.toBase58()}"\n`;
-    fileStr += `AGGREGATOR_PERMISSIONS="${this.aggregatorPermissions.toBase58()}"\n`;
-    fileStr += `AGGREGATOR_JOB_1="${this.aggregatorJob1.toBase58()}"\n`;
-    fileStr += `AGGREGATOR_LEASE="${this.aggregatorLease.toBase58()}"\n`;
-    fileStr += `AGGREGATOR_LEASE_ESCROW="${this.leaseEscrow.toBase58()}"\n`;
     fileStr += `SWITCHBOARD_ACCOUNTS="${this.getAccountCloneString()}"\n`;
-    fs.writeFileSync(filePath, fileStr);
+    fs.writeFileSync(ENV_FILE_PATH, fileStr);
   }
 
   public writeJSON(filePath: string): void {
-    fs.writeFileSync(filePath, JSON.stringify(this, undefined, 2));
+    const JSON_FILE_PATH = path.join(filePath, "switchboard.json");
+    fs.writeFileSync(
+      JSON_FILE_PATH,
+      JSON.stringify(
+        this as ISwitchboardTestEnvironment,
+        (key, value) => {
+          if (value instanceof PublicKey) {
+            return value.toBase58();
+          }
+        },
+        2
+      )
+    );
+  }
+
+  public writeScripts(payerKeypair: Keypair, filePath = "./"): void {
+    const LOCAL_VALIDATOR_SCRIPT = path.join(
+      filePath,
+      "start-local-validator.sh"
+    );
+    // create bash script to startup local validator with appropriate accounts cloned
+    const baseValidatorCommand = `solana-test-validator -r --ledger .anchor/test-ledger --mint ${payerKeypair.publicKey.toBase58()} --deactivate-feature 5ekBxc8itEnPv4NzGJtr8BVVQLNMQuLMNQQj7pHoLNZ9 --bind-address 0.0.0.0 --url ${clusterApiUrl(
+      "devnet"
+    )} --rpc-port 8899 `;
+    const cloneAccountsString = this.getAccountCloneString();
+    const startValidatorCommand = `${baseValidatorCommand} ${cloneAccountsString}`;
+    fs.writeFileSync(
+      LOCAL_VALIDATOR_SCRIPT,
+      `#!/bin/bash\n\n${startValidatorCommand}`
+    );
+    console.log(
+      `${chalk.green("Bash script saved to:")} ${LOCAL_VALIDATOR_SCRIPT.replace(
+        process.cwd(),
+        "."
+      )}`
+    );
+
+    // create bash script to start local oracle
+    const ORACLE_SCRIPT = path.join(filePath, "start-oracle.sh");
+    const startOracleCommand = `ORACLE=${this.oracle.toBase58()} PAYER_KEYPAIR=${this.tokenWallet.toBase58()} docker-compose up`;
+    fs.writeFileSync(ORACLE_SCRIPT, `#!/bin/bash\n\n${startOracleCommand}`);
+    console.log(
+      `${chalk.green("Bash script saved to:")} ${ORACLE_SCRIPT.replace(
+        process.cwd(),
+        "."
+      )}`
+    );
   }
 
   /** Build a devnet environment to later clone to localnet */
@@ -196,80 +221,14 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
     });
     const oraclePermissions = await oraclePermissionAccount.loadData();
 
-    // create aggregator and add a single job to it
-    const aggregatorAccount = await sbv2.AggregatorAccount.create(
-      switchboardProgram,
-      {
-        name: Buffer.from("My SOL/USD Feed"),
-        authority: payerKeypair.publicKey, // can make account changes
-        authorWallet: payerSwitchboardWallet, // token wallet for payouts
-        batchSize: 1, // Number of oracles assigned to an update request
-        minRequiredJobResults: 1, // Min job results before a value is accepted
-        minRequiredOracleResults: 1, // Min oracles that must respond before a value is accepted
-        minUpdateDelaySeconds: 5, // Minimum time between update request
-        queueAccount,
-      }
-    );
-    const aggregator = await aggregatorAccount.loadData();
-    const jobAccount1 = await sbv2.JobAccount.create(switchboardProgram, {
-      name: Buffer.from("FtxUS SOL/USD"),
-      authorWallet: payerSwitchboardWallet, // token wallet for payouts
-      data: Buffer.from(
-        OracleJob.encodeDelimited(
-          OracleJob.create({
-            tasks: [
-              OracleJob.Task.create({
-                httpTask: OracleJob.HttpTask.create({
-                  url: `https://ftx.us/api/markets/SOL_USD`,
-                }),
-              }),
-              OracleJob.Task.create({
-                jsonParseTask: OracleJob.JsonParseTask.create({
-                  path: "$.result.price",
-                }),
-              }),
-            ],
-          })
-        ).finish()
-      ),
-    });
-    await aggregatorAccount.addJob(jobAccount1, payerKeypair);
-
-    // grant aggregator queue permissions
-    const aggregatorPermissionAccount = await sbv2.PermissionAccount.create(
-      switchboardProgram,
-      {
-        authority: queue.authority,
-        granter: queueAccount.publicKey,
-        grantee: aggregatorAccount.publicKey,
-      }
-    );
-    await aggregatorPermissionAccount.set({
-      authority: payerKeypair,
-      enable: true,
-      permission: sbv2.SwitchboardPermission.PERMIT_ORACLE_QUEUE_USAGE,
-    });
-    const aggregatorPermissions = await aggregatorPermissionAccount.loadData();
-
-    // create aggregator lease Account
-    const leaseAccount = await sbv2.LeaseAccount.create(switchboardProgram, {
-      loadAmount: new anchor.BN(0),
-      funder: payerSwitchboardWallet,
-      funderAuthority: payerKeypair,
-      oracleQueueAccount: queueAccount,
-      aggregatorAccount,
-    });
-    const lease = await leaseAccount.loadData();
-
     const ctx: ISwitchboardTestEnvironment = {
       programId: switchboardProgram.programId,
       programDataAddress,
       idlAddress,
       programState: switchboardProgramState.publicKey,
       switchboardVault: programState.tokenVault,
-      usdcMint: new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"),
       switchboardMint: switchboardMint.publicKey,
-      authorWallet: payerSwitchboardWallet,
+      tokenWallet: payerSwitchboardWallet,
       queue: queueAccount.publicKey,
       queueAuthority: queue.authority,
       queueBuffer: queue.dataBuffer,
@@ -278,11 +237,6 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
       oracle: oracleAccount.publicKey,
       oracleEscrow: oracle.tokenAccount,
       oraclePermissions: oraclePermissionAccount.publicKey,
-      aggregator: aggregatorAccount.publicKey,
-      aggregatorPermissions: aggregatorPermissionAccount.publicKey,
-      aggregatorJob1: jobAccount1.publicKey,
-      aggregatorLease: leaseAccount.publicKey,
-      leaseEscrow: lease.escrow,
     };
 
     return new SwitchboardTestEnvironment(ctx);
