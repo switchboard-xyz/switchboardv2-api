@@ -23,6 +23,9 @@ export interface ISwitchboardTestEnvironment {
   oracle: PublicKey;
   oracleEscrow: PublicKey;
   oraclePermissions: PublicKey;
+
+  // allow a map of public keys to include in clone script
+  additionalClonedAccounts?: Record<string, PublicKey>;
 }
 
 /** Contains all of the necessary devnet Switchboard accounts to clone to localnet */
@@ -42,6 +45,7 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
   oracle: PublicKey;
   oracleEscrow: PublicKey;
   oraclePermissions: PublicKey;
+  additionalClonedAccounts?: Record<string, PublicKey>;
 
   constructor(ctx: ISwitchboardTestEnvironment) {
     this.programId = ctx.programId;
@@ -59,13 +63,31 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
     this.oracle = ctx.oracle;
     this.oracleEscrow = ctx.oracleEscrow;
     this.oraclePermissions = ctx.oraclePermissions;
+    this.additionalClonedAccounts = ctx.additionalClonedAccounts;
   }
 
   private getAccountCloneString(): string {
-    const accounts: string[] = Object.keys(this).map(
-      (key) => `--clone ${(this[key] as PublicKey).toBase58()}`
-    );
+    const accounts: string[] = Object.keys(this).map((key) => {
+      // iterate over additionalClonedAccounts and collect pubkeys
+      if (key === "additionalClonedAccounts" && this[key]) {
+        const additionalPubkeys = Object.values(this.additionalClonedAccounts);
+        const cloneStrings = additionalPubkeys.map(
+          (pubkey) => `--clone ${pubkey.toBase58()}`
+        );
+        return cloneStrings.join(" ");
+      }
+
+      return `--clone ${(this[key] as PublicKey).toBase58()}`;
+    });
+
     return accounts.join(" ");
+  }
+
+  /** Save switchboard test environment */
+  public saveAll(payerKeypair: Keypair, filePath: string): void {
+    this.writeEnv(filePath);
+    this.writeJSON(filePath);
+    this.writeScripts(payerKeypair, filePath);
   }
 
   /** Write the env file to filesystem */
@@ -143,7 +165,8 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
 
   /** Build a devnet environment to later clone to localnet */
   static async create(
-    payerKeypair: Keypair
+    payerKeypair: Keypair,
+    additionalClonedAccounts?: Record<string, PublicKey>
   ): Promise<SwitchboardTestEnvironment> {
     const connection = new Connection(clusterApiUrl("devnet"), {
       commitment: "confirmed",
@@ -162,19 +185,22 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
 
     const [switchboardProgramState] =
       sbv2.ProgramStateAccount.fromSeed(switchboardProgram);
+
     const switchboardMint = await switchboardProgramState.getTokenMint();
+
     const payerSwitchboardWallet = (
       await switchboardMint.getOrCreateAssociatedAccountInfo(
         payerKeypair.publicKey
       )
     ).address;
+
     const programState = await switchboardProgramState.loadData();
 
     // create queue with unpermissioned VRF accounts enabled
     const queueAccount = await sbv2.OracleQueueAccount.create(
       switchboardProgram,
       {
-        name: Buffer.from("My Queue"),
+        name: Buffer.from("My Test Queue"),
         authority: payerKeypair.publicKey, // Approve new participants
         minStake: new anchor.BN(0), // Oracle minStake to heartbeat
         reward: new anchor.BN(0), // Oracle rewards per request (non-VRF)
@@ -219,7 +245,6 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
       enable: true,
       permission: sbv2.SwitchboardPermission.PERMIT_ORACLE_HEARTBEAT,
     });
-    const oraclePermissions = await oraclePermissionAccount.loadData();
 
     const ctx: ISwitchboardTestEnvironment = {
       programId: switchboardProgram.programId,
@@ -237,6 +262,7 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
       oracle: oracleAccount.publicKey,
       oracleEscrow: oracle.tokenAccount,
       oraclePermissions: oraclePermissionAccount.publicKey,
+      additionalClonedAccounts,
     };
 
     return new SwitchboardTestEnvironment(ctx);
