@@ -80,7 +80,6 @@ export async function loadSwitchboardProgram(
 ): Promise<anchor.Program> {
   const DEFAULT_KEYPAIR = Keypair.fromSeed(new Uint8Array(32).fill(1));
   const programId = getSwitchboardPid(cluster);
-  const anchorWallet = new anchor.Wallet(DEFAULT_KEYPAIR);
   const wallet: anchor.Wallet = payerKeypair
     ? new anchor.Wallet(payerKeypair)
     : new anchor.Wallet(DEFAULT_KEYPAIR);
