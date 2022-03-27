@@ -44,20 +44,20 @@ export class SwitchboardTestContext implements ISwitchboardTestContext {
     );
   }
 
-  public static async depositSwitchboardWallet(
-    program: anchor.Program,
-    wallet: PublicKey,
-    amount: number
-  ) {
-    const payerKeypair = sbv2.getPayer(program);
+  // public static async depositSwitchboardWallet(
+  //   program: anchor.Program,
+  //   wallet: PublicKey,
+  //   amount: number
+  // ) {
+  //   const payerKeypair = sbv2.getPayer(program);
 
-    const requestTxn = await program.provider.connection.requestAirdrop(
-      wallet,
-      amount
-    );
+  //   const requestTxn = await program.provider.connection.requestAirdrop(
+  //     wallet,
+  //     amount
+  //   );
 
-    // TODO: Figure out how to wrap from spl.Token
-  }
+  //   // TODO: Figure out how to wrap from spl.Token
+  // }
 
   /** Load SwitchboardTestContext from an env file containing $SWITCHBOARD_PROGRAM_ID, $ORACLE_QUEUE, $AGGREGATOR, $ORACLE
    * @param provider anchor Provider containing connection and payer Keypair
