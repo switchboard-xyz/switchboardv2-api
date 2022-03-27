@@ -21,6 +21,7 @@ export interface ISwitchboardTestEnvironment {
   crank: PublicKey;
   crankBuffer: PublicKey;
   oracle: PublicKey;
+  oracleAuthority: PublicKey;
   oracleEscrow: PublicKey;
   oraclePermissions: PublicKey;
 
@@ -43,6 +44,7 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
   crank: PublicKey;
   crankBuffer: PublicKey;
   oracle: PublicKey;
+  oracleAuthority: PublicKey;
   oracleEscrow: PublicKey;
   oraclePermissions: PublicKey;
   additionalClonedAccounts?: Record<string, PublicKey>;
@@ -61,6 +63,7 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
     this.crank = ctx.crank;
     this.crankBuffer = ctx.crankBuffer;
     this.oracle = ctx.oracle;
+    this.oracleAuthority = ctx.oracleAuthority;
     this.oracleEscrow = ctx.oracleEscrow;
     this.oraclePermissions = ctx.oraclePermissions;
     this.additionalClonedAccounts = ctx.additionalClonedAccounts;
@@ -83,11 +86,33 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
     return accounts.join(" ");
   }
 
-  /** Save switchboard test environment */
-  public saveAll(payerKeypair: Keypair, filePath: string): void {
+  public toJSON(): ISwitchboardTestEnvironment {
+    return {
+      programId: this.programId,
+      programDataAddress: this.programDataAddress,
+      idlAddress: this.idlAddress,
+      programState: this.programState,
+      switchboardVault: this.switchboardVault,
+      switchboardMint: this.switchboardMint,
+      tokenWallet: this.tokenWallet,
+      queue: this.queue,
+      queueAuthority: this.queueAuthority,
+      queueBuffer: this.queueBuffer,
+      crank: this.crank,
+      crankBuffer: this.crankBuffer,
+      oracle: this.oracle,
+      oracleAuthority: this.oracleAuthority,
+      oracleEscrow: this.oracleEscrow,
+      oraclePermissions: this.oraclePermissions,
+      additionalClonedAccounts: this.additionalClonedAccounts,
+    };
+  }
+
+  /** Write switchboard test environment to filesystem */
+  public writeAll(payerKeypairPath: string, filePath: string): void {
     this.writeEnv(filePath);
     this.writeJSON(filePath);
-    this.writeScripts(payerKeypair, filePath);
+    this.writeScripts(payerKeypairPath, filePath);
   }
 
   /** Write the env file to filesystem */
@@ -107,10 +132,18 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
     fileStr += `CRANK="${this.crank.toBase58()}"\n`;
     fileStr += `CRANK_BUFFER="${this.crankBuffer.toBase58()}"\n`;
     fileStr += `ORACLE="${this.oracle.toBase58()}"\n`;
+    fileStr += `ORACLE_AUTHORITY="${this.oracleAuthority.toBase58()}"\n`;
     fileStr += `ORACLE_ESCROW="${this.oracleEscrow.toBase58()}"\n`;
     fileStr += `ORACLE_PERMISSIONS="${this.oraclePermissions.toBase58()}"\n`;
     fileStr += `SWITCHBOARD_ACCOUNTS="${this.getAccountCloneString()}"\n`;
+    // TODO: Write additionalClonedAccounts to env file
     fs.writeFileSync(ENV_FILE_PATH, fileStr);
+    console.log(
+      `${chalk.green("Env File saved to:")} ${ENV_FILE_PATH.replace(
+        process.cwd(),
+        "."
+      )}`
+    );
   }
 
   public writeJSON(filePath: string): void {
@@ -118,24 +151,25 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
     fs.writeFileSync(
       JSON_FILE_PATH,
       JSON.stringify(
-        this as ISwitchboardTestEnvironment,
+        this.toJSON(),
         (key, value) => {
           if (value instanceof PublicKey) {
             return value.toBase58();
           }
+          return value;
         },
         2
       )
     );
   }
 
-  public writeScripts(payerKeypair: Keypair, filePath = "./"): void {
+  public writeScripts(payerKeypairPath: string, filePath: string): void {
     const LOCAL_VALIDATOR_SCRIPT = path.join(
       filePath,
       "start-local-validator.sh"
     );
     // create bash script to startup local validator with appropriate accounts cloned
-    const baseValidatorCommand = `solana-test-validator -r --ledger .anchor/test-ledger --mint ${payerKeypair.publicKey.toBase58()} --deactivate-feature 5ekBxc8itEnPv4NzGJtr8BVVQLNMQuLMNQQj7pHoLNZ9 --bind-address 0.0.0.0 --url ${clusterApiUrl(
+    const baseValidatorCommand = `solana-test-validator -r --ledger .anchor/test-ledger --mint ${this.oracleAuthority.toBase58()} --deactivate-feature 5ekBxc8itEnPv4NzGJtr8BVVQLNMQuLMNQQj7pHoLNZ9 --bind-address 0.0.0.0 --url ${clusterApiUrl(
       "devnet"
     )} --rpc-port 8899 `;
     const cloneAccountsString = this.getAccountCloneString();
@@ -153,7 +187,7 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
 
     // create bash script to start local oracle
     const ORACLE_SCRIPT = path.join(filePath, "start-oracle.sh");
-    const startOracleCommand = `ORACLE=${this.oracle.toBase58()} PAYER_KEYPAIR=${this.tokenWallet.toBase58()} docker-compose up`;
+    const startOracleCommand = `ORACLE=${this.oracle.toBase58()} PAYER_KEYPAIR=${payerKeypairPath} docker-compose up`;
     fs.writeFileSync(ORACLE_SCRIPT, `#!/bin/bash\n\n${startOracleCommand}`);
     console.log(
       `${chalk.green("Bash script saved to:")} ${ORACLE_SCRIPT.replace(
@@ -260,6 +294,7 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
       crank: crankAccount.publicKey,
       crankBuffer: crank.dataBuffer,
       oracle: oracleAccount.publicKey,
+      oracleAuthority: oracle.oracleAuthority,
       oracleEscrow: oracle.tokenAccount,
       oraclePermissions: oraclePermissionAccount.publicKey,
       additionalClonedAccounts,

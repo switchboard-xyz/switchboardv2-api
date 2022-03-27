@@ -63,7 +63,7 @@ export class SwitchboardTestContext implements ISwitchboardTestContext {
    * @param provider anchor Provider containing connection and payer Keypair
    * @param filePath filesystem path to env file
    */
-  async loadFromEnv(
+  public static async loadFromEnv(
     provider: anchor.Provider,
     filePath: string
   ): Promise<SwitchboardTestContext> {

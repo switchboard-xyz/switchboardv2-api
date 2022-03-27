@@ -24,6 +24,6 @@
     "entryPoints": ["src/sbv2.ts"],
     "out": "docs"
   },
-  "include": ["src/*"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }
