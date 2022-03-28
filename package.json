@@ -1,6 +1,6 @@
 {
   "name": "@switchboard-xyz/switchboard-v2",
-  "version": "0.0.67",
+  "version": "0.0.68",
   "description": "API wrapper for intergating with the Switchboardv2 program",
   "keywords": [
     "oracle",
@@ -37,22 +37,22 @@
     "big.js": "^6.1.1",
     "bs58": "^4.0.1",
     "buffer-layout": "^1.2.0",
+    "chalk": "^4.1.2",
     "chan": "^0.6.1",
     "crypto-js": "^4.0.0",
+    "dotenv": "^16.0.0",
     "long": "^4.0.0",
     "protobufjs": "^6.10.2",
-    "ts-proto": "^1.79.0",
-    "typescript": "^4.2.4"
+    "ts-proto": "^1.79.0"
   },
   "devDependencies": {
     "@types/big.js": "^6.0.2",
-    "@types/expect": "^24.3.0",
     "@types/long": "^4.0.1",
     "@types/mocha": "^9.0.0",
-    "@types/typescript": "^2.0.0",
     "mocha": "^9.1.1",
     "ts-mocha": "^8.0.0",
-    "typedoc": "^0.20.37"
+    "typedoc": "^0.22.0",
+    "typescript": "^4.2.4"
   },
   "testnetDefaultChannel": "v1.4.8"
 }
