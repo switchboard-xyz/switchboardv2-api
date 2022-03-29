@@ -39,7 +39,8 @@ export const SBV2_MAINNET_PID = new PublicKey(
 );
 
 export const GOVERNANCE_PID = new PublicKey(
-  "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
+  //"GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
+  "2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend"
 );
 
 /*export const REAL_GOVERNANCE_PID = new PublicKey(
@@ -1528,8 +1529,10 @@ export interface PermissionSetParams {
   permission: SwitchboardPermission;
   /**
    *  The authority controlling this permission.
+   *  made this 'any' so it can be a KeyPair or PublicKey. 
+   *  Should be a better way to do this.
    */
-  authority: Keypair;
+  authority?: any;
   /**
    *  Specifies whether to enable or disable the permission.
    */
@@ -1653,6 +1656,7 @@ export class PermissionAccount {
         governance.realm,
         tokenOwnerPubkey,
         realmSpawnRecord,
+        params.oracleOwner,
       ];
     }
     const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
@@ -1731,6 +1735,7 @@ export class PermissionAccount {
     let remainingAccounts = [];
     let vwb = undefined;
     if (authorityInfo.owner.equals(GOVERNANCE_PID)) {
+      console.log("true");
       const [voterWeightPubkey, voterWeightBump] =
         anchor.utils.publicKey.findProgramAddressSync(
           [Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()],
@@ -1738,6 +1743,9 @@ export class PermissionAccount {
         );
       vwb = voterWeightBump;
       remainingAccounts = [voterWeightPubkey];
+    }
+    else {
+      console.log("False");
     }
     const permission = new Map<string, null>();
     permission.set(params.permission.toString(), null);
@@ -1757,6 +1765,46 @@ export class PermissionAccount {
       }
     );
   }
+
+  async setTx(params: PermissionSetParams): Promise<Transaction> {
+    const permissionData = await this.loadData();
+    const authorityInfo = await this.program.provider.connection.getAccountInfo(
+      permissionData.authority
+    );
+    let remainingAccounts = [];
+    let vwb = undefined;
+    if (authorityInfo.owner.equals(GOVERNANCE_PID)) {
+      console.log("true");
+      const [voterWeightPubkey, voterWeightBump] =
+        anchor.utils.publicKey.findProgramAddressSync(
+          [Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()],
+          this.program.programId
+        );
+      vwb = voterWeightBump;
+      remainingAccounts = [voterWeightPubkey];
+      console.log("remaining accounts:");
+      console.log(remainingAccounts);
+    }
+    else { console.log("false"); }
+    const permission = new Map<string, null>();
+    permission.set(params.permission.toString(), null);
+    return await this.program.transaction.permissionSet(
+      {
+        permission: Object.fromEntries(permission),
+        enable: params.enable,
+        voterWeightBump: vwb,
+      },
+      {
+        accounts: {
+          permission: this.publicKey,
+          authority: params.authority.publicKey,
+        },
+        remainingAccounts,
+        signers: [params.authority],
+      }
+    );
+  }
+
 }
 
 /**
