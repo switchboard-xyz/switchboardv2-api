@@ -814,6 +814,7 @@ export class AggregatorAccount {
     if (lastTimestamp.add(aggregator.forceReportPeriod).lt(timestamp)) {
       return true;
     }
+    // TODO: SWITCH THIS TO PREVIOUS ROUND STUFF
     if (value.lt(latestResult.minus(varianceThreshold))) {
       return true;
     }
