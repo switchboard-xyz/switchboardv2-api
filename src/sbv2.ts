@@ -40,7 +40,7 @@ export const SBV2_MAINNET_PID = new PublicKey(
 
 export const GOVERNANCE_PID = new PublicKey(
   //"GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
-  "2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend"
+  "8zErDSAevezyT8K37pgjczag7GZUJDvfwfKmZMW3vo7f"
 );
 
 /*export const REAL_GOVERNANCE_PID = new PublicKey(
@@ -1530,7 +1530,7 @@ export interface PermissionSetParams {
   permission: SwitchboardPermission;
   /**
    *  The authority controlling this permission.
-   *  made this 'any' so it can be a KeyPair or PublicKey. 
+   *  made this 'any' so it can be a KeyPair or PublicKey.
    *  Should be a better way to do this.
    */
   authority?: any;
@@ -1744,8 +1744,7 @@ export class PermissionAccount {
         );
       vwb = voterWeightBump;
       remainingAccounts = [voterWeightPubkey];
-    }
-    else {
+    } else {
       console.log("False");
     }
     const permission = new Map<string, null>();
@@ -1785,8 +1784,9 @@ export class PermissionAccount {
       remainingAccounts = [voterWeightPubkey];
       console.log("remaining accounts:");
       console.log(remainingAccounts);
+    } else {
+      console.log("false");
     }
-    else { console.log("false"); }
     const permission = new Map<string, null>();
     permission.set(params.permission.toString(), null);
     return await this.program.transaction.permissionSet(
@@ -1805,7 +1805,6 @@ export class PermissionAccount {
       }
     );
   }
-
 }
 
 /**
