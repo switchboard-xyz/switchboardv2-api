@@ -41,7 +41,7 @@ exports.SBV2_DEVNET_PID = new web3_js_1.PublicKey("2TfB33aLaneQb5TNVwyDz3jSZXS6j
 exports.SBV2_MAINNET_PID = new web3_js_1.PublicKey("SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f");
 exports.GOVERNANCE_PID = new web3_js_1.PublicKey(
 //"GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
-"2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend");
+"8zErDSAevezyT8K37pgjczag7GZUJDvfwfKmZMW3vo7f");
 /*export const REAL_GOVERNANCE_PID = new PublicKey(
   "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
   //"2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend"
@@ -486,6 +486,7 @@ class AggregatorAccount {
         if (lastTimestamp.add(aggregator.forceReportPeriod).lt(timestamp)) {
             return true;
         }
+        // TODO: SWITCH THIS TO PREVIOUS ROUND STUFF
         if (value.lt(latestResult.minus(varianceThreshold))) {
             return true;
         }
@@ -1081,13 +1082,11 @@ class PermissionAccount {
         return await this.program.rpc.permissionSet({
             permission: Object.fromEntries(permission),
             enable: params.enable,
-            voterWeightBump: vwb,
         }, {
             accounts: {
                 permission: this.publicKey,
                 authority: params.authority.publicKey,
             },
-            remainingAccounts,
             signers: [params.authority],
         });
     }
