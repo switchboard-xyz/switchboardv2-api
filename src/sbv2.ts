@@ -1516,7 +1516,8 @@ export interface PermissionInitParams {
    *  The authority that is allowed to set permissions for this account.
    */
   authority: PublicKey;
-  oracleOwner?: PublicKey;
+  // Commented out for the refactor.
+  /*oracleOwner?: PublicKey;*/
 }
 
 /**
@@ -1623,42 +1624,11 @@ export class PermissionAccount {
     program: anchor.Program,
     params: PermissionInitParams
   ): Promise<PermissionAccount> {
-    const [programStateAccount, stateBump] =
-      ProgramStateAccount.fromSeed(program);
-    const state = await programStateAccount.loadData();
+
     const authorityInfo = await program.provider.connection.getAccountInfo(
       params.authority
     );
-    let remainingAccounts = [];
-    if (authorityInfo.owner.equals(GOVERNANCE_PID)) {
-      const governance = (
-        await getGovernance(program.provider.connection, params.authority)
-      ).account;
-      const [tokenOwnerPubkey] = anchor.utils.publicKey.findProgramAddressSync(
-        [
-          Buffer.from("governance"),
-          governance.realm.toBytes(),
-          state.daoMint.toBytes(),
-          params.oracleOwner.toBytes(),
-        ],
-        GOVERNANCE_PID
-      );
-      const [voterWeightPubkey] = anchor.utils.publicKey.findProgramAddressSync(
-        [Buffer.from("VoterWeightRecord"), params.grantee.toBytes()],
-        program.programId
-      );
-      const [realmSpawnRecord] = anchor.utils.publicKey.findProgramAddressSync(
-        [Buffer.from("RealmSpawnRecord"), governance.realm.toBytes()],
-        program.programId
-      );
-      remainingAccounts = [
-        voterWeightPubkey,
-        governance.realm,
-        tokenOwnerPubkey,
-        realmSpawnRecord,
-        params.oracleOwner,
-      ];
-    }
+
     const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
       program,
       params.authority,
@@ -1668,11 +1638,7 @@ export class PermissionAccount {
     const payerKeypair = Keypair.fromSecretKey(
       (program.provider.wallet as any).payer.secretKey
     );
-    await program.rpc.permissionInit(
-      {
-        permissionBump,
-        stateBump,
-      },
+    await program.rpc.permissionInit({},
       {
         signers: [payerKeypair],
         accounts: {
@@ -1680,15 +1646,9 @@ export class PermissionAccount {
           authority: params.authority,
           granter: params.granter,
           grantee: params.grantee,
-          systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
-          programState: programStateAccount.publicKey,
-          govProgram: GOVERNANCE_PID,
-          daoMint: state.daoMint,
+          systemProgram: SystemProgram.programId,
         },
-        remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
-          return { isSigner: false, isWritable: true, pubkey };
-        }),
       }
     );
     return new PermissionAccount({
@@ -1732,21 +1692,6 @@ export class PermissionAccount {
     const authorityInfo = await this.program.provider.connection.getAccountInfo(
       permissionData.authority
     );
-    let remainingAccounts = [];
-    let vwb = undefined;
-    if (authorityInfo.owner.equals(GOVERNANCE_PID)) {
-      console.log("true");
-      const [voterWeightPubkey, voterWeightBump] =
-        anchor.utils.publicKey.findProgramAddressSync(
-          [Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()],
-          this.program.programId
-        );
-      vwb = voterWeightBump;
-      remainingAccounts = [voterWeightPubkey];
-    }
-    else {
-      console.log("False");
-    }
     const permission = new Map<string, null>();
     permission.set(params.permission.toString(), null);
     return await this.program.rpc.permissionSet(

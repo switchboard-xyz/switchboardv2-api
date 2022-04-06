@@ -29,7 +29,6 @@ const web3_js_1 = require("@solana/web3.js");
 const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
-const spl_governance_1 = require("@solana/spl-governance");
 /**
  * Switchboard Devnet Program ID
  * 2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG
@@ -1034,49 +1033,19 @@ class PermissionAccount {
      * @return newly generated PermissionAccount.
      */
     static async create(program, params) {
-        const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
-        const state = await programStateAccount.loadData();
         const authorityInfo = await program.provider.connection.getAccountInfo(params.authority);
-        let remainingAccounts = [];
-        if (authorityInfo.owner.equals(exports.GOVERNANCE_PID)) {
-            const governance = (await spl_governance_1.getGovernance(program.provider.connection, params.authority)).account;
-            const [tokenOwnerPubkey] = anchor.utils.publicKey.findProgramAddressSync([
-                Buffer.from("governance"),
-                governance.realm.toBytes(),
-                state.daoMint.toBytes(),
-                params.oracleOwner.toBytes(),
-            ], exports.GOVERNANCE_PID);
-            const [voterWeightPubkey] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("VoterWeightRecord"), params.grantee.toBytes()], program.programId);
-            const [realmSpawnRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("RealmSpawnRecord"), governance.realm.toBytes()], program.programId);
-            remainingAccounts = [
-                voterWeightPubkey,
-                governance.realm,
-                tokenOwnerPubkey,
-                realmSpawnRecord,
-                params.oracleOwner,
-            ];
-        }
         const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(program, params.authority, params.granter, params.grantee);
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
-        await program.rpc.permissionInit({
-            permissionBump,
-            stateBump,
-        }, {
+        await program.rpc.permissionInit({}, {
             signers: [payerKeypair],
             accounts: {
                 permission: permissionAccount.publicKey,
                 authority: params.authority,
                 granter: params.granter,
                 grantee: params.grantee,
-                systemProgram: web3_js_1.SystemProgram.programId,
                 payer: program.provider.wallet.publicKey,
-                programState: programStateAccount.publicKey,
-                govProgram: exports.GOVERNANCE_PID,
-                daoMint: state.daoMint,
+                systemProgram: web3_js_1.SystemProgram.programId,
             },
-            remainingAccounts: remainingAccounts.map((pubkey) => {
-                return { isSigner: false, isWritable: true, pubkey };
-            }),
         });
         return new PermissionAccount({
             program,
@@ -1107,17 +1076,6 @@ class PermissionAccount {
     async set(params) {
         const permissionData = await this.loadData();
         const authorityInfo = await this.program.provider.connection.getAccountInfo(permissionData.authority);
-        let remainingAccounts = [];
-        let vwb = undefined;
-        if (authorityInfo.owner.equals(exports.GOVERNANCE_PID)) {
-            console.log("true");
-            const [voterWeightPubkey, voterWeightBump] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()], this.program.programId);
-            vwb = voterWeightBump;
-            remainingAccounts = [voterWeightPubkey];
-        }
-        else {
-            console.log("False");
-        }
         const permission = new Map();
         permission.set(params.permission.toString(), null);
         return await this.program.rpc.permissionSet({

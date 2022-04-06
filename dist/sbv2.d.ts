@@ -537,7 +537,6 @@ export interface PermissionInitParams {
      *  The authority that is allowed to set permissions for this account.
      */
     authority: PublicKey;
-    oracleOwner?: PublicKey;
 }
 /**
  * Parameters for setting a permission in a PermissionAccount
