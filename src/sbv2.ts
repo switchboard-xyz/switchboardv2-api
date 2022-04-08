@@ -40,7 +40,8 @@ export const SBV2_MAINNET_PID = new PublicKey(
 
 export const GOVERNANCE_PID = new PublicKey(
   //"GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
-  "8zErDSAevezyT8K37pgjczag7GZUJDvfwfKmZMW3vo7f"
+  //"8zErDSAevezyT8K37pgjczag7GZUJDvfwfKmZMW3vo7f"
+  "2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend"
 );
 
 /*export const REAL_GOVERNANCE_PID = new PublicKey(
@@ -1541,6 +1542,10 @@ export interface PermissionSetParams {
   enable: boolean;
 }
 
+export interface SetVoterWeightParams {
+  govProgram: PublicKey,
+}
+
 /**
  * An enum representing all known permission types for Switchboard.
  */
@@ -1711,8 +1716,62 @@ export class PermissionAccount {
     );
   }
 
-  async setVoterWeight(params: SetVoterWeightParams): Promise<Transaction> {
+  async setVoterWeight(params: SetVoterWeightParams): Promise<TransactionSignature> {
+    const permissionData = await this.loadData();
+    const oracleData = await this.program.account.oracleAccountData.fetch(
+      permissionData.grantee
+    );
 
+    const payerKeypair = Keypair.fromSecretKey(
+      (this.program.provider.wallet as any).payer.secretKey
+    );
+
+    const [programStateAccount, stateBump] =
+          ProgramStateAccount.fromSeed(this.program);
+    let psData = await programStateAccount.loadData();
+
+    const governance = (
+        await getGovernance(this.program.provider.connection, permissionData.authority)
+      ).account;
+
+    const [realmSpawnRecord] = anchor.utils.publicKey.findProgramAddressSync(
+      [Buffer.from("RealmSpawnRecordAccountData"), governance.realm.toBytes()],
+      this.program.programId
+    );
+
+    const [voterWeightRecord] = anchor.utils.publicKey.findProgramAddressSync(
+      [Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()],
+      this.program.programId
+    );
+
+    const [tokenOwnerRecord] = anchor.utils.publicKey.findProgramAddressSync(
+      [Buffer.from("governance"), governance.realm.toBytes(), psData.daoMint.toBytes(), oracleData.oracleAuthority.toBytes()],
+      params.govProgram
+    );
+
+    return await this.program.rpc.permissionSetVoterWeight(
+      {
+        stateBump
+      },
+      {
+        accounts: {
+          permission: this.publicKey,
+          permissionAuthority: permissionData.authority,
+          oracle: permissionData.grantee,
+          oracleAuthority: oracleData.oracleAuthority,
+          payer: payerKeypair.publicKey,
+          systemProgram: SystemProgram.programId,
+          programState: programStateAccount.publicKey,
+          govProgram: GOVERNANCE_PID,
+          daoMint: psData.daoMint,
+          spawnRecord: realmSpawnRecord,
+          voterWeight: voterWeightRecord,
+          tokenOwnerRecord: tokenOwnerRecord,
+          realm: governance.realm,
+        },
+        signers: [payerKeypair],
+      }
+    );
   }
 
   async setTx(params: PermissionSetParams): Promise<Transaction> {

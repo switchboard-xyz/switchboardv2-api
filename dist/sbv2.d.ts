@@ -557,6 +557,9 @@ export interface PermissionSetParams {
      */
     enable: boolean;
 }
+export interface SetVoterWeightParams {
+    govProgram: PublicKey;
+}
 /**
  * An enum representing all known permission types for Switchboard.
  */
@@ -619,6 +622,7 @@ export declare class PermissionAccount {
      * @return TransactionSignature.
      */
     set(params: PermissionSetParams): Promise<TransactionSignature>;
+    setVoterWeight(params: SetVoterWeightParams): Promise<TransactionSignature>;
     setTx(params: PermissionSetParams): Promise<Transaction>;
 }
 /**
