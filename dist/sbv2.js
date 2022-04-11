@@ -1099,10 +1099,73 @@ class PermissionAccount {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         let psData = await programStateAccount.loadData();
         const governance = (await spl_governance_1.getGovernance(this.program.provider.connection, permissionData.authority)).account;
-        const [realmSpawnRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("RealmSpawnRecordAccountData"), governance.realm.toBytes()], this.program.programId);
+        const [realmSpawnRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("RealmSpawnRecord"), governance.realm.toBytes()], this.program.programId);
         const [voterWeightRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()], this.program.programId);
         const [tokenOwnerRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("governance"), governance.realm.toBytes(), psData.daoMint.toBytes(), oracleData.oracleAuthority.toBytes()], params.govProgram);
+        console.log(payerKeypair.publicKey.toBase58());
+        console.log({
+            permission: this.publicKey.toBase58(),
+            permissionAuthority: permissionData.authority.toBase58(),
+            oracle: permissionData.grantee.toBase58(),
+            oracleAuthority: oracleData.oracleAuthority.toBase58(),
+            payer: payerKeypair.publicKey.toBase58(),
+            systemProgram: web3_js_1.SystemProgram.programId.toBase58(),
+            programState: programStateAccount.publicKey.toBase58(),
+            govProgram: exports.GOVERNANCE_PID.toBase58(),
+            daoMint: psData.daoMint.toBase58(),
+            spawnRecord: realmSpawnRecord.toBase58(),
+            voterWeight: voterWeightRecord.toBase58(),
+            tokenOwnerRecord: tokenOwnerRecord.toBase58(),
+            realm: governance.realm.toBase58(),
+        });
         return await this.program.rpc.permissionSetVoterWeight({
+            stateBump
+        }, {
+            accounts: {
+                permission: this.publicKey,
+                permissionAuthority: permissionData.authority,
+                oracle: permissionData.grantee,
+                oracleAuthority: oracleData.oracleAuthority,
+                payer: payerKeypair.publicKey,
+                systemProgram: web3_js_1.SystemProgram.programId,
+                programState: programStateAccount.publicKey,
+                govProgram: exports.GOVERNANCE_PID,
+                daoMint: psData.daoMint,
+                spawnRecord: realmSpawnRecord,
+                voterWeight: voterWeightRecord,
+                tokenOwnerRecord: tokenOwnerRecord,
+                realm: governance.realm,
+            },
+            signers: [payerKeypair],
+        });
+    }
+    async setVoterWeightTx(params) {
+        const permissionData = await this.loadData();
+        const oracleData = await this.program.account.oracleAccountData.fetch(permissionData.grantee);
+        const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
+        const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
+        let psData = await programStateAccount.loadData();
+        const governance = (await spl_governance_1.getGovernance(this.program.provider.connection, permissionData.authority)).account;
+        const [realmSpawnRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("RealmSpawnRecord"), governance.realm.toBytes()], this.program.programId);
+        const [voterWeightRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()], this.program.programId);
+        const [tokenOwnerRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("governance"), governance.realm.toBytes(), psData.daoMint.toBytes(), oracleData.oracleAuthority.toBytes()], params.govProgram);
+        console.log(payerKeypair.publicKey.toBase58());
+        console.log({
+            permission: this.publicKey.toBase58(),
+            permissionAuthority: permissionData.authority.toBase58(),
+            oracle: permissionData.grantee.toBase58(),
+            oracleAuthority: oracleData.oracleAuthority.toBase58(),
+            payer: payerKeypair.publicKey.toBase58(),
+            systemProgram: web3_js_1.SystemProgram.programId.toBase58(),
+            programState: programStateAccount.publicKey.toBase58(),
+            govProgram: exports.GOVERNANCE_PID.toBase58(),
+            daoMint: psData.daoMint.toBase58(),
+            spawnRecord: realmSpawnRecord.toBase58(),
+            voterWeight: voterWeightRecord.toBase58(),
+            tokenOwnerRecord: tokenOwnerRecord.toBase58(),
+            realm: governance.realm.toBase58(),
+        });
+        return await this.program.transaction.permissionSetVoterWeight({
             stateBump
         }, {
             accounts: {

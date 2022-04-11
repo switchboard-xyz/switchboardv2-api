@@ -623,6 +623,7 @@ export declare class PermissionAccount {
      */
     set(params: PermissionSetParams): Promise<TransactionSignature>;
     setVoterWeight(params: SetVoterWeightParams): Promise<TransactionSignature>;
+    setVoterWeightTx(params: SetVoterWeightParams): Promise<Transaction>;
     setTx(params: PermissionSetParams): Promise<Transaction>;
 }
 /**
