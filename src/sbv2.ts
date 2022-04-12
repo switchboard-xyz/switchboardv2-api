@@ -1716,6 +1716,46 @@ export class PermissionAccount {
     );
   }
 
+  async setTx(params: PermissionSetParams): Promise<Transaction> {
+      const permissionData = await this.loadData();
+      const authorityInfo = await this.program.provider.connection.getAccountInfo(
+        permissionData.authority
+      );
+      let remainingAccounts = [];
+      let vwb = undefined;
+      if (authorityInfo.owner.equals(GOVERNANCE_PID)) {
+        console.log("true");
+        const [voterWeightPubkey, voterWeightBump] =
+          anchor.utils.publicKey.findProgramAddressSync(
+            [Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()],
+            this.program.programId
+          );
+        vwb = voterWeightBump;
+        remainingAccounts = [voterWeightPubkey];
+        console.log("remaining accounts:");
+        console.log(remainingAccounts);
+      } else {
+        console.log("false");
+      }
+      const permission = new Map<string, null>();
+      permission.set(params.permission.toString(), null);
+      return await this.program.transaction.permissionSet(
+        {
+          permission: Object.fromEntries(permission),
+          enable: params.enable,
+          voterWeightBump: vwb,
+        },
+        {
+          accounts: {
+            permission: this.publicKey,
+            authority: params.authority.publicKey,
+          },
+          remainingAccounts,
+          signers: [params.authority],
+        }
+      );
+    }
+
   async setVoterWeight(params: SetVoterWeightParams): Promise<TransactionSignature> {
     const permissionData = await this.loadData();
     const oracleData = await this.program.account.oracleAccountData.fetch(
@@ -1868,45 +1908,7 @@ export class PermissionAccount {
     );
   }
 
-  async setTx(params: PermissionSetParams): Promise<Transaction> {
-    const permissionData = await this.loadData();
-    const authorityInfo = await this.program.provider.connection.getAccountInfo(
-      permissionData.authority
-    );
-    let remainingAccounts = [];
-    let vwb = undefined;
-    if (authorityInfo.owner.equals(GOVERNANCE_PID)) {
-      console.log("true");
-      const [voterWeightPubkey, voterWeightBump] =
-        anchor.utils.publicKey.findProgramAddressSync(
-          [Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()],
-          this.program.programId
-        );
-      vwb = voterWeightBump;
-      remainingAccounts = [voterWeightPubkey];
-      console.log("remaining accounts:");
-      console.log(remainingAccounts);
-    } else {
-      console.log("false");
-    }
-    const permission = new Map<string, null>();
-    permission.set(params.permission.toString(), null);
-    return await this.program.transaction.permissionSet(
-      {
-        permission: Object.fromEntries(permission),
-        enable: params.enable,
-        voterWeightBump: vwb,
-      },
-      {
-        accounts: {
-          permission: this.publicKey,
-          authority: params.authority.publicKey,
-        },
-        remainingAccounts,
-        signers: [params.authority],
-      }
-    );
-  }
+  
 }
 
 /**
