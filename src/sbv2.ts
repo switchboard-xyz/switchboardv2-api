@@ -643,6 +643,12 @@ export interface AggregatorSetMinOraclesParams {
   minOracleResults: number;
   authority?: Keypair;
 }
+
+export interface AggregatorSetQueueParams {
+  queueAccount: OracleQueueAccount;
+  authority?: Keypair;
+}
+
 /**
  * Account type representing an aggregator (data feed).
  */
@@ -1061,6 +1067,22 @@ export class AggregatorAccount {
             programId: program.programId,
           }),
         ],
+      }
+    );
+  }
+
+  async setQueue(
+    params: AggregatorSetQueueParams
+  ): Promise<TransactionSignature> {
+    return await this.program.rpc.aggregatorSetQueue(
+      {},
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          authority: params.authority.publicKey,
+          queue: params.queueAccount.publicKey,
+        },
+        signers: [params.authority],
       }
     );
   }
