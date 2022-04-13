@@ -548,16 +548,14 @@ export interface PermissionSetParams {
     permission: SwitchboardPermission;
     /**
      *  The authority controlling this permission.
-     *  made this 'any' so it can be a KeyPair or PublicKey.
-     *  Should be a better way to do this.
      */
-    authority?: any;
+    authority: Keypair;
     /**
      *  Specifies whether to enable or disable the permission.
      */
     enable: boolean;
 }
-export interface SetVoterWeightParams {
+export interface PermissionSetVoterWeightParams {
     govProgram: PublicKey;
 }
 /**
@@ -622,9 +620,6 @@ export declare class PermissionAccount {
      * @return TransactionSignature.
      */
     set(params: PermissionSetParams): Promise<TransactionSignature>;
-    setVoterWeight(params: SetVoterWeightParams): Promise<TransactionSignature>;
-    setVoterWeightTx(params: SetVoterWeightParams): Promise<Transaction>;
-    setTx(params: PermissionSetParams): Promise<Transaction>;
 }
 /**
  * Parameters for initializing OracleQueueAccount
