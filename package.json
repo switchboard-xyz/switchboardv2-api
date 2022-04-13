@@ -1,6 +1,10 @@
 {
   "name": "@switchboard-xyz/switchboard-v2",
+<<<<<<< HEAD
   "version": "0.0.72",
+=======
+  "version": "0.0.73",
+>>>>>>> main
   "description": "API wrapper for intergating with the Switchboardv2 program",
   "keywords": [
     "oracle",
@@ -25,18 +29,23 @@
     "docgen": "npx tsc && npx typedoc src/sbv2.ts",
     "test": "mocha --extension ts --require ts-node/register -t 1000000 tests/"
   },
-  "dependencies": {
-    "@project-serum/anchor": "^0.22.0",
-    "@solana/spl-governance": "^0.0.29",
-    "@solana/spl-token": "^0.1.8",
-    "@solana/web3.js": "^1.33.0",
+  "peerDependencies": {
+    "@project-serum/anchor": "0.22.1",
+    "@solana/spl-governance": "^0.0.34",
+    "@solana/web3.js": "1.33.0",
     "@switchboard-xyz/switchboard-api": "^0.2.190",
+    "@solana/spl-token": "^0.1.8"
+  },
+  "dependencies": {
     "assert": "^2.0.0",
     "big.js": "^6.1.1",
     "bs58": "^4.0.1",
     "buffer-layout": "^1.2.0",
+    "chalk": "^4.1.2",
     "chan": "^0.6.1",
     "crypto-js": "^4.0.0",
+    "docgen": "^0.0.1",
+    "dotenv": "^16.0.0",
     "long": "^4.0.0",
     "node-fetch": "^3.2.3",
     "protobufjs": "^6.10.2",
@@ -45,13 +54,12 @@
   },
   "devDependencies": {
     "@types/big.js": "^6.0.2",
-    "@types/expect": "^24.3.0",
     "@types/long": "^4.0.1",
     "@types/mocha": "^9.0.0",
-    "@types/typescript": "^2.0.0",
     "mocha": "^9.1.1",
     "ts-mocha": "^8.0.0",
-    "typedoc": "^0.22.15"
+    "typedoc": "^0.22.15",
+    "typescript": "^4.2.4"
   },
   "testnetDefaultChannel": "v1.4.8"
 }

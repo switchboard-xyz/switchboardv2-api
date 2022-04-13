@@ -23,6 +23,8 @@ import Big from "big.js";
 import * as crypto from "crypto";
 import { getGovernance } from "@solana/spl-governance";
 
+export * from "./test";
+
 /**
  * Switchboard Devnet Program ID
  * 2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG
@@ -641,6 +643,12 @@ export interface AggregatorSetMinOraclesParams {
   minOracleResults: number;
   authority?: Keypair;
 }
+
+export interface AggregatorSetQueueParams {
+  queueAccount: OracleQueueAccount;
+  authority?: Keypair;
+}
+
 /**
  * Account type representing an aggregator (data feed).
  */
@@ -1060,6 +1068,22 @@ export class AggregatorAccount {
             programId: program.programId,
           }),
         ],
+      }
+    );
+  }
+
+  async setQueue(
+    params: AggregatorSetQueueParams
+  ): Promise<TransactionSignature> {
+    return await this.program.rpc.aggregatorSetQueue(
+      {},
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          authority: params.authority.publicKey,
+          queue: params.queueAccount.publicKey,
+        },
+        signers: [params.authority],
       }
     );
   }
