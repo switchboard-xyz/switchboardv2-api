@@ -22,6 +22,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -34,6 +37,7 @@ const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
 const spl_governance_1 = require("@solana/spl-governance");
+__exportStar(require("./test"), exports);
 /**
  * Switchboard Devnet Program ID
  * 2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG
@@ -683,6 +687,16 @@ class AggregatorAccount {
                     programId: program.programId,
                 }),
             ],
+        });
+    }
+    async setQueue(params) {
+        return await this.program.rpc.aggregatorSetQueue({}, {
+            accounts: {
+                aggregator: this.publicKey,
+                authority: params.authority.publicKey,
+                queue: params.queueAccount.publicKey,
+            },
+            signers: [params.authority],
         });
     }
     /**
@@ -2157,7 +2171,7 @@ class VrfAccount {
         let tx = new web3_js_1.Transaction();
         for (let i = 0; i < tryCount; ++i) {
             txs.push({
-                tx: this.program.transaction.vrfProveAndVerify({
+                tx: this.program.transaction.vrfVerify({
                     nonce: i,
                     stateBump,
                     idx,

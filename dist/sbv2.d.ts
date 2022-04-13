@@ -5,6 +5,7 @@ import { AccountInfo, AccountMeta, ConfirmOptions, Connection, Keypair, PublicKe
 import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
+export * from "./test";
 /**
  * Switchboard Devnet Program ID
  * 2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG
@@ -330,6 +331,10 @@ export interface AggregatorSetMinOraclesParams {
     minOracleResults: number;
     authority?: Keypair;
 }
+export interface AggregatorSetQueueParams {
+    queueAccount: OracleQueueAccount;
+    authority?: Keypair;
+}
 /**
  * Account type representing an aggregator (data feed).
  */
@@ -414,6 +419,7 @@ export declare class AggregatorAccount {
     setMinJobs(params: AggregatorSetMinJobsParams): Promise<TransactionSignature>;
     setMinOracles(params: AggregatorSetMinOraclesParams): Promise<TransactionSignature>;
     setHistoryBuffer(params: AggregatorSetHistoryBufferParams): Promise<TransactionSignature>;
+    setQueue(params: AggregatorSetQueueParams): Promise<TransactionSignature>;
     /**
      * RPC to add a new job to an aggregtor to be performed on feed updates.
      * @param job JobAccount specifying another job for this aggregator to fulfill on update
