@@ -620,6 +620,8 @@ export declare class PermissionAccount {
      * @return TransactionSignature.
      */
     set(params: PermissionSetParams): Promise<TransactionSignature>;
+    setVoterWeight(params: PermissionSetVoterWeightParams): Promise<TransactionSignature>;
+    setVoterWeightTx(params: PermissionSetVoterWeightParams): Promise<Transaction>;
 }
 /**
  * Parameters for initializing OracleQueueAccount
