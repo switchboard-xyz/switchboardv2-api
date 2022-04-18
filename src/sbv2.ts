@@ -1390,11 +1390,7 @@ export interface JobInitParams {
    *  A pre-generated keypair to use.
    */
   keypair?: Keypair;
-  /**
-   *  An optional wallet for receiving kickbacks from job usage in feeds.
-   *  Defaults to token vault.
-   */
-  authorWallet?: PublicKey;
+  authority: PublicKey;
 }
 
 /**
@@ -1478,7 +1474,8 @@ export class JobAccount {
       {
         accounts: {
           job: jobAccount.publicKey,
-          authorWallet: params.authorWallet ?? state.tokenVault,
+          authorWallet: params.authority,
+          authority: params.authority,
           programState: stateAccount.publicKey,
         },
         signers: [jobAccount],
@@ -2015,6 +2012,7 @@ export class OracleQueueAccount {
           buffer: buffer.publicKey,
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
+          mint: spl.NATIVE_MINT,
         },
         instructions: [
           anchor.web3.SystemProgram.createAccount({
