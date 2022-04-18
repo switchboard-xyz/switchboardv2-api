@@ -936,7 +936,7 @@ class JobAccount {
      * @return newly generated JobAccount.
      */
     static async create(program, params) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(program.provider.wallet.payer.secretKey);
         const jobAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
         const size = 280 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
@@ -951,7 +951,8 @@ class JobAccount {
         }, {
             accounts: {
                 job: jobAccount.publicKey,
-                authorWallet: (_j = params.authorWallet) !== null && _j !== void 0 ? _j : state.tokenVault,
+                authorWallet: params.authority,
+                authority: params.authority,
                 programState: stateAccount.publicKey,
             },
             signers: [jobAccount],
@@ -1239,6 +1240,7 @@ class OracleQueueAccount {
                 buffer: buffer.publicKey,
                 systemProgram: web3_js_1.SystemProgram.programId,
                 payer: program.provider.wallet.publicKey,
+                mint: spl.NATIVE_MINT,
             },
             instructions: [
                 anchor.web3.SystemProgram.createAccount({

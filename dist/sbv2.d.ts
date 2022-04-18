@@ -487,11 +487,7 @@ export interface JobInitParams {
      *  A pre-generated keypair to use.
      */
     keypair?: Keypair;
-    /**
-     *  An optional wallet for receiving kickbacks from job usage in feeds.
-     *  Defaults to token vault.
-     */
-    authorWallet?: PublicKey;
+    authority: PublicKey;
 }
 /**
  * A Switchboard account representing a job for an oracle to perform, stored as

@@ -177,7 +177,7 @@ export class SwitchboardTestContext implements ISwitchboardTestContext {
     // create and add job account
     const staticJob = await sbv2.JobAccount.create(this.program, {
       name: Buffer.from(`Value ${value}`),
-      authorWallet: this.tokenWallet,
+      authority: this.tokenWallet,
       data: Buffer.from(
         OracleJob.encodeDelimited(
           OracleJob.create({
@@ -240,6 +240,7 @@ export class SwitchboardTestContext implements ISwitchboardTestContext {
     // add new static job
     const staticJob = await sbv2.JobAccount.create(this.program, {
       name: Buffer.from(`Value ${value}`),
+      authority: Keypair.generate().publicKey,
       data: Buffer.from(
         OracleJob.encodeDelimited(
           OracleJob.create({
