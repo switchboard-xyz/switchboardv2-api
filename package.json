@@ -1,6 +1,6 @@
 {
   "name": "@switchboard-xyz/switchboard-v2",
-  "version": "0.0.75",
+  "version": "0.0.76",
   "description": "API wrapper for intergating with the Switchboardv2 program",
   "keywords": [
     "oracle",
@@ -23,14 +23,15 @@
   ],
   "scripts": {
     "docgen": "npx tsc && npx typedoc src/sbv2.ts",
+    "build": "rm -rf dist && tsc -b",
     "test": "mocha --extension ts --require ts-node/register -t 1000000 tests/"
   },
   "peerDependencies": {
     "@project-serum/anchor": "0.22.1",
     "@solana/spl-governance": "^0.0.34",
+    "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "1.33.0",
-    "@switchboard-xyz/switchboard-api": "^0.2.190",
-    "@solana/spl-token": "^0.1.8"
+    "@switchboard-xyz/switchboard-api": "^0.2.190"
   },
   "dependencies": {
     "assert": "^2.0.0",
@@ -40,7 +41,6 @@
     "chalk": "^4.1.2",
     "chan": "^0.6.1",
     "crypto-js": "^4.0.0",
-    "docgen": "^0.0.1",
     "dotenv": "^16.0.0",
     "long": "^4.0.0",
     "node-fetch": "^3.2.3",

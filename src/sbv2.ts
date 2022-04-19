@@ -22,7 +22,7 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
 import { getGovernance } from "@solana/spl-governance";
-import NodeWallet from "@project-serum/anchor/dist/esm/nodewallet";
+import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 
 export * from "./test";
 

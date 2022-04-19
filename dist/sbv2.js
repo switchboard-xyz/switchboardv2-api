@@ -1,11 +1,7 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -37,6 +33,7 @@ const switchboard_api_1 = require("@switchboard-xyz/switchboard-api");
 const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
 const spl_governance_1 = require("@solana/spl-governance");
+const nodewallet_1 = __importDefault(require("@project-serum/anchor/dist/cjs/nodewallet"));
 __exportStar(require("./test"), exports);
 /**
  * Switchboard Devnet Program ID
@@ -73,14 +70,14 @@ exports.getSwitchboardPid = getSwitchboardPid;
  * @param confirmOptions optional confirmation options for rpc request
  * @return Switchboard Program
  */
-async function loadSwitchboardProgram(cluster, connection = new web3_js_1.Connection((0, web3_js_1.clusterApiUrl)(cluster)), payerKeypair, confirmOptions = {
+async function loadSwitchboardProgram(cluster, connection = new web3_js_1.Connection(web3_js_1.clusterApiUrl(cluster)), payerKeypair, confirmOptions = {
     commitment: "confirmed",
 }) {
     const DEFAULT_KEYPAIR = web3_js_1.Keypair.fromSeed(new Uint8Array(32).fill(1));
     const programId = getSwitchboardPid(cluster);
     const wallet = payerKeypair
-        ? new anchor.Wallet(payerKeypair)
-        : new anchor.Wallet(DEFAULT_KEYPAIR);
+        ? new nodewallet_1.default(payerKeypair)
+        : new nodewallet_1.default(DEFAULT_KEYPAIR);
     const provider = new anchor.Provider(connection, wallet, confirmOptions);
     const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
     if (!anchorIdl) {
@@ -1107,7 +1104,7 @@ class PermissionAccount {
     async setVoterWeight(params) {
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
         const tx = await this.setVoterWeightTx(params);
-        return await (0, web3_js_1.sendAndConfirmTransaction)(this.program.provider.connection, tx, [payerKeypair]);
+        return await web3_js_1.sendAndConfirmTransaction(this.program.provider.connection, tx, [payerKeypair]);
     }
     async setVoterWeightTx(params) {
         const permissionData = await this.loadData();
@@ -1115,7 +1112,7 @@ class PermissionAccount {
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         let psData = await programStateAccount.loadData();
-        const governance = (await (0, spl_governance_1.getGovernance)(this.program.provider.connection, permissionData.authority)).account;
+        const governance = (await spl_governance_1.getGovernance(this.program.provider.connection, permissionData.authority)).account;
         const [realmSpawnRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("RealmSpawnRecord"), governance.realm.toBytes()], this.program.programId);
         const [voterWeightRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()], this.program.programId);
         const [tokenOwnerRecord] = anchor.utils.publicKey.findProgramAddressSync([
@@ -1720,7 +1717,7 @@ class CrankAccount {
      */
     async pop(params) {
         const payerKeypair = web3_js_1.Keypair.fromSecretKey(this.program.provider.wallet.payer.secretKey);
-        return await (0, web3_js_1.sendAndConfirmTransaction)(this.program.provider.connection, await this.popTxn(params), [payerKeypair]);
+        return await web3_js_1.sendAndConfirmTransaction(this.program.provider.connection, await this.popTxn(params), [payerKeypair]);
     }
     /**
      * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
@@ -2416,7 +2413,7 @@ async function createMint(connection, payer, mintAuthority, freezeAuthority, dec
     }));
     transaction.add(spl.Token.createInitMintInstruction(programId, mintAccount.publicKey, decimals, mintAuthority, freezeAuthority));
     // Send the two instructions
-    await (0, web3_js_1.sendAndConfirmTransaction)(connection, transaction, [
+    await web3_js_1.sendAndConfirmTransaction(connection, transaction, [
         payer,
         mintAccount,
     ]);
