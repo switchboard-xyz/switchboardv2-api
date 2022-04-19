@@ -22,6 +22,7 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
 import { getGovernance } from "@solana/spl-governance";
+import NodeWallet from "@project-serum/anchor/dist/esm/nodewallet";
 
 export * from "./test";
 
@@ -80,9 +81,9 @@ export async function loadSwitchboardProgram(
 ): Promise<anchor.Program> {
   const DEFAULT_KEYPAIR = Keypair.fromSeed(new Uint8Array(32).fill(1));
   const programId = getSwitchboardPid(cluster);
-  const wallet: anchor.Wallet = payerKeypair
-    ? new anchor.Wallet(payerKeypair)
-    : new anchor.Wallet(DEFAULT_KEYPAIR);
+  const wallet: NodeWallet = payerKeypair
+    ? new NodeWallet(payerKeypair)
+    : new NodeWallet(DEFAULT_KEYPAIR);
   const provider = new anchor.Provider(connection, wallet, confirmOptions);
 
   const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
