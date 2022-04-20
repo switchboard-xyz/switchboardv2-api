@@ -41,7 +41,8 @@ export const SBV2_MAINNET_PID = new PublicKey(
 );
 
 export const GOVERNANCE_PID = new PublicKey(
-  "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
+  //"GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
+  "2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend"
 );
 
 /**
@@ -1708,6 +1709,9 @@ export class PermissionAccount {
    * @return TransactionSignature.
    */
   async set(params: PermissionSetParams): Promise<TransactionSignature> {
+    if (!('publicKey' in params.authority)) {
+      throw new Error("Authority cannot be a PublicKey for the set RPC method.");
+    }
     const permissionData = await this.loadData();
     const authorityInfo = await this.program.provider.connection.getAccountInfo(
       permissionData.authority
@@ -1739,14 +1743,11 @@ export class PermissionAccount {
     const permissionData = await this.loadData();
 
     let authPk: PublicKey;
-    if (params.authority instanceof Keypair) {
+    if ('publicKey' in params.authority) {
       authPk = params.authority.publicKey;
     }
-    else if (params.authority instanceof PublicKey) {
-      authPk = params.authority;
-    }
     else {
-      console.log("Unauthorized type for authority");
+      authPk = params.authority;
     }
 
     const authorityInfo = await this.program.provider.connection.getAccountInfo(
@@ -1755,6 +1756,8 @@ export class PermissionAccount {
 
     const permission = new Map<string, null>();
     permission.set(params.permission.toString(), null);
+    console.log("authority:");
+    console.log(authPk);
     return await this.program.transaction.permissionSet(
       {
         permission: Object.fromEntries(permission),
