@@ -2994,10 +2994,16 @@ export class OracleAccount {
       ProgramStateAccount.fromSeed(program);
 
     const switchTokenMint = await programStateAccount.getTokenMint();
-    const wallet = await switchTokenMint.createAccount(
+    const nativeTokenMint = new spl.Token(
+      program.provider.connection,
+      spl.NATIVE_MINT,
+      spl.TOKEN_PROGRAM_ID,
+      payerKeypair
+    );
+    const wallet = await nativeTokenMint.createAccount(
       program.provider.wallet.publicKey
     );
-    await switchTokenMint.setAuthority(
+    await nativeTokenMint.setAuthority(
       wallet,
       programStateAccount.publicKey,
       "AccountOwner",
