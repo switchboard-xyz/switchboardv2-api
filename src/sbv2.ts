@@ -2266,6 +2266,7 @@ export class LeaseAccount {
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           escrow,
           owner: params.funderAuthority.publicKey,
+          mint: switchTokenMint.publicKey,
         },
         signers: [params.funderAuthority],
       }
