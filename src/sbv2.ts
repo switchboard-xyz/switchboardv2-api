@@ -1548,7 +1548,8 @@ export interface PermissionSetParams {
   /**
    *  The authority controlling this permission.
    */
-  authority: Keypair;
+  //authority: Keypair | PublicKey;
+  authority: any;
   /**
    *  Specifies whether to enable or disable the permission.
    */
@@ -1736,6 +1737,18 @@ export class PermissionAccount {
    */
   async setTx(params: PermissionSetParams): Promise<Transaction> {
     const permissionData = await this.loadData();
+
+    let authPk: PublicKey;
+    if (params.authority instanceof Keypair) {
+      authPk = params.authority.publicKey;
+    }
+    else if (params.authority instanceof PublicKey) {
+      authPk = params.authority;
+    }
+    else {
+      console.log("Unauthorized type for authority");
+    }
+
     const authorityInfo = await this.program.provider.connection.getAccountInfo(
       permissionData.authority
     );
@@ -1750,7 +1763,7 @@ export class PermissionAccount {
       {
         accounts: {
           permission: this.publicKey,
-          authority: params.authority.publicKey,
+          authority: authPk,
         },
         signers: [params.authority],
       }
@@ -2009,6 +2022,9 @@ export class OracleQueueAccount {
     const payerKeypair = Keypair.fromSecretKey(
       (program.provider.wallet as any).payer.secretKey
     );
+    const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
+    /*const mint = (await stateAccount.getTokenMint()).publicKey;*/
+    const mint = spl.NATIVE_MINT;
     const oracleQueueAccount = anchor.web3.Keypair.generate();
     const buffer = anchor.web3.Keypair.generate();
     const size = program.account.oracleQueueAccountData.size;
@@ -2043,6 +2059,7 @@ export class OracleQueueAccount {
           buffer: buffer.publicKey,
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
+          mint: mint
         },
         instructions: [
           anchor.web3.SystemProgram.createAccount({
