@@ -1729,6 +1729,34 @@ export class PermissionAccount {
     );
   }
 
+  /**
+   * Sets the permission in the PermissionAccount
+   * @param params.
+   * @return TransactionSignature.
+   */
+  async setTx(params: PermissionSetParams): Promise<Transaction> {
+    const permissionData = await this.loadData();
+    const authorityInfo = await this.program.provider.connection.getAccountInfo(
+      permissionData.authority
+    );
+
+    const permission = new Map<string, null>();
+    permission.set(params.permission.toString(), null);
+    return await this.program.transaction.permissionSet(
+      {
+        permission: Object.fromEntries(permission),
+        enable: params.enable,
+      },
+      {
+        accounts: {
+          permission: this.publicKey,
+          authority: params.authority.publicKey,
+        },
+        signers: [params.authority],
+      }
+    );
+  }
+
   async setVoterWeight(
     params: PermissionSetVoterWeightParams
   ): Promise<TransactionSignature> {
