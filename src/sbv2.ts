@@ -22,6 +22,7 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
 import { getGovernance } from "@solana/spl-governance";
+import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 
 export * from "./test";
 
@@ -81,9 +82,9 @@ export async function loadSwitchboardProgram(
 ): Promise<anchor.Program> {
   const DEFAULT_KEYPAIR = Keypair.fromSeed(new Uint8Array(32).fill(1));
   const programId = getSwitchboardPid(cluster);
-  const wallet: anchor.Wallet = payerKeypair
-    ? new anchor.Wallet(payerKeypair)
-    : new anchor.Wallet(DEFAULT_KEYPAIR);
+  const wallet: NodeWallet = payerKeypair
+    ? new NodeWallet(payerKeypair)
+    : new NodeWallet(DEFAULT_KEYPAIR);
   const provider = new anchor.Provider(connection, wallet, confirmOptions);
 
   const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
@@ -1391,11 +1392,7 @@ export interface JobInitParams {
    *  A pre-generated keypair to use.
    */
   keypair?: Keypair;
-  /**
-   *  An optional wallet for receiving kickbacks from job usage in feeds.
-   *  Defaults to token vault.
-   */
-  authorWallet?: PublicKey;
+  authority: PublicKey;
 }
 
 /**
@@ -1479,7 +1476,8 @@ export class JobAccount {
       {
         accounts: {
           job: jobAccount.publicKey,
-          authorWallet: params.authorWallet ?? state.tokenVault,
+          authorWallet: params.authority,
+          authority: params.authority,
           programState: stateAccount.publicKey,
         },
         signers: [jobAccount],
@@ -2062,7 +2060,11 @@ export class OracleQueueAccount {
           buffer: buffer.publicKey,
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
+<<<<<<< HEAD
           mint: mint
+=======
+          mint: spl.NATIVE_MINT,
+>>>>>>> main
         },
         instructions: [
           anchor.web3.SystemProgram.createAccount({
