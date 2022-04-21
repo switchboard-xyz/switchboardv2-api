@@ -1548,7 +1548,7 @@ export interface PermissionSetParams {
    *  The authority controlling this permission.
    */
   //authority: Keypair | PublicKey;
-  authority: any;
+  authority: Keypair | PublicKey;
   /**
    *  Specifies whether to enable or disable the permission.
    */
@@ -1741,8 +1741,10 @@ export class PermissionAccount {
     const permissionData = await this.loadData();
 
     let authPk: PublicKey;
+    const signers: Array<Keypair> = [];
     if ('publicKey' in params.authority) {
       authPk = params.authority.publicKey;
+      signers.push(params.authority as Keypair);
     }
     else {
       authPk = params.authority;
@@ -1766,7 +1768,7 @@ export class PermissionAccount {
           permission: this.publicKey,
           authority: authPk,
         },
-        signers: [params.authority],
+        signers,
       }
     );
   }
@@ -1971,6 +1973,23 @@ export class OracleQueueAccount {
     this.publicKey = params.publicKey ?? this.keypair.publicKey;
   }
 
+  async loadMint(): Promise<spl.Token>  {
+    const payerKeypair = Keypair.fromSecretKey(
+      (this.program.provider.wallet as any).payer.secretKey
+    );
+    const queue = await this.loadData();
+    let mintKey = queue.mint;
+    if (mintKey.equals(PublicKey.default)) {
+      mintKey = spl.NATIVE_MINT;
+    }
+    return new spl.Token(
+      this.program.provider.connection,
+      mintKey,
+      spl.TOKEN_PROGRAM_ID,
+      payerKeypair
+    );
+  }
+
   /**
    * Load and parse OracleQueueAccount data based on the program IDL.
    * @return OracleQueueAccount data parsed in accordance with the
@@ -2060,11 +2079,7 @@ export class OracleQueueAccount {
           buffer: buffer.publicKey,
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
-<<<<<<< HEAD
-          mint: mint
-=======
-          mint: spl.NATIVE_MINT,
->>>>>>> main
+          mint,
         },
         instructions: [
           anchor.web3.SystemProgram.createAccount({
@@ -2998,17 +3013,11 @@ export class OracleAccount {
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
 
-    const switchTokenMint = await programStateAccount.getTokenMint();
-    const nativeTokenMint = new spl.Token(
-      program.provider.connection,
-      spl.NATIVE_MINT,
-      spl.TOKEN_PROGRAM_ID,
-      payerKeypair
-    );
-    const wallet = await nativeTokenMint.createAccount(
+    const mint = await params.queueAccount.loadMint();
+    const wallet = await mint.createAccount(
       program.provider.wallet.publicKey
     );
-    await nativeTokenMint.setAuthority(
+    await mint.setAuthority(
       wallet,
       programStateAccount.publicKey,
       "AccountOwner",
