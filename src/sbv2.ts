@@ -1241,6 +1241,7 @@ export class AggregatorAccount {
           payoutWallet: params.payoutWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           dataBuffer: queue.dataBuffer,
+          mint: (await params.oracleQueueAccount.loadMint()).publicKey,
         },
       }
     );
@@ -1359,6 +1360,7 @@ export class AggregatorAccount {
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           programState: programStateAccount.publicKey,
           historyBuffer,
+          mint: params.tokenMint,
         },
         remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
           return { isSigner: false, isWritable: true, pubkey };
@@ -2290,7 +2292,7 @@ export class LeaseAccount {
     );
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
-    const switchTokenMint = await programStateAccount.getTokenMint();
+    const switchTokenMint = await params.oracleQueueAccount.loadMint();
     const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
       program,
       params.oracleQueueAccount,
@@ -2404,6 +2406,7 @@ export class LeaseAccount {
     const lease = await this.loadData();
     const escrow = lease.escrow;
     const queue = lease.queue;
+    const queueAccount = new OracleQueueAccount({ program, publicKey: queue });
     const aggregator = lease.aggregator;
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
@@ -2411,7 +2414,7 @@ export class LeaseAccount {
 
     const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
       program,
-      new OracleQueueAccount({ program, publicKey: queue }),
+      queueAccount,
       new AggregatorAccount({ program, publicKey: aggregator })
     );
     return await program.rpc.leaseExtend(
@@ -2430,6 +2433,7 @@ export class LeaseAccount {
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           escrow,
           programState: programStateAccount.publicKey,
+          mint: (await queueAccount.loadMint()).publicKey,
         },
         signers: [params.funderAuthority],
       }
@@ -2446,13 +2450,14 @@ export class LeaseAccount {
     const lease = await this.loadData();
     const escrow = lease.escrow;
     const queue = lease.queue;
+    const queueAccount = new OracleQueueAccount({ program, publicKey: queue });
     const aggregator = lease.aggregator;
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
     const switchTokenMint = await programStateAccount.getTokenMint();
     const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
       program,
-      new OracleQueueAccount({ program, publicKey: queue }),
+      queueAccount,
       new AggregatorAccount({ program, publicKey: aggregator })
     );
     return await program.rpc.leaseWithdraw(
@@ -2471,6 +2476,7 @@ export class LeaseAccount {
           withdrawAccount: params.withdrawWallet,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           programState: programStateAccount.publicKey,
+          mint: (await queueAccount.loadMint()).publicKey,
         },
         signers: [params.withdrawAuthority],
       }
@@ -2830,6 +2836,7 @@ export class CrankAccount {
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           crankDataBuffer: crank.dataBuffer,
           queueDataBuffer: queue.dataBuffer,
+          mint: await queue.loadMint(),
         },
         remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
           return { isSigner: false, isWritable: true, pubkey };
