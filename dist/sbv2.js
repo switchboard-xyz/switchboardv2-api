@@ -254,7 +254,8 @@ class ProgramStateAccount {
         let mint = null;
         let vault = null;
         if (params.mint === undefined) {
-            const token = new spl.Token(program.provider.connection, spl.NATIVE_MINT, spl.TOKEN_PROGRAM_ID, payerKeypair);
+            const decimals = 9;
+            const token = await spl.Token.createMint(program.provider.connection, payerKeypair, payerKeypair.publicKey, null, decimals, spl.TOKEN_PROGRAM_ID);
             const tokenVault = await token.createAccount(payerKeypair.publicKey);
             mint = token.publicKey;
             await token.mintTo(tokenVault, payerKeypair.publicKey, [payerKeypair], 100000000);

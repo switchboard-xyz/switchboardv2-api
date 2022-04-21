@@ -337,11 +337,14 @@ export class ProgramStateAccount {
     let mint = null;
     let vault = null;
     if (params.mint === undefined) {
-      const token = new spl.Token(
+      const decimals = 9;
+      const token = await spl.Token.createMint(
         program.provider.connection,
-        spl.NATIVE_MINT,
-        spl.TOKEN_PROGRAM_ID,
-        payerKeypair
+        payerKeypair,
+        payerKeypair.publicKey,
+        null,
+        decimals,
+        spl.TOKEN_PROGRAM_ID
       );
       const tokenVault = await token.createAccount(payerKeypair.publicKey);
       mint = token.publicKey;
