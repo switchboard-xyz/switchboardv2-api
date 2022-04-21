@@ -85,7 +85,11 @@ export async function loadSwitchboardProgram(
   const wallet: NodeWallet = payerKeypair
     ? new NodeWallet(payerKeypair)
     : new NodeWallet(DEFAULT_KEYPAIR);
-  const provider = new anchor.AnchorProvider(connection, wallet, confirmOptions);
+  const provider = new anchor.AnchorProvider(
+    connection,
+    wallet,
+    confirmOptions
+  );
 
   const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
   if (!anchorIdl) {
@@ -1091,11 +1095,14 @@ export class AggregatorAccount {
    */
   async addJob(
     job: JobAccount,
-    authority?: Keypair
+    authority?: Keypair,
+    weight: number = 1
   ): Promise<TransactionSignature> {
     authority = authority ?? this.keypair;
     return await this.program.rpc.aggregatorAddJob(
-      {},
+      {
+        weight,
+      },
       {
         accounts: {
           aggregator: this.publicKey,
