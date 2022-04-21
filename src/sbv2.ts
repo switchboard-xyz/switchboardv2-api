@@ -2817,6 +2817,10 @@ export class CrankAccount {
     const payerKeypair = Keypair.fromSecretKey(
       (this.program.provider.wallet as any).payer.secretKey
     );
+    let mint = queue.mint;
+    if (mint.eqauls(PublicKey.default)) {
+      mint = spl.NATIVE_MINT;
+    }
     // const promises: Array<Promise<TransactionSignature>> = [];
     return this.program.transaction.crankPop(
       {
@@ -2836,7 +2840,7 @@ export class CrankAccount {
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           crankDataBuffer: crank.dataBuffer,
           queueDataBuffer: queue.dataBuffer,
-          mint: await queue.loadMint(),
+          mint,
         },
         remainingAccounts: remainingAccounts.map((pubkey: PublicKey) => {
           return { isSigner: false, isWritable: true, pubkey };
