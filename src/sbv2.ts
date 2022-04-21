@@ -42,7 +42,8 @@ export const SBV2_MAINNET_PID = new PublicKey(
 );
 
 export const GOVERNANCE_PID = new PublicKey(
-  "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
+  //"GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
+  "2iNnEMZuLk2TysefLvXtS6kyvCFC7CDUTLLeatVgRend"
 );
 
 /**
@@ -1546,7 +1547,8 @@ export interface PermissionSetParams {
   /**
    *  The authority controlling this permission.
    */
-  authority: Keypair;
+  //authority: Keypair | PublicKey;
+  authority: any;
   /**
    *  Specifies whether to enable or disable the permission.
    */
@@ -1705,6 +1707,9 @@ export class PermissionAccount {
    * @return TransactionSignature.
    */
   async set(params: PermissionSetParams): Promise<TransactionSignature> {
+    if (!('publicKey' in params.authority)) {
+      throw new Error("Authority cannot be a PublicKey for the set RPC method.");
+    }
     const permissionData = await this.loadData();
     const authorityInfo = await this.program.provider.connection.getAccountInfo(
       permissionData.authority
@@ -1721,6 +1726,45 @@ export class PermissionAccount {
         accounts: {
           permission: this.publicKey,
           authority: params.authority.publicKey,
+        },
+        signers: [params.authority],
+      }
+    );
+  }
+
+  /**
+   * Sets the permission in the PermissionAccount
+   * @param params.
+   * @return TransactionSignature.
+   */
+  async setTx(params: PermissionSetParams): Promise<Transaction> {
+    const permissionData = await this.loadData();
+
+    let authPk: PublicKey;
+    if ('publicKey' in params.authority) {
+      authPk = params.authority.publicKey;
+    }
+    else {
+      authPk = params.authority;
+    }
+
+    const authorityInfo = await this.program.provider.connection.getAccountInfo(
+      permissionData.authority
+    );
+
+    const permission = new Map<string, null>();
+    permission.set(params.permission.toString(), null);
+    console.log("authority:");
+    console.log(authPk);
+    return await this.program.transaction.permissionSet(
+      {
+        permission: Object.fromEntries(permission),
+        enable: params.enable,
+      },
+      {
+        accounts: {
+          permission: this.publicKey,
+          authority: authPk,
         },
         signers: [params.authority],
       }
@@ -1979,6 +2023,9 @@ export class OracleQueueAccount {
     const payerKeypair = Keypair.fromSecretKey(
       (program.provider.wallet as any).payer.secretKey
     );
+    const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
+    /*const mint = (await stateAccount.getTokenMint()).publicKey;*/
+    const mint = spl.NATIVE_MINT;
     const oracleQueueAccount = anchor.web3.Keypair.generate();
     const buffer = anchor.web3.Keypair.generate();
     const size = program.account.oracleQueueAccountData.size;
@@ -2013,7 +2060,11 @@ export class OracleQueueAccount {
           buffer: buffer.publicKey,
           systemProgram: SystemProgram.programId,
           payer: program.provider.wallet.publicKey,
+<<<<<<< HEAD
+          mint: mint
+=======
           mint: spl.NATIVE_MINT,
+>>>>>>> main
         },
         instructions: [
           anchor.web3.SystemProgram.createAccount({
@@ -2265,6 +2316,7 @@ export class LeaseAccount {
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           escrow,
           owner: params.funderAuthority.publicKey,
+          mint: switchTokenMint.publicKey,
         },
         signers: [params.funderAuthority],
       }
@@ -2947,10 +2999,16 @@ export class OracleAccount {
       ProgramStateAccount.fromSeed(program);
 
     const switchTokenMint = await programStateAccount.getTokenMint();
-    const wallet = await switchTokenMint.createAccount(
+    const nativeTokenMint = new spl.Token(
+      program.provider.connection,
+      spl.NATIVE_MINT,
+      spl.TOKEN_PROGRAM_ID,
+      payerKeypair
+    );
+    const wallet = await nativeTokenMint.createAccount(
       program.provider.wallet.publicKey
     );
-    await switchTokenMint.setAuthority(
+    await nativeTokenMint.setAuthority(
       wallet,
       programStateAccount.publicKey,
       "AccountOwner",
