@@ -2306,7 +2306,7 @@ export class LeaseAccount {
         stateBump,
         leaseBump,
         withdrawAuthority: params.withdrawAuthority ?? PublicKey.default,
-        walletBumps: [],
+        walletBumps: new Buffer([]),
       },
       {
         accounts: {
@@ -2409,7 +2409,7 @@ export class LeaseAccount {
         loadAmount: params.loadAmount,
         stateBump,
         leaseBump,
-        walletBumps: [],
+        walletBumps: new Buffer([]),
       },
       {
         accounts: {
