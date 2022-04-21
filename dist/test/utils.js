@@ -17,7 +17,7 @@ async function promiseWithTimeout(ms, promise, timeoutError = new Error("timeout
 }
 exports.promiseWithTimeout = promiseWithTimeout;
 const getProgramDataAddress = (programId) => {
-    return (0, pubkey_1.findProgramAddressSync)([programId.toBytes()], new web3_js_1.PublicKey("BPFLoaderUpgradeab1e11111111111111111111111"))[0];
+    return pubkey_1.findProgramAddressSync([programId.toBytes()], new web3_js_1.PublicKey("BPFLoaderUpgradeab1e11111111111111111111111"))[0];
 };
 exports.getProgramDataAddress = getProgramDataAddress;
 const getIdlAddress = async (programId) => {

@@ -85,7 +85,7 @@ export async function loadSwitchboardProgram(
   const wallet: NodeWallet = payerKeypair
     ? new NodeWallet(payerKeypair)
     : new NodeWallet(DEFAULT_KEYPAIR);
-  const provider = new anchor.Provider(connection, wallet, confirmOptions);
+  const provider = new anchor.AnchorProvider(connection, wallet, confirmOptions);
 
   const anchorIdl = await anchor.Program.fetchIdl(programId, provider);
   if (!anchorIdl) {
@@ -291,9 +291,7 @@ export class ProgramStateAccount {
    * @return Switchboard token mint.
    */
   async getTokenMint(): Promise<spl.Token> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (this.program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(this.program);
     const state = await this.loadData();
     const switchTokenMint = new spl.Token(
       this.program.provider.connection,
@@ -321,9 +319,7 @@ export class ProgramStateAccount {
     program: anchor.Program,
     params: ProgramInitParams
   ): Promise<ProgramStateAccount> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(program);
     const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
     const psa = new ProgramStateAccount({
       program,
@@ -932,9 +928,7 @@ export class AggregatorAccount {
     program: anchor.Program,
     params: AggregatorInitParams
   ): Promise<AggregatorAccount> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(program);
     const aggregatorAccount = params.keypair ?? anchor.web3.Keypair.generate();
     const authority = params.authority ?? aggregatorAccount.publicKey;
     const size = program.account.aggregatorAccountData.size;
@@ -966,7 +960,7 @@ export class AggregatorAccount {
         signers: [aggregatorAccount],
         instructions: [
           anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
+            fromPubkey: programWallet(program).publicKey,
             newAccountPubkey: aggregatorAccount.publicKey,
             space: size,
             lamports:
@@ -1060,7 +1054,7 @@ export class AggregatorAccount {
         signers: [authority, buffer],
         instructions: [
           anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
+            fromPubkey: programWallet(program).publicKey,
             newAccountPubkey: buffer.publicKey,
             space: size,
             lamports:
@@ -1278,9 +1272,7 @@ export class AggregatorAccount {
     oracleAccount: OracleAccount, // TODO: move to params.
     params: AggregatorSaveResultParams
   ): Promise<Transaction> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (this.program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(this.program);
     const remainingAccounts: Array<PublicKey> = [];
     for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
       remainingAccounts.push(aggregator.currentRound.oraclePubkeysData[i]);
@@ -1457,9 +1449,7 @@ export class JobAccount {
     program: anchor.Program,
     params: JobInitParams
   ): Promise<JobAccount> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(program);
     const jobAccount = params.keypair ?? anchor.web3.Keypair.generate();
     const size =
       280 + params.data.length + (params.variables?.join("")?.length ?? 0);
@@ -1485,7 +1475,7 @@ export class JobAccount {
         signers: [jobAccount],
         instructions: [
           anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
+            fromPubkey: programWallet(program).publicKey,
             newAccountPubkey: jobAccount.publicKey,
             space: size,
             lamports:
@@ -1655,9 +1645,7 @@ export class PermissionAccount {
       params.granter,
       params.grantee
     );
-    const payerKeypair = Keypair.fromSecretKey(
-      (program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(program);
     await program.rpc.permissionInit(
       {},
       {
@@ -1667,7 +1655,7 @@ export class PermissionAccount {
           authority: params.authority,
           granter: params.granter,
           grantee: params.grantee,
-          payer: program.provider.wallet.publicKey,
+          payer: programWallet(program).publicKey,
           systemProgram: SystemProgram.programId,
         },
       }
@@ -1709,8 +1697,10 @@ export class PermissionAccount {
    * @return TransactionSignature.
    */
   async set(params: PermissionSetParams): Promise<TransactionSignature> {
-    if (!('publicKey' in params.authority)) {
-      throw new Error("Authority cannot be a PublicKey for the set RPC method.");
+    if (!("publicKey" in params.authority)) {
+      throw new Error(
+        "Authority cannot be a PublicKey for the set RPC method."
+      );
     }
     const permissionData = await this.loadData();
     const authorityInfo = await this.program.provider.connection.getAccountInfo(
@@ -1744,11 +1734,10 @@ export class PermissionAccount {
 
     let authPk: PublicKey;
     const signers: Array<Keypair> = [];
-    if ('publicKey' in params.authority) {
+    if ("publicKey" in params.authority) {
       authPk = params.authority.publicKey;
       signers.push(params.authority as Keypair);
-    }
-    else {
+    } else {
       authPk = params.authority;
     }
 
@@ -1778,9 +1767,7 @@ export class PermissionAccount {
   async setVoterWeight(
     params: PermissionSetVoterWeightParams
   ): Promise<TransactionSignature> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (this.program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(this.program);
     const tx = await this.setVoterWeightTx(params);
     return await sendAndConfirmTransaction(
       this.program.provider.connection,
@@ -1797,9 +1784,7 @@ export class PermissionAccount {
       permissionData.grantee
     );
 
-    const payerKeypair = Keypair.fromSecretKey(
-      (this.program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(this.program);
 
     const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
       this.program
@@ -1828,7 +1813,7 @@ export class PermissionAccount {
         Buffer.from("governance"),
         governance.realm.toBytes(),
         psData.daoMint.toBytes(),
-        oracleData.oracleAuthority.toBytes(),
+        (oracleData.oracleAuthority as PublicKey).toBytes(),
       ],
       params.govProgram
     );
@@ -1842,7 +1827,7 @@ export class PermissionAccount {
           permission: this.publicKey,
           permissionAuthority: permissionData.authority,
           oracle: permissionData.grantee,
-          oracleAuthority: oracleData.oracleAuthority,
+          oracleAuthority: oracleData.oracleAuthority as PublicKey,
           payer: payerKeypair.publicKey,
           systemProgram: SystemProgram.programId,
           programState: programStateAccount.publicKey,
@@ -1975,10 +1960,8 @@ export class OracleQueueAccount {
     this.publicKey = params.publicKey ?? this.keypair.publicKey;
   }
 
-  async loadMint(): Promise<spl.Token>  {
-    const payerKeypair = Keypair.fromSecretKey(
-      (this.program.provider.wallet as any).payer.secretKey
-    );
+  async loadMint(): Promise<spl.Token> {
+    const payerKeypair = programWallet(this.program);
     const queue = await this.loadData();
     let mintKey = queue.mint;
     if (mintKey.equals(PublicKey.default)) {
@@ -2041,9 +2024,7 @@ export class OracleQueueAccount {
     program: anchor.Program,
     params: OracleQueueInitParams
   ): Promise<OracleQueueAccount> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(program);
     const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
     /*const mint = (await stateAccount.getTokenMint()).publicKey;*/
     const mint = spl.NATIVE_MINT;
@@ -2080,12 +2061,12 @@ export class OracleQueueAccount {
           authority: params.authority,
           buffer: buffer.publicKey,
           systemProgram: SystemProgram.programId,
-          payer: program.provider.wallet.publicKey,
+          payer: programWallet(program).publicKey,
           mint,
         },
         instructions: [
           anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
+            fromPubkey: programWallet(program).publicKey,
             newAccountPubkey: buffer.publicKey,
             space: queueSize,
             lamports:
@@ -2287,9 +2268,7 @@ export class LeaseAccount {
     program: anchor.Program,
     params: LeaseInitParams
   ): Promise<LeaseAccount> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(program);
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
     const switchTokenMint = await params.oracleQueueAccount.loadMint();
@@ -2329,7 +2308,7 @@ export class LeaseAccount {
           aggregator: params.aggregatorAccount.publicKey,
           systemProgram: SystemProgram.programId,
           funder: params.funder,
-          payer: program.provider.wallet.publicKey,
+          payer: programWallet(program).publicKey,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           escrow,
           owner: params.funderAuthority.publicKey,
@@ -2347,7 +2326,7 @@ export class LeaseAccount {
     // const mintData = await this.program.provider.connection.getAccountInfo(
     // switchTokenMint.publicKey
     // );
-    // const mintInfo = spl.MintLayout.decode(mintData);
+    // const mintInfo = spl.TokenLayout.decode(mintData);
     // const decimals = spl.u8.fromBuffer(mintInfo.decimals).toNumber();
     const lease = await this.loadData();
     const escrowInfo = await this.program.provider.connection.getAccountInfo(
@@ -2645,9 +2624,7 @@ export class CrankAccount {
     program: anchor.Program,
     params: CrankInitParams
   ): Promise<CrankAccount> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(program);
     const crankAccount = anchor.web3.Keypair.generate();
     const buffer = anchor.web3.Keypair.generate();
     const size = program.account.crankAccountData.size;
@@ -2666,11 +2643,11 @@ export class CrankAccount {
           queue: params.queueAccount.publicKey,
           buffer: buffer.publicKey,
           systemProgram: SystemProgram.programId,
-          payer: program.provider.wallet.publicKey,
+          payer: programWallet(program).publicKey,
         },
         instructions: [
           anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
+            fromPubkey: programWallet(program).publicKey,
             newAccountPubkey: buffer.publicKey,
             space: crankSize,
             lamports:
@@ -2814,9 +2791,7 @@ export class CrankAccount {
     const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
       this.program
     );
-    const payerKeypair = Keypair.fromSecretKey(
-      (this.program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(this.program);
     let mint = queue.mint;
     if (mint.eqauls(PublicKey.default)) {
       mint = spl.NATIVE_MINT;
@@ -2856,9 +2831,7 @@ export class CrankAccount {
    * @return TransactionSignature
    */
   async pop(params: CrankPopParams): Promise<TransactionSignature> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (this.program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(this.program);
     return await sendAndConfirmTransaction(
       this.program.provider.connection,
       await this.popTxn(params),
@@ -3016,18 +2989,14 @@ export class OracleAccount {
     program: anchor.Program,
     params: OracleInitParams
   ): Promise<OracleAccount> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(program);
     const authorityKeypair = params.oracleAuthority ?? payerKeypair;
     const size = program.account.oracleAccountData.size;
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
 
     const mint = await params.queueAccount.loadMint();
-    const wallet = await mint.createAccount(
-      program.provider.wallet.publicKey
-    );
+    const wallet = await mint.createAccount(programWallet(program).publicKey);
     await mint.setAuthority(
       wallet,
       programStateAccount.publicKey,
@@ -3056,7 +3025,7 @@ export class OracleAccount {
           wallet,
           programState: programStateAccount.publicKey,
           systemProgram: SystemProgram.programId,
-          payer: program.provider.wallet.publicKey,
+          payer: programWallet(program).publicKey,
         },
       }
     );
@@ -3102,9 +3071,7 @@ export class OracleAccount {
    * @return TransactionSignature.
    */
   async heartbeat(): Promise<TransactionSignature> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (this.program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(this.program);
     const queueAccount = new OracleQueueAccount({
       program: this.program,
       publicKey: (await this.loadData()).queuePubkey,
@@ -3154,9 +3121,7 @@ export class OracleAccount {
    * @return TransactionSignature.
    */
   async heartbeatTx(): Promise<Transaction> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (this.program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(this.program);
     const queueAccount = new OracleQueueAccount({
       program: this.program,
       publicKey: (await this.loadData()).queuePubkey,
@@ -3204,9 +3169,7 @@ export class OracleAccount {
    * Withdraw stake and/or rewards from an OracleAccount.
    */
   async withdraw(params: OracleWithdrawParams): Promise<TransactionSignature> {
-    const payerKeypair = Keypair.fromSecretKey(
-      (this.program.provider.wallet as any).payer.secretKey
-    );
+    const payerKeypair = programWallet(this.program);
     const oracle = await this.loadData();
     const queuePubkey = oracle.queuePubkey;
     const queueAccount = new OracleQueueAccount({
@@ -3241,7 +3204,7 @@ export class OracleAccount {
           tokenProgram: spl.TOKEN_PROGRAM_ID,
           programState: stateAccount.publicKey,
           systemProgram: SystemProgram.programId,
-          payer: this.program.provider.wallet.publicKey,
+          payer: programWallet(this.program).publicKey,
         },
         signers: [params.oracleAuthority],
       }
@@ -3416,7 +3379,7 @@ export class VrfAccount {
         },
         instructions: [
           anchor.web3.SystemProgram.createAccount({
-            fromPubkey: program.provider.wallet.publicKey,
+            fromPubkey: programWallet(program).publicKey,
             newAccountPubkey: keypair.publicKey,
             space: size,
             lamports:
@@ -3681,7 +3644,7 @@ export async function sendAll(
 ): Promise<Array<TransactionSignature>> {
   let res: Array<TransactionSignature> = [];
   try {
-    const opts = provider.opts;
+    const opts = (provider as anchor.AnchorProvider).opts;
     // TODO: maybe finalized
     const blockhash = await provider.connection.getRecentBlockhash("confirmed");
 
@@ -3694,7 +3657,7 @@ export async function sendAll(
         signers = [];
       }
 
-      tx.feePayer = provider.wallet.publicKey;
+      tx.feePayer = (provider as anchor.AnchorProvider).wallet.publicKey;
       tx.recentBlockhash = blockhash.blockhash;
 
       signers
@@ -3709,10 +3672,12 @@ export async function sendAll(
       provider.connection,
       txs,
       signers,
-      provider.wallet.publicKey
+      (provider as anchor.AnchorProvider).wallet.publicKey
     );
 
-    const signedTxs = await provider.wallet.signAllTransactions(txs);
+    const signedTxs = await (
+      provider as anchor.AnchorProvider
+    ).wallet.signAllTransactions(txs);
     const promises = [];
     for (let k = 0; k < txs.length; k += 1) {
       const tx = signedTxs[k];
@@ -3729,12 +3694,6 @@ export async function sendAll(
     console.log(e);
   }
   return res;
-}
-
-export function getPayer(program: anchor.Program): Keypair {
-  return Keypair.fromSecretKey(
-    (program.provider.wallet as any).payer.secretKey
-  );
 }
 
 /**
@@ -3909,4 +3868,9 @@ export async function createMint(
   ]);
 
   return tkn;
+}
+
+export function programWallet(program: anchor.Program): Keypair {
+  return ((program.provider as anchor.AnchorProvider).wallet as NodeWallet)
+    .payer;
 }

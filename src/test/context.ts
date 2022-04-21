@@ -34,7 +34,7 @@ export class SwitchboardTestContext implements ISwitchboardTestContext {
     program: anchor.Program,
     amount = 1_000_000
   ): Promise<PublicKey> {
-    const payerKeypair = sbv2.getPayer(program);
+    const payerKeypair = sbv2.programWallet(program);
     return spl.Token.createWrappedNativeAccount(
       program.provider.connection,
       spl.TOKEN_PROGRAM_ID,
@@ -128,7 +128,7 @@ export class SwitchboardTestContext implements ISwitchboardTestContext {
     value: number
   ): Promise<sbv2.AggregatorAccount> {
     const queue = await this.queue.loadData();
-    const payerKeypair = sbv2.getPayer(this.program);
+    const payerKeypair = sbv2.programWallet(this.program);
 
     // create aggregator
     const aggregatorAccount = await sbv2.AggregatorAccount.create(

@@ -1,11 +1,7 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -44,7 +40,7 @@ class SwitchboardTestContext {
     }
     // Switchboard currently uses wrapped SOL for mint
     static async createSwitchboardWallet(program, amount = 1000000) {
-        const payerKeypair = sbv2.getPayer(program);
+        const payerKeypair = sbv2.programWallet(program);
         return spl.Token.createWrappedNativeAccount(program.provider.connection, spl.TOKEN_PROGRAM_ID, payerKeypair.publicKey, payerKeypair, amount);
     }
     // public static async depositSwitchboardWallet(
@@ -106,7 +102,7 @@ class SwitchboardTestContext {
     /** Create a static data feed that resolves to an expected value */
     async createStaticFeed(value) {
         const queue = await this.queue.loadData();
-        const payerKeypair = sbv2.getPayer(this.program);
+        const payerKeypair = sbv2.programWallet(this.program);
         // create aggregator
         const aggregatorAccount = await sbv2.AggregatorAccount.create(this.program, {
             batchSize: 1,
@@ -211,7 +207,7 @@ class SwitchboardTestContext {
                 }
             });
         });
-        const updatedValuePromise = (0, utils_1.promiseWithTimeout)(timeout * 1000, awaitUpdatePromise, new Error(`aggregator failed to update in ${timeout} seconds`)).finally(() => {
+        const updatedValuePromise = utils_1.promiseWithTimeout(timeout * 1000, awaitUpdatePromise, new Error(`aggregator failed to update in ${timeout} seconds`)).finally(() => {
             if (accountWs) {
                 this.program.provider.connection.removeAccountChangeListener(accountWs);
             }
