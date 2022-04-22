@@ -23,6 +23,7 @@ import Big from "big.js";
 import * as crypto from "crypto";
 import { getGovernance } from "@solana/spl-governance";
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+var assert = require('assert');
 
 export * from "./test";
 
@@ -3118,6 +3119,15 @@ export class OracleAccount {
       );
     }
     const oracle = await this.loadData();
+
+    assert(this.publicKey !== undefined);
+    assert(payerKeypair.publicKey !== undefined);
+    assert(oracle.tokenAccount !== undefined);
+    assert(lastPubkey !== undefined);
+    assert(queueAccount.publicKey !== undefined);
+    assert(queueAccount.publicKey !== undefined);
+    assert(permissionAccount.publicKey !== undefined);
+    assert(queue.dataBuffer !== undefined);
 
     return await this.program.rpc.oracleHeartbeat(
       {

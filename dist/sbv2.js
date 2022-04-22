@@ -34,6 +34,7 @@ const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
 const spl_governance_1 = require("@solana/spl-governance");
 const nodewallet_1 = __importDefault(require("@project-serum/anchor/dist/cjs/nodewallet"));
+var assert = require('assert');
 __exportStar(require("./test"), exports);
 /**
  * Switchboard Devnet Program ID
@@ -1959,6 +1960,14 @@ class OracleAccount {
             throw new Error("A requested permission pda account has not been initialized.");
         }
         const oracle = await this.loadData();
+        assert(this.publicKey !== undefined);
+        assert(payerKeypair.publicKey !== undefined);
+        assert(oracle.tokenAccount !== undefined);
+        assert(lastPubkey !== undefined);
+        assert(queueAccount.publicKey !== undefined);
+        assert(queueAccount.publicKey !== undefined);
+        assert(permissionAccount.publicKey !== undefined);
+        assert(queue.dataBuffer !== undefined);
         return await this.program.rpc.oracleHeartbeat({
             permissionBump,
         }, {
