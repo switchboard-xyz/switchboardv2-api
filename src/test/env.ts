@@ -241,6 +241,7 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
         queueSize: 10, // Number of active oracles a queue can support
         unpermissionedFeeds: true, // Whether feeds need PERMIT_ORACLE_QUEUE_USAGE permissions
         unpermissionedVrf: true, // Whether VRF accounts need PERMIT_VRF_REQUESTS permissions
+        mint: programState.tokenMint,
       }
     );
     await queueAccount.setVrfSettings({

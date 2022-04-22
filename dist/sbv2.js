@@ -1261,7 +1261,7 @@ class OracleQueueAccount {
         const payerKeypair = programWallet(program);
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         /*const mint = (await stateAccount.getTokenMint()).publicKey;*/
-        const mint = spl.NATIVE_MINT;
+        const mint = params.mint;
         const oracleQueueAccount = anchor.web3.Keypair.generate();
         const buffer = anchor.web3.Keypair.generate();
         const size = program.account.oracleQueueAccountData.size;

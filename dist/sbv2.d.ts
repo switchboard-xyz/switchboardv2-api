@@ -703,6 +703,7 @@ export interface OracleQueueInitParams {
      * to request VRF proofs and verifications from this queue.
      */
     unpermissionedVrf?: boolean;
+    mint: PublicKey;
 }
 export interface OracleQueueSetRewardsParams {
     rewards: anchor.BN;

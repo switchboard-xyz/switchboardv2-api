@@ -159,7 +159,8 @@ class SwitchboardTestEnvironment {
             reward: new anchor.BN(0),
             queueSize: 10,
             unpermissionedFeeds: true,
-            unpermissionedVrf: true, // Whether VRF accounts need PERMIT_VRF_REQUESTS permissions
+            unpermissionedVrf: true,
+            mint: programState.tokenMint,
         });
         await queueAccount.setVrfSettings({
             authority: payerKeypair,
