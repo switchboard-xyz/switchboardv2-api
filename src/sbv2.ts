@@ -2311,6 +2311,8 @@ export class LeaseAccount {
     } catch (e) {
       console.log(e);
     }
+    await params.oracleQueueAccount.loadData();
+    await params.aggregatorAccount.loadData();
     await program.rpc.leaseInit(
       {
         loadAmount: params.loadAmount,
