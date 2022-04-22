@@ -2296,22 +2296,16 @@ export class LeaseAccount {
       params.oracleQueueAccount,
       params.aggregatorAccount
     );
+    await switchTokenMint.getOrCreateAssociatedAccountInfo(
+      leaseAccount.publicKey
+    );
     const escrow = await spl.Token.getAssociatedTokenAddress(
-      switchTokenMint.associatedProgramId,
-      switchTokenMint.programId,
+      spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+      spl.TOKEN_PROGRAM_ID,
       switchTokenMint.publicKey,
       leaseAccount.publicKey,
       true
     );
-
-    try {
-      await (switchTokenMint as any).createAssociatedTokenAccountInternal(
-        leaseAccount.publicKey,
-        escrow
-      );
-    } catch (e) {
-      console.log(e);
-    }
     await params.oracleQueueAccount.loadData();
     await params.aggregatorAccount.loadData();
     await programStateAccount.loadData();
