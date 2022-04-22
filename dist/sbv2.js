@@ -234,11 +234,14 @@ class ProgramStateAccount {
         return this.program.account.sbState.size;
     }
     static async getOrCreate(program, params) {
+        const [account, seed] = ProgramStateAccount.fromSeed(program);
         try {
+            await account.loadData();
+        }
+        catch (e) {
             await ProgramStateAccount.create(program, params);
         }
-        catch (e) { }
-        return ProgramStateAccount.fromSeed(program);
+        return [account, seed];
     }
     /**
      * Create and initialize the ProgramStateAccount.

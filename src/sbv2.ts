@@ -318,10 +318,13 @@ export class ProgramStateAccount {
     program: anchor.Program,
     params: ProgramInitParams
   ): Promise<[ProgramStateAccount, number]> {
+    const [account, seed] = ProgramStateAccount.fromSeed(program);
     try {
+      await account.loadData();
+    } catch (e) {
       await ProgramStateAccount.create(program, params);
-    } catch (e) {}
-    return ProgramStateAccount.fromSeed(program);
+    }
+    return [account, seed];
   }
 
   /**
