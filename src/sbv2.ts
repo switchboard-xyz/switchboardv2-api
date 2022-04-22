@@ -2313,6 +2313,7 @@ export class LeaseAccount {
     }
     await params.oracleQueueAccount.loadData();
     await params.aggregatorAccount.loadData();
+    await programStateAccount.loadData();
     await program.rpc.leaseInit(
       {
         loadAmount: params.loadAmount,
