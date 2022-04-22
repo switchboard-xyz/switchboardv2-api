@@ -316,12 +316,11 @@ export class ProgramStateAccount {
   static async getOrCreate(
     program: anchor.Program,
     params: ProgramInitParams
-  ): Promise<ProgramStateAccount> {
+  ): Promise<[ProgramStateAccount, number]> {
     try {
-      return await ProgramStateAccount.create(program, params);
+      await ProgramStateAccount.create(program, params);
     } catch {}
-    const [account] = ProgramStateAccount.fromSeed(program);
-    return account;
+    return ProgramStateAccount.fromSeed(program);
   }
 
   /**
