@@ -2822,6 +2822,7 @@ export class CrankAccount {
     );
     const payerKeypair = programWallet(this.program);
     let mint = queue.mint;
+    assert(mint !== undefined);
     if (mint.eqauls(PublicKey.default)) {
       mint = spl.NATIVE_MINT;
     }
