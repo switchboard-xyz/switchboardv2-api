@@ -23,7 +23,7 @@ import Big from "big.js";
 import * as crypto from "crypto";
 import { getGovernance } from "@solana/spl-governance";
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-var assert = require('assert');
+var assert = require("assert");
 
 export * from "./test";
 
@@ -3094,7 +3094,7 @@ export class OracleAccount {
    * Inititates a heartbeat for an OracleAccount, signifying oracle is still healthy.
    * @return TransactionSignature.
    */
-  async heartbeat(): Promise<TransactionSignature> {
+  async heartbeat(authority: Keypair): Promise<TransactionSignature> {
     const payerKeypair = programWallet(this.program);
     const queueAccount = new OracleQueueAccount({
       program: this.program,
@@ -3143,7 +3143,7 @@ export class OracleAccount {
           permission: permissionAccount.publicKey,
           dataBuffer: queue.dataBuffer,
         },
-        signers: [this.keypair],
+        signers: [authority],
       }
     );
   }

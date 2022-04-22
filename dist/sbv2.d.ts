@@ -1092,7 +1092,7 @@ export declare class OracleAccount {
      * Inititates a heartbeat for an OracleAccount, signifying oracle is still healthy.
      * @return TransactionSignature.
      */
-    heartbeat(): Promise<TransactionSignature>;
+    heartbeat(authority: Keypair): Promise<TransactionSignature>;
     /**
     /**
      * Inititates a heartbeat for an OracleAccount, signifying oracle is still healthy.

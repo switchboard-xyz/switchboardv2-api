@@ -34,7 +34,7 @@ const big_js_1 = __importDefault(require("big.js"));
 const crypto = __importStar(require("crypto"));
 const spl_governance_1 = require("@solana/spl-governance");
 const nodewallet_1 = __importDefault(require("@project-serum/anchor/dist/cjs/nodewallet"));
-var assert = require('assert');
+var assert = require("assert");
 __exportStar(require("./test"), exports);
 /**
  * Switchboard Devnet Program ID
@@ -1941,7 +1941,7 @@ class OracleAccount {
      * Inititates a heartbeat for an OracleAccount, signifying oracle is still healthy.
      * @return TransactionSignature.
      */
-    async heartbeat() {
+    async heartbeat(authority) {
         const payerKeypair = programWallet(this.program);
         const queueAccount = new OracleQueueAccount({
             program: this.program,
@@ -1980,7 +1980,7 @@ class OracleAccount {
                 permission: permissionAccount.publicKey,
                 dataBuffer: queue.dataBuffer,
             },
-            signers: [this.keypair],
+            signers: [authority],
         });
     }
     /**
