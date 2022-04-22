@@ -237,9 +237,7 @@ class ProgramStateAccount {
         try {
             await ProgramStateAccount.create(program, params);
         }
-        catch (e) {
-            console.log(e);
-        }
+        catch (e) { }
         return ProgramStateAccount.fromSeed(program);
     }
     /**
