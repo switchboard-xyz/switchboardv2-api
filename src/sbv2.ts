@@ -320,7 +320,9 @@ export class ProgramStateAccount {
   ): Promise<[ProgramStateAccount, number]> {
     try {
       await ProgramStateAccount.create(program, params);
-    } catch {}
+    } catch (e) {
+      console.log(e);
+    }
     return ProgramStateAccount.fromSeed(program);
   }
 
@@ -389,7 +391,7 @@ export class ProgramStateAccount {
           payer: payerKeypair.publicKey,
           systemProgram: SystemProgram.programId,
           tokenProgram: spl.TOKEN_PROGRAM_ID,
-          daoMint: params.daoMint,
+          daoMint: params.daoMint ?? mint,
         },
       }
     );
@@ -1471,7 +1473,10 @@ export class JobAccount {
     const jobAccount = params.keypair ?? anchor.web3.Keypair.generate();
     const size =
       280 + params.data.length + (params.variables?.join("")?.length ?? 0);
-    const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
+    const [stateAccount, stateBump] = await ProgramStateAccount.getOrCreate(
+      program,
+      {}
+    );
     const state = await stateAccount.loadData();
     await program.rpc.jobInit(
       {
@@ -2352,7 +2357,9 @@ export class LeaseAccount {
     );
     const data = Buffer.from(escrowInfo.data);
     const accountInfo = spl.AccountLayout.decode(data);
-    const balance = spl.u64.fromBuffer(accountInfo.amount).toNumber();
+    const balance = (
+      spl.u64.fromBuffer(accountInfo.amount) as anchor.BN
+    ).toNumber();
     return balance; // / mintInfo.decimals;
   }
 
@@ -2385,7 +2392,9 @@ export class LeaseAccount {
     );
     const data = Buffer.from(escrowInfo.data);
     const accountInfo = spl.AccountLayout.decode(data);
-    const balance = spl.u64.fromBuffer(accountInfo.amount).toNumber();
+    const balance = (
+      spl.u64.fromBuffer(accountInfo.amount) as anchor.BN
+    ).toNumber();
     const endDate = new Date();
     endDate.setTime(endDate.getTime() + (balance * oneDay) / costPerDay);
     const timeLeft = endDate.getTime() - new Date().getTime();
@@ -3246,7 +3255,9 @@ export class OracleAccount {
     );
     const data = Buffer.from(escrowInfo.data);
     const accountInfo = spl.AccountLayout.decode(data);
-    const balance = spl.u64.fromBuffer(accountInfo.amount).toNumber();
+    const balance = (
+      spl.u64.fromBuffer(accountInfo.amount) as anchor.BN
+    ).toNumber();
     return balance; // / mintInfo.decimals;
   }
 }

@@ -237,7 +237,9 @@ class ProgramStateAccount {
         try {
             await ProgramStateAccount.create(program, params);
         }
-        catch { }
+        catch (e) {
+            console.log(e);
+        }
         return ProgramStateAccount.fromSeed(program);
     }
     /**
@@ -247,6 +249,7 @@ class ProgramStateAccount {
      * @return newly generated ProgramStateAccount.
      */
     static async create(program, params) {
+        var _a;
         const payerKeypair = programWallet(program);
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const psa = new ProgramStateAccount({
@@ -285,7 +288,7 @@ class ProgramStateAccount {
                 payer: payerKeypair.publicKey,
                 systemProgram: web3_js_1.SystemProgram.programId,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
-                daoMint: params.daoMint,
+                daoMint: (_a = params.daoMint) !== null && _a !== void 0 ? _a : mint,
             },
         });
         return psa;
@@ -951,7 +954,7 @@ class JobAccount {
         const payerKeypair = programWallet(program);
         const jobAccount = (_a = params.keypair) !== null && _a !== void 0 ? _a : anchor.web3.Keypair.generate();
         const size = 280 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
-        const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
+        const [stateAccount, stateBump] = await ProgramStateAccount.getOrCreate(program, {});
         const state = await stateAccount.loadData();
         await program.rpc.jobInit({
             name: (_e = params.name) !== null && _e !== void 0 ? _e : Buffer.from(""),

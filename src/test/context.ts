@@ -222,12 +222,10 @@ export class SwitchboardTestContext implements ISwitchboardTestContext {
     const existingJobs: sbv2.JobAccount[] = aggregator.jobPubkeysData
       // eslint-disable-next-line array-callback-return
       .filter((jobKey: PublicKey) => {
-        if (!jobKey.equals(DEFAULT_PUBKEY)) {
-          return jobKey;
-        }
+        return !jobKey.equals(DEFAULT_PUBKEY);
       })
       .map(
-        (jobKey) =>
+        (jobKey: PublicKey) =>
           new sbv2.JobAccount({
             program: this.program,
             publicKey: jobKey,

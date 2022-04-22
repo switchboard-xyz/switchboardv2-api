@@ -171,9 +171,7 @@ class SwitchboardTestContext {
         const existingJobs = aggregator.jobPubkeysData
             // eslint-disable-next-line array-callback-return
             .filter((jobKey) => {
-            if (!jobKey.equals(utils_1.DEFAULT_PUBKEY)) {
-                return jobKey;
-            }
+            return !jobKey.equals(utils_1.DEFAULT_PUBKEY);
         })
             .map((jobKey) => new sbv2.JobAccount({
             program: this.program,
