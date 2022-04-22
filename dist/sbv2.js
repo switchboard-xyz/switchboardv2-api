@@ -1757,8 +1757,7 @@ class CrankAccount {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const payerKeypair = programWallet(this.program);
         let mint = queue.mint;
-        assert(mint !== undefined);
-        if (mint.eqauls(web3_js_1.PublicKey.default)) {
+        if (mint.equals(web3_js_1.PublicKey.default)) {
             mint = spl.NATIVE_MINT;
         }
         // const promises: Array<Promise<TransactionSignature>> = [];

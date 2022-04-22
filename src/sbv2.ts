@@ -2821,9 +2821,8 @@ export class CrankAccount {
       this.program
     );
     const payerKeypair = programWallet(this.program);
-    let mint = queue.mint;
-    assert(mint !== undefined);
-    if (mint.eqauls(PublicKey.default)) {
+    let mint: PublicKey = queue.mint;
+    if (mint.equals(PublicKey.default)) {
       mint = spl.NATIVE_MINT;
     }
     // const promises: Array<Promise<TransactionSignature>> = [];
