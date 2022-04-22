@@ -130,6 +130,7 @@ export declare class ProgramStateAccount {
      * @return account size of the global ProgramStateAccount.
      */
     size(): number;
+    static getOrCreate(program: anchor.Program, params: ProgramInitParams): Promise<ProgramStateAccount>;
     /**
      * Create and initialize the ProgramStateAccount.
      * @param program Switchboard program representation holding connection and IDL.

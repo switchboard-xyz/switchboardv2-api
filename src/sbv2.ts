@@ -313,6 +313,17 @@ export class ProgramStateAccount {
     return this.program.account.sbState.size;
   }
 
+  static async getOrCreate(
+    program: anchor.Program,
+    params: ProgramInitParams
+  ): Promise<ProgramStateAccount> {
+    try {
+      return await ProgramStateAccount.create(program, params);
+    } catch {}
+    const [account] = ProgramStateAccount.fromSeed(program);
+    return account;
+  }
+
   /**
    * Create and initialize the ProgramStateAccount.
    * @param program Switchboard program representation holding connection and IDL.
