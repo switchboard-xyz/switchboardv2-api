@@ -906,6 +906,24 @@ export class AggregatorAccount {
     );
   }
 
+  async loadJobAccounts(aggregator?: any): Promise<Array<any>> {
+    const coder = new anchor.BorshAccountsCoder(this.program.idl);
+
+    aggregator = aggregator ?? (await this.loadData());
+
+    const jobAccountDatas = await anchor.utils.rpc.getMultipleAccounts(
+      this.program.provider.connection,
+      aggregator.jobPubkeysData.slice(0, aggregator.jobPubkeysSize)
+    );
+    if (jobAccountDatas === null) {
+      throw new Error("Failed to load feed jobs.");
+    }
+    const jobs = jobAccountDatas.map((item) => {
+      return coder.decode("JobAccountData", item.account.data);
+    });
+    return jobs;
+  }
+
   /**
    * Load and deserialize all jobs stored in this aggregator
    * @return Array<OracleJob>
@@ -2342,16 +2360,31 @@ export class LeaseAccount {
       leaseAccount.publicKey,
       escrow
     );
-    await params.oracleQueueAccount.loadData();
-    await params.aggregatorAccount.loadData();
-    await programStateAccount.loadData();
+    const jobAccountDatas = await params.aggregatorAccount.loadJobAccounts();
+    const jobWallets: Array<PublicKey> = [];
+    const walletBumps: Array<number> = [];
+    for (let idx in jobAccountDatas) {
+      const jobAccountData = jobAccountDatas[idx];
+      const authority = jobAccountData.authority ?? PublicKey.default;
+      const [jobWallet, bump] = await PublicKey.findProgramAddress(
+        [
+          authority.toBuffer(),
+          spl.TOKEN_PROGRAM_ID.toBuffer(),
+          switchTokenMint.publicKey.toBuffer(),
+        ],
+        spl.ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+      jobWallets.push(jobWallet);
+      walletBumps.push(bump);
+    }
+
     await program.rpc.leaseInit(
       {
         loadAmount: params.loadAmount,
         stateBump,
         leaseBump,
         withdrawAuthority: params.withdrawAuthority ?? PublicKey.default,
-        walletBumps: new Buffer([]),
+        walletBumps: new Buffer(walletBumps),
       },
       {
         accounts: {
@@ -2368,6 +2401,9 @@ export class LeaseAccount {
           mint: switchTokenMint.publicKey,
         },
         signers: [params.funderAuthority],
+        remainingAccounts: jobWallets.map((pubkey: PublicKey) => {
+          return { isSigner: false, isWritable: true, pubkey };
+        }),
       }
     );
     return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
@@ -2444,6 +2480,10 @@ export class LeaseAccount {
     const queue = lease.queue;
     const queueAccount = new OracleQueueAccount({ program, publicKey: queue });
     const aggregator = lease.aggregator;
+    const aggregatorAccount = new AggregatorAccount({
+      program,
+      publicKey: aggregator,
+    });
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
     const switchTokenMint = await programStateAccount.getTokenMint();
@@ -2451,14 +2491,31 @@ export class LeaseAccount {
     const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
       program,
       queueAccount,
-      new AggregatorAccount({ program, publicKey: aggregator })
+      aggregatorAccount
     );
+    const jobAccountDatas = await aggregatorAccount.loadJobAccounts();
+    const jobWallets: Array<PublicKey> = [];
+    const walletBumps: Array<number> = [];
+    for (let idx in jobAccountDatas) {
+      const jobAccountData = jobAccountDatas[idx];
+      const authority = jobAccountData.authority ?? PublicKey.default;
+      const [jobWallet, bump] = await PublicKey.findProgramAddress(
+        [
+          authority.toBuffer(),
+          spl.TOKEN_PROGRAM_ID.toBuffer(),
+          switchTokenMint.publicKey.toBuffer(),
+        ],
+        spl.ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+      jobWallets.push(jobWallet);
+      walletBumps.push(bump);
+    }
     return await program.rpc.leaseExtend(
       {
         loadAmount: params.loadAmount,
         stateBump,
         leaseBump,
-        walletBumps: new Buffer([]),
+        walletBumps: new Buffer(walletBumps),
       },
       {
         accounts: {
@@ -2473,6 +2530,9 @@ export class LeaseAccount {
           mint: (await queueAccount.loadMint()).publicKey,
         },
         signers: [params.funderAuthority],
+        remainingAccounts: jobWallets.map((pubkey: PublicKey) => {
+          return { isSigner: false, isWritable: true, pubkey };
+        }),
       }
     );
   }
