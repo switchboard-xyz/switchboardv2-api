@@ -1277,9 +1277,12 @@ export class AggregatorAccount {
     oracleAccount: OracleAccount,
     params: AggregatorSaveResultParams
   ): Promise<TransactionSignature> {
-    return await this.program.provider.send(
-      await this.saveResultTxn(aggregator, oracleAccount, params)
-    );
+    return (await this.program.provider.sendAll([
+      {
+        tx: await this.saveResultTxn(aggregator, oracleAccount, params),
+        signers: [programWallet(this.program)],
+      },
+    ]))[0];
   }
 
   /**
