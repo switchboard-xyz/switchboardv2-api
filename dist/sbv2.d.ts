@@ -398,6 +398,7 @@ export declare class AggregatorAccount {
      * @return hash of all the feed jobs.
      */
     produceJobsHash(jobs: Array<OracleJob>): crypto.Hash;
+    loadCurrentRoundOracles(aggregator?: any): Promise<Array<any>>;
     /**
      * Load and deserialize all jobs stored in this aggregator
      * @return Array<OracleJob>

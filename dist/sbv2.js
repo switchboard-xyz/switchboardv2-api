@@ -548,6 +548,16 @@ class AggregatorAccount {
         }
         return hash;
     }
+    async loadCurrentRoundOracles(aggregator) {
+        var _a, _b;
+        const coder = new anchor.BorshAccountsCoder(this.program.idl);
+        aggregator = aggregator !== null && aggregator !== void 0 ? aggregator : (await this.loadData());
+        const oracleAccountDatas = await anchor.utils.rpc.getMultipleAccounts(this.program.provider.connection, (_b = (_a = aggregator.currentRound) === null || _a === void 0 ? void 0 : _a.oraclePubkeysData) === null || _b === void 0 ? void 0 : _b.slice(0, aggregator.oracleRequestBatchSize));
+        if (oracleAccountDatas === null) {
+            throw new Error("Failed to load aggregator oracles");
+        }
+        return oracleAccountDatas.map((item) => coder.decode("OracleAccountData", item.account.data));
+    }
     /**
      * Load and deserialize all jobs stored in this aggregator
      * @return Array<OracleJob>
@@ -846,12 +856,17 @@ class AggregatorAccount {
      */
     async saveResultTxn(aggregator, oracleAccount, // TODO: move to params.
     params) {
+        var _a;
+        let oracles = (_a = params.oracles) !== null && _a !== void 0 ? _a : [];
+        if (oracles.length === 0) {
+            oracles = await this.loadCurrentRoundOracles(aggregator);
+        }
         const payerKeypair = programWallet(this.program);
         const remainingAccounts = [];
         for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
             remainingAccounts.push(aggregator.currentRound.oraclePubkeysData[i]);
         }
-        for (const oracle of params.oracles) {
+        for (const oracle of oracles) {
             remainingAccounts.push(oracle.tokenAccount);
         }
         const queuePubkey = aggregator.queuePubkey;

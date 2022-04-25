@@ -886,6 +886,26 @@ export class AggregatorAccount {
     return hash;
   }
 
+  async loadCurrentRoundOracles(aggregator?: any): Promise<Array<any>> {
+    const coder = new anchor.BorshAccountsCoder(this.program.idl);
+
+    aggregator = aggregator ?? (await this.loadData());
+
+    const oracleAccountDatas = await anchor.utils.rpc.getMultipleAccounts(
+      this.program.provider.connection,
+      aggregator.currentRound?.oraclePubkeysData?.slice(
+        0,
+        aggregator.oracleRequestBatchSize
+      )
+    );
+    if (oracleAccountDatas === null) {
+      throw new Error("Failed to load aggregator oracles");
+    }
+    return oracleAccountDatas.map((item) =>
+      coder.decode("OracleAccountData", item.account.data)
+    );
+  }
+
   /**
    * Load and deserialize all jobs stored in this aggregator
    * @return Array<OracleJob>
@@ -1277,12 +1297,14 @@ export class AggregatorAccount {
     oracleAccount: OracleAccount,
     params: AggregatorSaveResultParams
   ): Promise<TransactionSignature> {
-    return (await this.program.provider.sendAll([
-      {
-        tx: await this.saveResultTxn(aggregator, oracleAccount, params),
-        signers: [programWallet(this.program)],
-      },
-    ]))[0];
+    return (
+      await this.program.provider.sendAll([
+        {
+          tx: await this.saveResultTxn(aggregator, oracleAccount, params),
+          signers: [programWallet(this.program)],
+        },
+      ])
+    )[0];
   }
 
   /**
@@ -1296,12 +1318,16 @@ export class AggregatorAccount {
     oracleAccount: OracleAccount, // TODO: move to params.
     params: AggregatorSaveResultParams
   ): Promise<Transaction> {
+    let oracles = params.oracles ?? [];
+    if (oracles.length === 0) {
+      oracles = await this.loadCurrentRoundOracles(aggregator);
+    }
     const payerKeypair = programWallet(this.program);
     const remainingAccounts: Array<PublicKey> = [];
     for (let i = 0; i < aggregator.oracleRequestBatchSize; ++i) {
       remainingAccounts.push(aggregator.currentRound.oraclePubkeysData[i]);
     }
-    for (const oracle of params.oracles) {
+    for (const oracle of oracles) {
       remainingAccounts.push(oracle.tokenAccount);
     }
     const queuePubkey = aggregator.queuePubkey;
