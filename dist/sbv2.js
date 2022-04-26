@@ -1468,7 +1468,7 @@ class LeaseAccount {
             stateBump,
             leaseBump,
             withdrawAuthority: (_b = params.withdrawAuthority) !== null && _b !== void 0 ? _b : web3_js_1.PublicKey.default,
-            walletBumps: new Buffer(walletBumps),
+            walletBumps: Buffer.from(walletBumps),
         }, {
             accounts: {
                 programState: programStateAccount.publicKey,
@@ -1581,7 +1581,7 @@ class LeaseAccount {
             loadAmount: params.loadAmount,
             stateBump,
             leaseBump,
-            walletBumps: new Buffer(walletBumps),
+            walletBumps: Buffer.from(walletBumps),
         }, {
             accounts: {
                 lease: leaseAccount.publicKey,
