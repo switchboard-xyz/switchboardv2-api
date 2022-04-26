@@ -1445,6 +1445,8 @@ class LeaseAccount {
         const escrow = await spl.Token.getAssociatedTokenAddress(spl.ASSOCIATED_TOKEN_PROGRAM_ID, spl.TOKEN_PROGRAM_ID, switchTokenMint.publicKey, leaseAccount.publicKey, true);
         await switchTokenMint.createAssociatedTokenAccountInternal(leaseAccount.publicKey, escrow);
         const jobAccountDatas = await params.aggregatorAccount.loadJobAccounts();
+        const aggregatorData = await params.aggregatorAccount.loadData();
+        const jobPubkeys = aggregatorData.jobPubkeysData.slice(0, aggregatorData.jobPubkeysSize);
         const jobWallets = [];
         const walletBumps = [];
         for (let idx in jobAccountDatas) {
@@ -1479,7 +1481,9 @@ class LeaseAccount {
                 mint: switchTokenMint.publicKey,
             },
             signers: [params.funderAuthority],
-            remainingAccounts: jobWallets.map((pubkey) => {
+            remainingAccounts: jobPubkeys
+                .concat(jobWallets)
+                .map((pubkey) => {
                 return { isSigner: false, isWritable: true, pubkey };
             }),
         });
@@ -1554,6 +1558,8 @@ class LeaseAccount {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await programStateAccount.getTokenMint();
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(program, queueAccount, aggregatorAccount);
+        const aggregatorData = await aggregatorAccount.loadData();
+        const jobPubkeys = aggregatorData.jobPubkeysData.slice(0, aggregatorData.jobPubkeysSize);
         const jobAccountDatas = await aggregatorAccount.loadJobAccounts();
         const jobWallets = [];
         const walletBumps = [];
@@ -1586,7 +1592,9 @@ class LeaseAccount {
                 mint: (await queueAccount.loadMint()).publicKey,
             },
             signers: [params.funderAuthority],
-            remainingAccounts: jobWallets.map((pubkey) => {
+            remainingAccounts: jobPubkeys
+                .concat(jobWallets)
+                .map((pubkey) => {
                 return { isSigner: false, isWritable: true, pubkey };
             }),
         });

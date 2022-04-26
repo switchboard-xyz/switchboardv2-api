@@ -2361,6 +2361,11 @@ export class LeaseAccount {
       escrow
     );
     const jobAccountDatas = await params.aggregatorAccount.loadJobAccounts();
+    const aggregatorData = await params.aggregatorAccount.loadData();
+    const jobPubkeys = aggregatorData.jobPubkeysData.slice(
+      0,
+      aggregatorData.jobPubkeysSize
+    );
     const jobWallets: Array<PublicKey> = [];
     const walletBumps: Array<number> = [];
     for (let idx in jobAccountDatas) {
@@ -2401,9 +2406,11 @@ export class LeaseAccount {
           mint: switchTokenMint.publicKey,
         },
         signers: [params.funderAuthority],
-        remainingAccounts: jobWallets.map((pubkey: PublicKey) => {
-          return { isSigner: false, isWritable: true, pubkey };
-        }),
+        remainingAccounts: jobPubkeys
+          .concat(jobWallets)
+          .map((pubkey: PublicKey) => {
+            return { isSigner: false, isWritable: true, pubkey };
+          }),
       }
     );
     return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
@@ -2493,6 +2500,11 @@ export class LeaseAccount {
       queueAccount,
       aggregatorAccount
     );
+    const aggregatorData = await aggregatorAccount.loadData();
+    const jobPubkeys = aggregatorData.jobPubkeysData.slice(
+      0,
+      aggregatorData.jobPubkeysSize
+    );
     const jobAccountDatas = await aggregatorAccount.loadJobAccounts();
     const jobWallets: Array<PublicKey> = [];
     const walletBumps: Array<number> = [];
@@ -2530,9 +2542,11 @@ export class LeaseAccount {
           mint: (await queueAccount.loadMint()).publicKey,
         },
         signers: [params.funderAuthority],
-        remainingAccounts: jobWallets.map((pubkey: PublicKey) => {
-          return { isSigner: false, isWritable: true, pubkey };
-        }),
+        remainingAccounts: jobPubkeys
+          .concat(jobWallets)
+          .map((pubkey: PublicKey) => {
+            return { isSigner: false, isWritable: true, pubkey };
+          }),
       }
     );
   }
