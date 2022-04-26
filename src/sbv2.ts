@@ -27,6 +27,8 @@ var assert = require("assert");
 
 export * from "./test";
 
+export { OracleJob } from "@switchboard-xyz/switchboard-api";
+
 /**
  * Switchboard Devnet Program ID
  * 2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG

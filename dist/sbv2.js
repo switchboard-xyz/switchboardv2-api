@@ -25,7 +25,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.programWallet = exports.createMint = exports.signTransactions = exports.packTransactions = exports.packInstructions = exports.sendAll = exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.loadSwitchboardProgram = exports.getSwitchboardPid = exports.GOVERNANCE_PID = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = void 0;
+exports.programWallet = exports.createMint = exports.signTransactions = exports.packTransactions = exports.packInstructions = exports.sendAll = exports.VrfAccount = exports.OracleAccount = exports.CrankAccount = exports.CrankRow = exports.LeaseAccount = exports.OracleQueueAccount = exports.PermissionAccount = exports.SwitchboardPermissionValue = exports.SwitchboardPermission = exports.JobAccount = exports.AggregatorAccount = exports.AggregatorHistoryRow = exports.SwitchboardError = exports.ProgramStateAccount = exports.SwitchboardDecimal = exports.loadSwitchboardProgram = exports.getSwitchboardPid = exports.GOVERNANCE_PID = exports.SBV2_MAINNET_PID = exports.SBV2_DEVNET_PID = exports.OracleJob = void 0;
 const anchor = __importStar(require("@project-serum/anchor"));
 const spl = __importStar(require("@solana/spl-token"));
 const web3_js_1 = require("@solana/web3.js");
@@ -36,6 +36,8 @@ const spl_governance_1 = require("@solana/spl-governance");
 const nodewallet_1 = __importDefault(require("@project-serum/anchor/dist/cjs/nodewallet"));
 var assert = require("assert");
 __exportStar(require("./test"), exports);
+var switchboard_api_2 = require("@switchboard-xyz/switchboard-api");
+Object.defineProperty(exports, "OracleJob", { enumerable: true, get: function () { return switchboard_api_2.OracleJob; } });
 /**
  * Switchboard Devnet Program ID
  * 2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG

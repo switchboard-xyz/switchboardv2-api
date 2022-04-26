@@ -1,6 +1,6 @@
 {
   "name": "@switchboard-xyz/switchboard-v2",
-  "version": "0.0.83",
+  "version": "0.0.84",
   "description": "API wrapper for intergating with the Switchboardv2 program",
   "keywords": [
     "oracle",
@@ -16,10 +16,12 @@
   "main": "dist/sbv2.js",
   "types": "dist/sbv2.d.ts",
   "directories": {
-    "dist": "dist"
+    "dist": "dist",
+    "src": "src"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "src/"
   ],
   "scripts": {
     "docgen": "npx tsc && npx typedoc src/sbv2.ts",
@@ -31,7 +33,7 @@
     "@solana/spl-governance": "^0.0.34",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.39.1",
-    "@switchboard-xyz/switchboard-api": "^0.2.190",
+    "@switchboard-xyz/switchboard-api": "^0.2.193",
     "assert": "^2.0.0",
     "big.js": "^6.1.1",
     "bs58": "^4.0.1",

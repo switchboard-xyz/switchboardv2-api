@@ -6,6 +6,7 @@ import { OracleJob } from "@switchboard-xyz/switchboard-api";
 import Big from "big.js";
 import * as crypto from "crypto";
 export * from "./test";
+export { OracleJob } from "@switchboard-xyz/switchboard-api";
 /**
  * Switchboard Devnet Program ID
  * 2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG
