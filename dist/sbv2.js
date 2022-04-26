@@ -239,7 +239,10 @@ class ProgramStateAccount {
             await account.loadData();
         }
         catch (e) {
-            await ProgramStateAccount.create(program, params);
+            try {
+                await ProgramStateAccount.create(program, params);
+            }
+            catch { }
         }
         return [account, seed];
     }
