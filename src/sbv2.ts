@@ -836,14 +836,16 @@ export class AggregatorAccount {
     if (lastTimestamp.add(aggregator.forceReportPeriod).lt(timestamp)) {
       return true;
     }
-    // TODO: SWITCH THIS TO PREVIOUS ROUND STUFF
-    if (value.lt(latestResult.minus(varianceThreshold))) {
+    let diff = safeDiv(latestResult, value);
+    if (diff.abs().gt(1)) {
+      diff = safeDiv(value, latestResult);
+    }
+    // I dont want to think about variance percentage when values cross 0.
+    // Changes the scale of what we consider a "percentage".
+    if (diff.lt(0)) {
       return true;
     }
-    if (value.gt(latestResult.add(varianceThreshold))) {
-      return true;
-    }
-    return false;
+    return diff.mul(100).gt(varianceThreshold);
   }
 
   /**
@@ -4020,4 +4022,12 @@ export async function createMint(
 export function programWallet(program: anchor.Program): Keypair {
   return ((program.provider as anchor.AnchorProvider).wallet as NodeWallet)
     .payer;
+}
+
+function safeDiv(number_: Big, denominator: Big, decimals = 20): Big {
+  const oldDp = Big.DP;
+  Big.DP = decimals;
+  const result = number_.div(denominator);
+  Big.DP = oldDp;
+  return result;
 }
