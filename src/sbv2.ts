@@ -1157,15 +1157,16 @@ export class AggregatorAccount {
   async setQueue(
     params: AggregatorSetQueueParams
   ): Promise<TransactionSignature> {
+    const authority = params.authority ?? this.keypair;
     return await this.program.rpc.aggregatorSetQueue(
       {},
       {
         accounts: {
           aggregator: this.publicKey,
-          authority: params.authority.publicKey,
+          authority: authority.publicKey,
           queue: params.queueAccount.publicKey,
         },
-        signers: [params.authority],
+        signers: [authority],
       }
     );
   }
