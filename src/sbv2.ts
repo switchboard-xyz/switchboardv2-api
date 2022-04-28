@@ -669,6 +669,11 @@ export interface AggregatorSetQueueParams {
   authority?: Keypair;
 }
 
+export interface AggregatorSetUpdateIntervalParams {
+  newInterval: number;
+  authority?: Keypair;
+}
+
 /**
  * Account type representing an aggregator (data feed).
  */
@@ -1127,6 +1132,24 @@ export class AggregatorAccount {
             programId: program.programId,
           }),
         ],
+      }
+    );
+  }
+
+  async setUpdateInterval(
+    params: AggregatorSetUpdateIntervalParams
+  ): Promise<TransactionSignature> {
+    const authority = params.authority ?? this.keypair;
+    return await this.program.rpc.aggregatorSetUpdateInterval(
+      {
+        newInterval: params.newInterval,
+      },
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          authority: authority.publicKey,
+        },
+        signers: [authority],
       }
     );
   }
