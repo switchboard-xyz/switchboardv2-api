@@ -505,14 +505,17 @@ class AggregatorAccount {
         if (lastTimestamp.add(aggregator.forceReportPeriod).lt(timestamp)) {
             return true;
         }
-        // TODO: SWITCH THIS TO PREVIOUS ROUND STUFF
-        if (value.lt(latestResult.minus(varianceThreshold))) {
+        let diff = safeDiv(latestResult, value);
+        if (diff.abs().gt(1)) {
+            diff = safeDiv(value, latestResult);
+        }
+        // I dont want to think about variance percentage when values cross 0.
+        // Changes the scale of what we consider a "percentage".
+        if (diff.lt(0)) {
             return true;
         }
-        if (value.gt(latestResult.add(varianceThreshold))) {
-            return true;
-        }
-        return false;
+        const changePercent = new big_js_1.default(1).minus(diff).mul(100);
+        return changePercent.gt(varianceThreshold);
     }
     /**
      * Get the individual oracle results of the latest confirmed round.
@@ -2585,4 +2588,11 @@ function programWallet(program) {
         .payer;
 }
 exports.programWallet = programWallet;
+function safeDiv(number_, denominator, decimals = 20) {
+    const oldDp = big_js_1.default.DP;
+    big_js_1.default.DP = decimals;
+    const result = number_.div(denominator);
+    big_js_1.default.DP = oldDp;
+    return result;
+}
 //# sourceMappingURL=sbv2.js.map
