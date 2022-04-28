@@ -845,7 +845,8 @@ export class AggregatorAccount {
     if (diff.lt(0)) {
       return true;
     }
-    return diff.mul(100).gt(varianceThreshold);
+    const changePercent = new Big(1).minus(diff).mul(100);
+    return changePercent.gt(varianceThreshold);
   }
 
   /**
