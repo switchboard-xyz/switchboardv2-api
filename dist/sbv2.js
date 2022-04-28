@@ -662,9 +662,9 @@ class AggregatorAccount {
         return new AggregatorAccount({ program, keypair: aggregatorAccount });
     }
     async setBatchSize(params) {
-        var _a;
+        var _a, _b;
         const program = this.program;
-        const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
+        const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
         return await program.rpc.aggregatorSetBatchSize({
             batchSize: params.batchSize,
         }, {
@@ -676,9 +676,9 @@ class AggregatorAccount {
         });
     }
     async setMinJobs(params) {
-        var _a;
+        var _a, _b;
         const program = this.program;
-        const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
+        const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
         return await program.rpc.aggregatorSetMinJobs({
             minJobResults: params.minJobResults,
         }, {
@@ -690,9 +690,9 @@ class AggregatorAccount {
         });
     }
     async setMinOracles(params) {
-        var _a;
+        var _a, _b;
         const program = this.program;
-        const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
+        const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
         return await program.rpc.aggregatorSetMinOracles({
             minOracleResults: params.minOracleResults,
         }, {
@@ -704,10 +704,10 @@ class AggregatorAccount {
         });
     }
     async setHistoryBuffer(params) {
-        var _a;
+        var _a, _b;
         const buffer = web3_js_1.Keypair.generate();
         const program = this.program;
-        const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
+        const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
         const HISTORY_ROW_SIZE = 28;
         const INSERT_IDX_SIZE = 4;
         const DISCRIMINATOR_SIZE = 8;
@@ -730,14 +730,29 @@ class AggregatorAccount {
             ],
         });
     }
+    async setUpdateInterval(params) {
+        var _a, _b;
+        const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
+        return await this.program.rpc.aggregatorSetUpdateInterval({
+            newInterval: params.newInterval,
+        }, {
+            accounts: {
+                aggregator: this.publicKey,
+                authority: authority.publicKey,
+            },
+            signers: [authority],
+        });
+    }
     async setQueue(params) {
+        var _a, _b;
+        const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
         return await this.program.rpc.aggregatorSetQueue({}, {
             accounts: {
                 aggregator: this.publicKey,
-                authority: params.authority.publicKey,
+                authority: authority.publicKey,
                 queue: params.queueAccount.publicKey,
             },
-            signers: [params.authority],
+            signers: [authority],
         });
     }
     /**
@@ -746,7 +761,8 @@ class AggregatorAccount {
      * @return TransactionSignature
      */
     async addJob(job, authority, weight = 1) {
-        authority = authority !== null && authority !== void 0 ? authority : this.keypair;
+        var _a;
+        authority = (_a = authority !== null && authority !== void 0 ? authority : this.keypair) !== null && _a !== void 0 ? _a : programWallet(this.program);
         return await this.program.rpc.aggregatorAddJob({
             weight,
         }, {
@@ -764,7 +780,8 @@ class AggregatorAccount {
      * @return TransactionSignature
      */
     async lock(authority) {
-        authority = authority !== null && authority !== void 0 ? authority : this.keypair;
+        var _a;
+        authority = (_a = authority !== null && authority !== void 0 ? authority : this.keypair) !== null && _a !== void 0 ? _a : programWallet(this.program);
         return await this.program.rpc.aggregatorLock({}, {
             accounts: {
                 aggregator: this.publicKey,
@@ -780,7 +797,9 @@ class AggregatorAccount {
      * @return TransactionSignature
      */
     async setAuthority(newAuthority, currentAuthority) {
-        currentAuthority = currentAuthority !== null && currentAuthority !== void 0 ? currentAuthority : this.keypair;
+        var _a;
+        currentAuthority =
+            (_a = currentAuthority !== null && currentAuthority !== void 0 ? currentAuthority : this.keypair) !== null && _a !== void 0 ? _a : programWallet(this.program);
         return await this.program.rpc.aggregatorSetAuthority({}, {
             accounts: {
                 aggregator: this.publicKey,
@@ -796,7 +815,8 @@ class AggregatorAccount {
      * @return TransactionSignature
      */
     async removeJob(job, authority) {
-        authority = authority !== null && authority !== void 0 ? authority : this.keypair;
+        var _a;
+        authority = (_a = authority !== null && authority !== void 0 ? authority : this.keypair) !== null && _a !== void 0 ? _a : programWallet(this.program);
         return await this.program.rpc.aggregatorRemoveJob({}, {
             accounts: {
                 aggregator: this.publicKey,
@@ -1261,9 +1281,10 @@ class OracleQueueAccount {
         this.publicKey = (_a = params.publicKey) !== null && _a !== void 0 ? _a : this.keypair.publicKey;
     }
     async loadMint() {
+        var _a;
         const payerKeypair = programWallet(this.program);
         const queue = await this.loadData();
-        let mintKey = queue.mint;
+        let mintKey = (_a = queue.mint) !== null && _a !== void 0 ? _a : web3_js_1.PublicKey.default;
         if (mintKey.equals(web3_js_1.PublicKey.default)) {
             mintKey = spl.NATIVE_MINT;
         }
@@ -1357,8 +1378,8 @@ class OracleQueueAccount {
         return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
     }
     async setRewards(params) {
-        var _a;
-        const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
+        var _a, _b;
+        const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
         return await this.program.rpc.oracleQueueSetRewards({
             rewards: params.rewards,
         }, {
@@ -1370,8 +1391,8 @@ class OracleQueueAccount {
         });
     }
     async setVrfSettings(params) {
-        var _a;
-        const authority = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair;
+        var _a, _b;
+        const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
         return await this.program.rpc.oracleQueueVrfConfig({
             unpermissionedVrfEnabled: params.unpermissionedVrf,
         }, {

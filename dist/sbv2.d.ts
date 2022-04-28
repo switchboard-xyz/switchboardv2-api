@@ -337,6 +337,10 @@ export interface AggregatorSetQueueParams {
     queueAccount: OracleQueueAccount;
     authority?: Keypair;
 }
+export interface AggregatorSetUpdateIntervalParams {
+    newInterval: number;
+    authority?: Keypair;
+}
 /**
  * Account type representing an aggregator (data feed).
  */
@@ -423,6 +427,7 @@ export declare class AggregatorAccount {
     setMinJobs(params: AggregatorSetMinJobsParams): Promise<TransactionSignature>;
     setMinOracles(params: AggregatorSetMinOraclesParams): Promise<TransactionSignature>;
     setHistoryBuffer(params: AggregatorSetHistoryBufferParams): Promise<TransactionSignature>;
+    setUpdateInterval(params: AggregatorSetUpdateIntervalParams): Promise<TransactionSignature>;
     setQueue(params: AggregatorSetQueueParams): Promise<TransactionSignature>;
     /**
      * RPC to add a new job to an aggregtor to be performed on feed updates.
