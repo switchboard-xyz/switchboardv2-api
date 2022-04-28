@@ -669,6 +669,11 @@ export interface AggregatorSetQueueParams {
   authority?: Keypair;
 }
 
+export interface AggregatorSetUpdateIntervalParams {
+  newInterval: number;
+  authority?: Keypair;
+}
+
 /**
  * Account type representing an aggregator (data feed).
  */
@@ -1042,7 +1047,8 @@ export class AggregatorAccount {
     params: AggregatorSetBatchSizeParams
   ): Promise<TransactionSignature> {
     const program = this.program;
-    const authority = params.authority ?? this.keypair;
+    const authority =
+      params.authority ?? this.keypair ?? programWallet(this.program);
     return await program.rpc.aggregatorSetBatchSize(
       {
         batchSize: params.batchSize,
@@ -1061,7 +1067,8 @@ export class AggregatorAccount {
     params: AggregatorSetMinJobsParams
   ): Promise<TransactionSignature> {
     const program = this.program;
-    const authority = params.authority ?? this.keypair;
+    const authority =
+      params.authority ?? this.keypair ?? programWallet(this.program);
     return await program.rpc.aggregatorSetMinJobs(
       {
         minJobResults: params.minJobResults,
@@ -1080,7 +1087,8 @@ export class AggregatorAccount {
     params: AggregatorSetMinOraclesParams
   ): Promise<TransactionSignature> {
     const program = this.program;
-    const authority = params.authority ?? this.keypair;
+    const authority =
+      params.authority ?? this.keypair ?? programWallet(this.program);
     return await program.rpc.aggregatorSetMinOracles(
       {
         minOracleResults: params.minOracleResults,
@@ -1100,7 +1108,8 @@ export class AggregatorAccount {
   ): Promise<TransactionSignature> {
     const buffer = Keypair.generate();
     const program = this.program;
-    const authority = params.authority ?? this.keypair;
+    const authority =
+      params.authority ?? this.keypair ?? programWallet(this.program);
     const HISTORY_ROW_SIZE = 28;
     const INSERT_IDX_SIZE = 4;
     const DISCRIMINATOR_SIZE = 8;
@@ -1131,18 +1140,39 @@ export class AggregatorAccount {
     );
   }
 
+  async setUpdateInterval(
+    params: AggregatorSetUpdateIntervalParams
+  ): Promise<TransactionSignature> {
+    const authority =
+      params.authority ?? this.keypair ?? programWallet(this.program);
+    return await this.program.rpc.aggregatorSetUpdateInterval(
+      {
+        newInterval: params.newInterval,
+      },
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          authority: authority.publicKey,
+        },
+        signers: [authority],
+      }
+    );
+  }
+
   async setQueue(
     params: AggregatorSetQueueParams
   ): Promise<TransactionSignature> {
+    const authority =
+      params.authority ?? this.keypair ?? programWallet(this.program);
     return await this.program.rpc.aggregatorSetQueue(
       {},
       {
         accounts: {
           aggregator: this.publicKey,
-          authority: params.authority.publicKey,
+          authority: authority.publicKey,
           queue: params.queueAccount.publicKey,
         },
-        signers: [params.authority],
+        signers: [authority],
       }
     );
   }
@@ -1157,7 +1187,7 @@ export class AggregatorAccount {
     authority?: Keypair,
     weight: number = 1
   ): Promise<TransactionSignature> {
-    authority = authority ?? this.keypair;
+    authority = authority ?? this.keypair ?? programWallet(this.program);
     return await this.program.rpc.aggregatorAddJob(
       {
         weight,
@@ -1179,7 +1209,7 @@ export class AggregatorAccount {
    * @return TransactionSignature
    */
   async lock(authority?: Keypair): Promise<TransactionSignature> {
-    authority = authority ?? this.keypair;
+    authority = authority ?? this.keypair ?? programWallet(this.program);
     return await this.program.rpc.aggregatorLock(
       {},
       {
@@ -1202,7 +1232,8 @@ export class AggregatorAccount {
     newAuthority: PublicKey,
     currentAuthority?: Keypair
   ): Promise<TransactionSignature> {
-    currentAuthority = currentAuthority ?? this.keypair;
+    currentAuthority =
+      currentAuthority ?? this.keypair ?? programWallet(this.program);
     return await this.program.rpc.aggregatorSetAuthority(
       {},
       {
@@ -1225,7 +1256,7 @@ export class AggregatorAccount {
     job: JobAccount,
     authority?: Keypair
   ): Promise<TransactionSignature> {
-    authority = authority ?? this.keypair;
+    authority = authority ?? this.keypair ?? programWallet(this.program);
     return await this.program.rpc.aggregatorRemoveJob(
       {},
       {
@@ -2163,7 +2194,8 @@ export class OracleQueueAccount {
   async setRewards(
     params: OracleQueueSetRewardsParams
   ): Promise<TransactionSignature> {
-    const authority = params.authority ?? this.keypair;
+    const authority =
+      params.authority ?? this.keypair ?? programWallet(this.program);
     return await this.program.rpc.oracleQueueSetRewards(
       {
         rewards: params.rewards,
@@ -2181,7 +2213,7 @@ export class OracleQueueAccount {
   async setVrfSettings(
     params: OracleQueueSetVrfSettingsParams
   ): Promise<TransactionSignature> {
-    const authority = params.authority ?? this.keypair;
+    const authority = params.authority ?? this.keypair ?? programWallet(this.program);
     return await this.program.rpc.oracleQueueVrfConfig(
       {
         unpermissionedVrfEnabled: params.unpermissionedVrf,
