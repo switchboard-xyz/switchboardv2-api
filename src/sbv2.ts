@@ -2073,7 +2073,7 @@ export class OracleQueueAccount {
   async loadMint(): Promise<spl.Token> {
     const payerKeypair = programWallet(this.program);
     const queue = await this.loadData();
-    let mintKey = queue.mint;
+    let mintKey = queue.mint ?? PublicKey.default;
     if (mintKey.equals(PublicKey.default)) {
       mintKey = spl.NATIVE_MINT;
     }
