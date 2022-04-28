@@ -2213,7 +2213,8 @@ export class OracleQueueAccount {
   async setVrfSettings(
     params: OracleQueueSetVrfSettingsParams
   ): Promise<TransactionSignature> {
-    const authority = params.authority ?? this.keypair ?? programWallet(this.program);
+    const authority =
+      params.authority ?? this.keypair ?? programWallet(this.program);
     return await this.program.rpc.oracleQueueVrfConfig(
       {
         unpermissionedVrfEnabled: params.unpermissionedVrf,
@@ -3167,18 +3168,13 @@ export class OracleAccount {
       ProgramStateAccount.fromSeed(program);
 
     const mint = await params.queueAccount.loadMint();
-    const wallet = await mint.createAccount(programWallet(program).publicKey);
-    await mint.setAuthority(
-      wallet,
-      programStateAccount.publicKey,
-      "AccountOwner",
-      payerKeypair,
-      []
-    );
+
+    const tokenWallet = anchor.web3.Keypair.generate();
+
     const [oracleAccount, oracleBump] = OracleAccount.fromSeed(
       program,
       params.queueAccount,
-      wallet
+      tokenWallet.publicKey
     );
 
     await program.rpc.oracleInit(
@@ -3193,11 +3189,31 @@ export class OracleAccount {
           oracle: oracleAccount.publicKey,
           oracleAuthority: authorityKeypair.publicKey,
           queue: params.queueAccount.publicKey,
-          wallet,
+          wallet: tokenWallet.publicKey,
           programState: programStateAccount.publicKey,
           systemProgram: SystemProgram.programId,
           payer: programWallet(program).publicKey,
         },
+        signers: [tokenWallet],
+        instructions: [
+          // allocate space
+          anchor.web3.SystemProgram.createAccount({
+            fromPubkey: programWallet(program).publicKey,
+            newAccountPubkey: tokenWallet.publicKey,
+            space: spl.AccountLayout.span,
+            lamports: await spl.Token.getMinBalanceRentForExemptAccount(
+              program.provider.connection
+            ),
+            programId: spl.TOKEN_PROGRAM_ID,
+          }),
+          // init token account
+          spl.Token.createInitAccountInstruction(
+            spl.TOKEN_PROGRAM_ID,
+            mint.publicKey,
+            tokenWallet.publicKey,
+            programStateAccount.publicKey
+          ),
+        ],
       }
     );
     return new OracleAccount({ program, publicKey: oracleAccount.publicKey });
