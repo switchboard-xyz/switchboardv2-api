@@ -1203,6 +1203,36 @@ export declare class VrfAccount {
      */
     proveAndVerify(params: VrfProveAndVerifyParams, tryCount?: number): Promise<Array<TransactionSignature>>;
 }
+export declare class BufferRelayerAccount {
+    program: anchor.Program;
+    publicKey: PublicKey;
+    keypair?: Keypair;
+    /**
+     * CrankAccount constructor
+     * @param params initialization params.
+     */
+    constructor(params: AccountParams);
+    /**
+     * Load and parse BufferRelayerAccount data based on the program IDL.
+     * @return BufferRelayerAccount data parsed in accordance with the
+     * Switchboard IDL.
+     */
+    loadData(): Promise<any>;
+    size(): number;
+    static create(program: anchor.Program, params: {
+        name: Buffer;
+        minUpdateDelaySeconds: number;
+        queueAccount: OracleQueueAccount;
+        authority: PublicKey;
+        jobAccount: JobAccount;
+    }): Promise<BufferRelayerAccount>;
+    openRound(): Promise<TransactionSignature>;
+    saveResult(params: {
+        oracleAuthority: Keypair;
+        result: Buffer;
+        success: boolean;
+    }): Promise<TransactionSignature>;
+}
 export declare function sendAll(provider: anchor.Provider, reqs: Array<any>, signers: Array<Keypair>, skipPreflight: boolean): Promise<Array<TransactionSignature>>;
 /**
  * Pack instructions into transactions as tightly as possible

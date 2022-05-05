@@ -2213,7 +2213,8 @@ export class OracleQueueAccount {
   async setVrfSettings(
     params: OracleQueueSetVrfSettingsParams
   ): Promise<TransactionSignature> {
-    const authority = params.authority ?? this.keypair ?? programWallet(this.program);
+    const authority =
+      params.authority ?? this.keypair ?? programWallet(this.program);
     return await this.program.rpc.oracleQueueVrfConfig(
       {
         unpermissionedVrfEnabled: params.unpermissionedVrf,
@@ -2532,7 +2533,7 @@ export class LeaseAccount {
     });
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
-    const switchTokenMint = await programStateAccount.getTokenMint();
+    const switchTokenMint = await queueAccount.loadMint();
 
     const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
       program,
@@ -2604,7 +2605,7 @@ export class LeaseAccount {
     const aggregator = lease.aggregator;
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
-    const switchTokenMint = await programStateAccount.getTokenMint();
+    const switchTokenMint = await queueAccount.loadMint();
     const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
       program,
       queueAccount,
@@ -3521,7 +3522,7 @@ export class VrfAccount {
       ProgramStateAccount.fromSeed(program);
     const keypair = params.keypair;
     const size = program.account.vrfAccountData.size;
-    const switchTokenMint = await programStateAccount.getTokenMint();
+    const switchTokenMint = await params.queue.loadMint();
     const escrow = await spl.Token.getAssociatedTokenAddress(
       switchTokenMint.associatedProgramId,
       switchTokenMint.programId,
@@ -3814,6 +3815,207 @@ export class VrfAccount {
       txs,
       [params.oracleAuthority],
       skipPreflight
+    );
+  }
+}
+
+export class BufferRelayerAccount {
+  program: anchor.Program;
+  publicKey: PublicKey;
+  keypair?: Keypair;
+
+  /**
+   * CrankAccount constructor
+   * @param params initialization params.
+   */
+  public constructor(params: AccountParams) {
+    if (params.keypair === undefined && params.publicKey === undefined) {
+      throw new Error(
+        `${this.constructor.name}: User must provide either a publicKey or keypair for account use.`
+      );
+    }
+    if (params.keypair !== undefined && params.publicKey !== undefined) {
+      if (!params.publicKey.equals(params.keypair.publicKey)) {
+        throw new Error(
+          `${this.constructor.name}: provided pubkey and keypair mismatch.`
+        );
+      }
+    }
+    this.program = params.program;
+    this.keypair = params.keypair;
+    this.publicKey = params.publicKey ?? this.keypair.publicKey;
+  }
+
+  /**
+   * Load and parse BufferRelayerAccount data based on the program IDL.
+   * @return BufferRelayerAccount data parsed in accordance with the
+   * Switchboard IDL.
+   */
+  async loadData(): Promise<any> {
+    const data: any = await this.program.account.bufferRelayerAccountData.fetch(
+      this.publicKey
+    );
+    data.ebuf = undefined;
+    return data;
+  }
+
+  size(): number {
+    return 4092;
+  }
+
+  static async create(
+    program: anchor.Program,
+    params: {
+      name: Buffer;
+      minUpdateDelaySeconds: number;
+      queueAccount: OracleQueueAccount;
+      authority: PublicKey;
+      jobAccount: JobAccount;
+    }
+  ): Promise<BufferRelayerAccount> {
+    const [programStateAccount, stateBump] =
+      ProgramStateAccount.fromSeed(program);
+    const switchTokenMint = await params.queueAccount.loadMint();
+    const keypair = Keypair.generate();
+    const escrow = await spl.Token.getAssociatedTokenAddress(
+      spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+      spl.TOKEN_PROGRAM_ID,
+      switchTokenMint.publicKey,
+      keypair.publicKey
+    );
+    const size = 2048;
+    const payer = programWallet(program);
+    await program.rpc.bufferRelayerInit(
+      {
+        name: params.name,
+        minUpdateDelaySeconds: params.minUpdateDelaySeconds,
+        stateBump,
+      },
+      {
+        accounts: {
+          bufferRelayer: keypair.publicKey,
+          escrow,
+          authority: params.authority,
+          queue: params.queueAccount.publicKey,
+          job: params.jobAccount.publicKey,
+          programState: programStateAccount.publicKey,
+          mint: switchTokenMint.publicKey,
+          payer: payer.publicKey,
+          tokenProgram: spl.TOKEN_PROGRAM_ID,
+          associatedTokenProgram: spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+          rent: new PublicKey("SysvarRent111111111111111111111111111111111"),
+        },
+        instructions: [
+          anchor.web3.SystemProgram.createAccount({
+            fromPubkey: programWallet(program).publicKey,
+            newAccountPubkey: keypair.publicKey,
+            space: size,
+            lamports:
+              await program.provider.connection.getMinimumBalanceForRentExemption(
+                size
+              ),
+            programId: program.programId,
+          }),
+        ],
+        signers: [keypair],
+      }
+    );
+    return new BufferRelayerAccount({ program, keypair });
+  }
+
+  async openRound(): Promise<TransactionSignature> {
+    const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
+      this.program
+    );
+    const relayerData = await this.loadData();
+    const queue = relayerData.queue;
+    const queueAccount = new OracleQueueAccount({
+      program: this.program,
+      publicKey: queue,
+    });
+    const switchTokenMint = await queueAccount.loadMint();
+    const bufferRelayer = this.publicKey;
+    const escrow = relayerData.escrow;
+    const queueData = await queueAccount.loadData();
+    const queueAuthority = queueData.authority;
+    const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
+      this.program,
+      queueAuthority,
+      queueAccount.publicKey,
+      this.publicKey
+    );
+    const payer = programWallet(this.program);
+    return await this.program.rpc.bufferRelayerOpenRound(
+      {
+        stateBump,
+        permissionBump,
+      },
+      {
+        accounts: {
+          bufferRelayer,
+          oracleQueue: queueAccount.publicKey,
+          dataBuffer: queueData.dataBuffer,
+          queueAuthority: queueData.authority,
+          permission: permissionAccount.publicKey,
+          escrow,
+          programState: programStateAccount.publicKey,
+          job: relayerData.jobPubkey,
+        },
+      }
+    );
+  }
+
+  async saveResult(params: {
+    oracleAuthority: Keypair;
+    result: Buffer;
+    success: boolean;
+  }): Promise<TransactionSignature> {
+    const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
+      this.program
+    );
+    const relayerData = await this.loadData();
+    const queue = relayerData.queue;
+    const queueAccount = new OracleQueueAccount({
+      program: this.program,
+      publicKey: queue,
+    });
+    const bufferRelayer = this.publicKey;
+    const escrow = relayerData.escrow;
+    const queueData = await queueAccount.loadData();
+    const queueAuthority = queueData.authority;
+    const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
+      this.program,
+      queueAuthority,
+      queueAccount.publicKey,
+      this.publicKey
+    );
+    const oracleAccount = new OracleAccount({
+      program: this.program,
+      publicKey: relayerData.currentRound.oraclePubkey,
+    });
+    const oracleData = await oracleAccount.loadData();
+    return await this.program.rpc.bufferRelayerSaveResult(
+      {
+        stateBump,
+        permissionBump,
+        result: params.result,
+        success: params.success,
+      },
+      {
+        accounts: {
+          bufferRelayer,
+          oracleAuthority: params.oracleAuthority.publicKey,
+          oracle: relayerData.currentRound.oraclePubkey,
+          oracleQueue: queueAccount.publicKey,
+          dataBuffer: queueData.dataBuffer,
+          queueAuthority: queueData.authority,
+          permission: permissionAccount.publicKey,
+          escrow,
+          programState: programStateAccount.publicKey,
+          oracle_wallet: oracleData.tokenAccount,
+        },
+      }
     );
   }
 }
