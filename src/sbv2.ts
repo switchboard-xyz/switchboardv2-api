@@ -4082,13 +4082,15 @@ export async function sendAll(
 
 /**
  * Pack instructions into transactions as tightly as possible
- * @param instructions Instructions to pack down into transactions
+ * @param instructions Instructions or Grouping of Instructions to pack down into transactions.
+ * Arrays of instructions will be grouped into the same tx.
+ * NOTE: this will break if grouping is too large for a single tx
  * @param feePayer Optional feepayer
  * @param recentBlockhash Optional blockhash
  * @returns Transaction[]
  */
 export function packInstructions(
-  instructions: TransactionInstruction[],
+  instructions: (TransactionInstruction | TransactionInstruction[])[],
   feePayer: PublicKey = PublicKey.default,
   recentBlockhash: string = PublicKey.default.toBase58()
 ): Transaction[] {
@@ -4112,26 +4114,32 @@ export function packInstructions(
     }
   };
 
-  for (let instruction of instructions) {
-    // add the new transaction
-    currentTransaction.add(instruction);
+  for (let ixGroup of instructions) {
+    let ixs = Array.isArray(ixGroup) ? ixGroup : [ixGroup];
+
+    for (let ix of ixs) {
+      // add the new transaction
+      currentTransaction.add(ix);
+    }
 
     let sigCount: number[] = [];
     encodeLength(sigCount, currentTransaction.signatures.length);
 
     if (
-      PACKET_DATA_SIZE <=
+      anchor.web3.PACKET_DATA_SIZE <=
       currentTransaction.serializeMessage().length +
         currentTransaction.signatures.length * 64 +
         sigCount.length
     ) {
       // If the aggregator transaction fits, it will serialize without error. We can then push it ahead no problem
-      const trimmedInstruction = currentTransaction.instructions.pop()!;
+      const trimmedInstructions = ixs
+        .map(() => currentTransaction.instructions.pop()!)
+        .reverse();
 
       // Every serialize adds the instruction signatures as dependencies
       currentTransaction.signatures = [];
 
-      const overflowInstructions = [trimmedInstruction];
+      const overflowInstructions = trimmedInstructions;
 
       // add the capped transaction to our transaction - only push it if it works
       packed.push(currentTransaction);
@@ -4140,12 +4148,25 @@ export function packInstructions(
       currentTransaction.recentBlockhash = recentBlockhash;
       currentTransaction.feePayer = feePayer;
       currentTransaction.instructions = overflowInstructions;
+
+      let newsc: number[] = [];
+      encodeLength(newsc, currentTransaction.signatures.length);
+      if (
+        anchor.web3.PACKET_DATA_SIZE <=
+        currentTransaction.serializeMessage().length +
+          currentTransaction.signatures.length * 64 +
+          newsc.length
+      ) {
+        throw new Error(
+          "Instruction packing error: a grouping of instructions must be able to fit into a single transaction"
+        );
+      }
     }
   }
 
   packed.push(currentTransaction);
 
-  return packed; // just return instructions
+  return packed;
 }
 
 /**
