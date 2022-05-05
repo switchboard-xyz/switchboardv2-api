@@ -1236,12 +1236,14 @@ export declare class BufferRelayerAccount {
 export declare function sendAll(provider: anchor.Provider, reqs: Array<any>, signers: Array<Keypair>, skipPreflight: boolean): Promise<Array<TransactionSignature>>;
 /**
  * Pack instructions into transactions as tightly as possible
- * @param instructions Instructions to pack down into transactions
+ * @param instructions Instructions or Grouping of Instructions to pack down into transactions.
+ * Arrays of instructions will be grouped into the same tx.
+ * NOTE: this will break if grouping is too large for a single tx
  * @param feePayer Optional feepayer
  * @param recentBlockhash Optional blockhash
  * @returns Transaction[]
  */
-export declare function packInstructions(instructions: TransactionInstruction[], feePayer?: PublicKey, recentBlockhash?: string): Transaction[];
+export declare function packInstructions(instructions: (TransactionInstruction | TransactionInstruction[])[], feePayer?: PublicKey, recentBlockhash?: string): Transaction[];
 /**
  * Repack Transactions and sign them
  * @param connection Web3.js Connection

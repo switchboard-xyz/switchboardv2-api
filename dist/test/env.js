@@ -128,7 +128,7 @@ class SwitchboardTestEnvironment {
     writeScripts(payerKeypairPath, filePath) {
         const LOCAL_VALIDATOR_SCRIPT = path_1.default.join(filePath, "start-local-validator.sh");
         // create bash script to startup local validator with appropriate accounts cloned
-        const baseValidatorCommand = `solana-test-validator -r --ledger .anchor/test-ledger --mint ${this.oracleAuthority.toBase58()} --deactivate-feature 5ekBxc8itEnPv4NzGJtr8BVVQLNMQuLMNQQj7pHoLNZ9 --bind-address 0.0.0.0 --url ${web3_js_1.clusterApiUrl("devnet")} --rpc-port 8899 `;
+        const baseValidatorCommand = `solana-test-validator -r --ledger .anchor/test-ledger --mint ${this.oracleAuthority.toBase58()} --deactivate-feature 5ekBxc8itEnPv4NzGJtr8BVVQLNMQuLMNQQj7pHoLNZ9 --bind-address 0.0.0.0 --url ${(0, web3_js_1.clusterApiUrl)("devnet")} --rpc-port 8899 `;
         const cloneAccountsString = this.getAccountCloneString();
         const startValidatorCommand = `${baseValidatorCommand} ${cloneAccountsString}`;
         fs_1.default.writeFileSync(LOCAL_VALIDATOR_SCRIPT, `#!/bin/bash\n\n${startValidatorCommand}`);
@@ -141,12 +141,12 @@ class SwitchboardTestEnvironment {
     }
     /** Build a devnet environment to later clone to localnet */
     static async create(payerKeypair, additionalClonedAccounts) {
-        const connection = new web3_js_1.Connection(web3_js_1.clusterApiUrl("devnet"), {
+        const connection = new web3_js_1.Connection((0, web3_js_1.clusterApiUrl)("devnet"), {
             commitment: "confirmed",
         });
-        const switchboardProgram = await sbv2_1.loadSwitchboardProgram("devnet", connection, payerKeypair, { commitment: "confirmed" });
-        const programDataAddress = utils_1.getProgramDataAddress(switchboardProgram.programId);
-        const idlAddress = await utils_1.getIdlAddress(switchboardProgram.programId);
+        const switchboardProgram = await (0, sbv2_1.loadSwitchboardProgram)("devnet", connection, payerKeypair, { commitment: "confirmed" });
+        const programDataAddress = (0, utils_1.getProgramDataAddress)(switchboardProgram.programId);
+        const idlAddress = await (0, utils_1.getIdlAddress)(switchboardProgram.programId);
         const [switchboardProgramState] = sbv2.ProgramStateAccount.fromSeed(switchboardProgram);
         const switchboardMint = await switchboardProgramState.getTokenMint();
         const payerSwitchboardWallet = (await switchboardMint.getOrCreateAssociatedAccountInfo(payerKeypair.publicKey)).address;

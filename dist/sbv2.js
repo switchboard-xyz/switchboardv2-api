@@ -75,7 +75,7 @@ exports.getSwitchboardPid = getSwitchboardPid;
  * @param confirmOptions optional confirmation options for rpc request
  * @return Switchboard Program
  */
-async function loadSwitchboardProgram(cluster, connection = new web3_js_1.Connection(web3_js_1.clusterApiUrl(cluster)), payerKeypair, confirmOptions = {
+async function loadSwitchboardProgram(cluster, connection = new web3_js_1.Connection((0, web3_js_1.clusterApiUrl)(cluster)), payerKeypair, confirmOptions = {
     commitment: "confirmed",
 }) {
     const DEFAULT_KEYPAIR = web3_js_1.Keypair.fromSeed(new Uint8Array(32).fill(1));
@@ -1217,7 +1217,7 @@ class PermissionAccount {
     async setVoterWeight(params) {
         const payerKeypair = programWallet(this.program);
         const tx = await this.setVoterWeightTx(params);
-        return await web3_js_1.sendAndConfirmTransaction(this.program.provider.connection, tx, [payerKeypair]);
+        return await (0, web3_js_1.sendAndConfirmTransaction)(this.program.provider.connection, tx, [payerKeypair]);
     }
     async setVoterWeightTx(params) {
         const permissionData = await this.loadData();
@@ -1225,7 +1225,7 @@ class PermissionAccount {
         const payerKeypair = programWallet(this.program);
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         let psData = await programStateAccount.loadData();
-        const governance = (await spl_governance_1.getGovernance(this.program.provider.connection, permissionData.authority)).account;
+        const governance = (await (0, spl_governance_1.getGovernance)(this.program.provider.connection, permissionData.authority)).account;
         const [realmSpawnRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("RealmSpawnRecord"), governance.realm.toBytes()], this.program.programId);
         const [voterWeightRecord] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()], this.program.programId);
         const [tokenOwnerRecord] = anchor.utils.publicKey.findProgramAddressSync([
@@ -1897,7 +1897,7 @@ class CrankAccount {
      */
     async pop(params) {
         const payerKeypair = programWallet(this.program);
-        return await web3_js_1.sendAndConfirmTransaction(this.program.provider.connection, await this.popTxn(params), [payerKeypair]);
+        return await (0, web3_js_1.sendAndConfirmTransaction)(this.program.provider.connection, await this.popTxn(params), [payerKeypair]);
     }
     /**
      * Get an array of the next aggregator pubkeys to be popped from the crank, limited by n
@@ -2631,7 +2631,9 @@ async function sendAll(provider, reqs, signers, skipPreflight) {
 exports.sendAll = sendAll;
 /**
  * Pack instructions into transactions as tightly as possible
- * @param instructions Instructions to pack down into transactions
+ * @param instructions Instructions or Grouping of Instructions to pack down into transactions.
+ * Arrays of instructions will be grouped into the same tx.
+ * NOTE: this will break if grouping is too large for a single tx
  * @param feePayer Optional feepayer
  * @param recentBlockhash Optional blockhash
  * @returns Transaction[]
@@ -2656,30 +2658,43 @@ function packInstructions(instructions, feePayer = web3_js_1.PublicKey.default, 
             }
         }
     };
-    for (let instruction of instructions) {
-        // add the new transaction
-        currentTransaction.add(instruction);
+    for (let ixGroup of instructions) {
+        let ixs = Array.isArray(ixGroup) ? ixGroup : [ixGroup];
+        for (let ix of ixs) {
+            // add the new transaction
+            currentTransaction.add(ix);
+        }
         let sigCount = [];
         encodeLength(sigCount, currentTransaction.signatures.length);
-        if (web3_js_1.PACKET_DATA_SIZE <=
+        if (anchor.web3.PACKET_DATA_SIZE <=
             currentTransaction.serializeMessage().length +
                 currentTransaction.signatures.length * 64 +
                 sigCount.length) {
             // If the aggregator transaction fits, it will serialize without error. We can then push it ahead no problem
-            const trimmedInstruction = currentTransaction.instructions.pop();
+            const trimmedInstructions = ixs
+                .map(() => currentTransaction.instructions.pop())
+                .reverse();
             // Every serialize adds the instruction signatures as dependencies
             currentTransaction.signatures = [];
-            const overflowInstructions = [trimmedInstruction];
+            const overflowInstructions = trimmedInstructions;
             // add the capped transaction to our transaction - only push it if it works
             packed.push(currentTransaction);
             currentTransaction = new web3_js_1.Transaction();
             currentTransaction.recentBlockhash = recentBlockhash;
             currentTransaction.feePayer = feePayer;
             currentTransaction.instructions = overflowInstructions;
+            let newsc = [];
+            encodeLength(newsc, currentTransaction.signatures.length);
+            if (anchor.web3.PACKET_DATA_SIZE <=
+                currentTransaction.serializeMessage().length +
+                    currentTransaction.signatures.length * 64 +
+                    newsc.length) {
+                throw new Error("Instruction packing error: a grouping of instructions must be able to fit into a single transaction");
+            }
         }
     }
     packed.push(currentTransaction);
-    return packed; // just return instructions
+    return packed;
 }
 exports.packInstructions = packInstructions;
 /**
@@ -2739,7 +2754,7 @@ async function createMint(connection, payer, mintAuthority, freezeAuthority, dec
     }));
     transaction.add(spl.Token.createInitMintInstruction(programId, mintAccount.publicKey, decimals, mintAuthority, freezeAuthority));
     // Send the two instructions
-    await web3_js_1.sendAndConfirmTransaction(connection, transaction, [
+    await (0, web3_js_1.sendAndConfirmTransaction)(connection, transaction, [
         payer,
         mintAccount,
     ]);
