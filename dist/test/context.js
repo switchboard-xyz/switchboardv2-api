@@ -205,7 +205,7 @@ class SwitchboardTestContext {
                 }
             });
         });
-        const updatedValuePromise = (0, utils_1.promiseWithTimeout)(timeout * 1000, awaitUpdatePromise, new Error(`aggregator failed to update in ${timeout} seconds`)).finally(() => {
+        const updatedValuePromise = utils_1.promiseWithTimeout(timeout * 1000, awaitUpdatePromise, new Error(`aggregator failed to update in ${timeout} seconds`)).finally(() => {
             if (accountWs) {
                 this.program.provider.connection.removeAccountChangeListener(accountWs);
             }
