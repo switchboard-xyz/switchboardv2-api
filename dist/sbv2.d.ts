@@ -424,6 +424,10 @@ export declare class AggregatorAccount {
      */
     static create(program: anchor.Program, params: AggregatorInitParams): Promise<AggregatorAccount>;
     setBatchSize(params: AggregatorSetBatchSizeParams): Promise<TransactionSignature>;
+    setVarianceThreshold(params: {
+        authority: Keypair;
+        threshold: Big;
+    }): Promise<TransactionSignature>;
     setMinJobs(params: AggregatorSetMinJobsParams): Promise<TransactionSignature>;
     setMinOracles(params: AggregatorSetMinOraclesParams): Promise<TransactionSignature>;
     setHistoryBuffer(params: AggregatorSetHistoryBufferParams): Promise<TransactionSignature>;

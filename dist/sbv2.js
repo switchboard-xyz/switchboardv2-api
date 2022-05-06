@@ -675,6 +675,20 @@ class AggregatorAccount {
             signers: [authority],
         });
     }
+    async setVarianceThreshold(params) {
+        var _a, _b;
+        const program = this.program;
+        const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
+        return await program.rpc.aggregatorSetVarianceThreshold({
+            varianceThreshold: SwitchboardDecimal.fromBig(params.threshold),
+        }, {
+            accounts: {
+                aggregator: this.publicKey,
+                authority: authority.publicKey,
+            },
+            signers: [authority],
+        });
+    }
     async setMinJobs(params) {
         var _a, _b;
         const program = this.program;

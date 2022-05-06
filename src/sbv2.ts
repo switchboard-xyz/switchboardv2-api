@@ -1063,6 +1063,27 @@ export class AggregatorAccount {
     );
   }
 
+  async setVarianceThreshold(params: {
+    authority: Keypair;
+    threshold: Big;
+  }): Promise<TransactionSignature> {
+    const program = this.program;
+    const authority =
+      params.authority ?? this.keypair ?? programWallet(this.program);
+    return await program.rpc.aggregatorSetVarianceThreshold(
+      {
+        varianceThreshold: SwitchboardDecimal.fromBig(params.threshold),
+      },
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          authority: authority.publicKey,
+        },
+        signers: [authority],
+      }
+    );
+  }
+
   async setMinJobs(
     params: AggregatorSetMinJobsParams
   ): Promise<TransactionSignature> {
