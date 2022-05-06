@@ -3976,9 +3976,11 @@ export class BufferRelayerAccount {
     );
     const relayerData = await this.loadData();
     const queue = relayerData.queuePubkey;
+    console.log("!!!");
+    console.log(JSON.stringify(relayerData, null, 2));
     const queueAccount = new OracleQueueAccount({
       program: this.program,
-      publicKey: queue,
+      publicKey: queue!,
     });
     const bufferRelayer = this.publicKey;
     const escrow = relayerData.escrow;

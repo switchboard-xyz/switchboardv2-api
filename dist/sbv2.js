@@ -2551,6 +2551,8 @@ class BufferRelayerAccount {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const relayerData = await this.loadData();
         const queue = relayerData.queuePubkey;
+        console.log("!!!");
+        console.log(JSON.stringify(relayerData, null, 2));
         const queueAccount = new OracleQueueAccount({
             program: this.program,
             publicKey: queue,
