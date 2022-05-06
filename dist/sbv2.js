@@ -2583,7 +2583,7 @@ class BufferRelayerAccount {
                 permission: permissionAccount.publicKey,
                 escrow,
                 programState: programStateAccount.publicKey,
-                oracle_wallet: oracleData.tokenAccount,
+                oracleWallet: oracleData.tokenAccount,
             },
         });
     }
