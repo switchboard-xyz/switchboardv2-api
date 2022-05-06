@@ -2485,7 +2485,7 @@ class BufferRelayerAccount {
         const size = 2048;
         const payer = programWallet(program);
         await program.rpc.bufferRelayerInit({
-            name: params.name,
+            name: params.name.slice(0, 32),
             minUpdateDelaySeconds: params.minUpdateDelaySeconds,
             stateBump,
         }, {
@@ -2519,7 +2519,7 @@ class BufferRelayerAccount {
     async openRound() {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const relayerData = await this.loadData();
-        const queue = relayerData.queue;
+        const queue = relayerData.queuePubkey;
         const queueAccount = new OracleQueueAccount({
             program: this.program,
             publicKey: queue,
