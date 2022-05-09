@@ -71,7 +71,8 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
 
   private getAccountCloneString(): string {
     const accounts: string[] = Object.entries(this).map(
-      (key: any, val: any) => {
+      (field: any[]) => {
+        const [key, val] = field;
         // iterate over additionalClonedAccounts and collect pubkeys
         if (key === "additionalClonedAccounts" && val) {
           const additionalPubkeys = Object.values(
