@@ -1230,7 +1230,7 @@ export declare class BufferRelayerAccount {
         authority: PublicKey;
         jobAccount: JobAccount;
     }): Promise<BufferRelayerAccount>;
-    openRound(source: PublicKey): Promise<TransactionSignature>;
+    openRound(): Promise<TransactionSignature>;
     saveResult(params: {
         oracleAuthority: Keypair;
         result: Buffer;

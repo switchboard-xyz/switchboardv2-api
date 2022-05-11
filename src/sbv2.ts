@@ -3948,7 +3948,7 @@ export class BufferRelayerAccount {
     return new BufferRelayerAccount({ program, keypair });
   }
 
-  async openRound(source: PublicKey): Promise<TransactionSignature> {
+  async openRound(): Promise<TransactionSignature> {
     const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
       this.program
     );
@@ -3959,6 +3959,16 @@ export class BufferRelayerAccount {
       publicKey: queue,
     });
     const switchTokenMint = await queueAccount.loadMint();
+    await switchTokenMint.getOrCreateAssociatedAccountInfo(
+      programWallet(this.program).publicKey
+    );
+    const source = await spl.Token.getAssociatedTokenAddress(
+      spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+      spl.TOKEN_PROGRAM_ID,
+      switchTokenMint.publicKey,
+      programWallet(this.program).publicKey,
+      true
+    );
     const bufferRelayer = this.publicKey;
     const escrow = relayerData.escrow;
     const queueData = await queueAccount.loadData();
