@@ -3948,7 +3948,7 @@ export class BufferRelayerAccount {
     return new BufferRelayerAccount({ program, keypair });
   }
 
-  async openRound(): Promise<TransactionSignature> {
+  async openRound(source: PublicKey): Promise<TransactionSignature> {
     const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
       this.program
     );
@@ -3970,7 +3970,15 @@ export class BufferRelayerAccount {
       this.publicKey
     );
     const payer = programWallet(this.program);
-    return await this.program.rpc.bufferRelayerOpenRound(
+    const transferIx = spl.Token.createTransferInstruction(
+      spl.TOKEN_PROGRAM_ID,
+      source,
+      escrow,
+      programWallet(this.program).publicKey,
+      [],
+      queueData.reward
+    );
+    const openRoundIx = this.program.instruction.bufferRelayerOpenRound(
       {
         stateBump,
         permissionBump,
@@ -3988,6 +3996,14 @@ export class BufferRelayerAccount {
         },
       }
     );
+    const tx = new Transaction();
+    tx.add(transferIx);
+    tx.add(openRoundIx);
+    const connection = (this.program.provider as anchor.AnchorProvider)
+      .connection;
+    return await sendAndConfirmTransaction(connection, tx, [
+      programWallet(this.program),
+    ]);
   }
 
   async saveResult(params: {
@@ -4038,6 +4054,7 @@ export class BufferRelayerAccount {
           escrow,
           programState: programStateAccount.publicKey,
           oracleWallet: oracleData.tokenAccount,
+          tokenProgram: spl.TOKEN_PROGRAM_ID,
         },
       }
     );

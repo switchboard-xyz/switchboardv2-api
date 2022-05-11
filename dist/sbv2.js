@@ -113,6 +113,8 @@ class SwitchboardDecimal {
      * @return a SwitchboardDecimal
      */
     static fromBig(big) {
+        // Round to fit in Switchboard Decimal
+        // TODO: smarter logic.
         big = big.round(20);
         let mantissa = new anchor.BN(big.c.join(""), 10);
         // Set the scale. Big.exponenet sets scale from the opposite side
@@ -2531,7 +2533,7 @@ class BufferRelayerAccount {
         });
         return new BufferRelayerAccount({ program, keypair });
     }
-    async openRound() {
+    async openRound(source) {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const relayerData = await this.loadData();
         const queue = relayerData.queuePubkey;
@@ -2546,7 +2548,8 @@ class BufferRelayerAccount {
         const queueAuthority = queueData.authority;
         const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, this.publicKey);
         const payer = programWallet(this.program);
-        return await this.program.rpc.bufferRelayerOpenRound({
+        const transferIx = spl.Token.createTransferInstruction(spl.TOKEN_PROGRAM_ID, source, escrow, programWallet(this.program).publicKey, [], queueData.reward);
+        const openRoundIx = this.program.instruction.bufferRelayerOpenRound({
             stateBump,
             permissionBump,
         }, {
@@ -2561,6 +2564,14 @@ class BufferRelayerAccount {
                 job: relayerData.jobPubkey,
             },
         });
+        const tx = new web3_js_1.Transaction();
+        tx.add(transferIx);
+        tx.add(openRoundIx);
+        const connection = this.program.provider
+            .connection;
+        return await web3_js_1.sendAndConfirmTransaction(connection, tx, [
+            programWallet(this.program),
+        ]);
     }
     async saveResult(params) {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
@@ -2597,6 +2608,7 @@ class BufferRelayerAccount {
                 escrow,
                 programState: programStateAccount.publicKey,
                 oracleWallet: oracleData.tokenAccount,
+                tokenProgram: spl.TOKEN_PROGRAM_ID,
             },
         });
     }
