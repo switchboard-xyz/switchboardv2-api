@@ -3986,7 +3986,7 @@ export class BufferRelayerAccount {
       escrow,
       programWallet(this.program).publicKey,
       [],
-      queueData.reward
+      queueData.reward.toNumber()
     );
     const openRoundIx = this.program.instruction.bufferRelayerOpenRound(
       {

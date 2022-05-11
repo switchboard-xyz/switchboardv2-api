@@ -2550,7 +2550,7 @@ class BufferRelayerAccount {
         const queueAuthority = queueData.authority;
         const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, this.publicKey);
         const payer = programWallet(this.program);
-        const transferIx = spl.Token.createTransferInstruction(spl.TOKEN_PROGRAM_ID, source, escrow, programWallet(this.program).publicKey, [], queueData.reward);
+        const transferIx = spl.Token.createTransferInstruction(spl.TOKEN_PROGRAM_ID, source, escrow, programWallet(this.program).publicKey, [], queueData.reward.toNumber());
         const openRoundIx = this.program.instruction.bufferRelayerOpenRound({
             stateBump,
             permissionBump,
