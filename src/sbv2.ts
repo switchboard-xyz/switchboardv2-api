@@ -126,6 +126,8 @@ export class SwitchboardDecimal {
    * @return a SwitchboardDecimal
    */
   public static fromBig(big: Big): SwitchboardDecimal {
+    // Round to fit in Switchboard Decimal
+    // TODO: smarter logic.
     big = big.round(20);
     let mantissa: anchor.BN = new anchor.BN(big.c.join(""), 10);
     // Set the scale. Big.exponenet sets scale from the opposite side
