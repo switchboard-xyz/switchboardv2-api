@@ -424,6 +424,10 @@ export declare class AggregatorAccount {
      */
     static create(program: anchor.Program, params: AggregatorInitParams): Promise<AggregatorAccount>;
     setBatchSize(params: AggregatorSetBatchSizeParams): Promise<TransactionSignature>;
+    setVarianceThreshold(params: {
+        authority: Keypair;
+        threshold: Big;
+    }): Promise<TransactionSignature>;
     setMinJobs(params: AggregatorSetMinJobsParams): Promise<TransactionSignature>;
     setMinOracles(params: AggregatorSetMinOraclesParams): Promise<TransactionSignature>;
     setHistoryBuffer(params: AggregatorSetHistoryBufferParams): Promise<TransactionSignature>;
@@ -1203,15 +1207,47 @@ export declare class VrfAccount {
      */
     proveAndVerify(params: VrfProveAndVerifyParams, tryCount?: number): Promise<Array<TransactionSignature>>;
 }
+export declare class BufferRelayerAccount {
+    program: anchor.Program;
+    publicKey: PublicKey;
+    keypair?: Keypair;
+    /**
+     * CrankAccount constructor
+     * @param params initialization params.
+     */
+    constructor(params: AccountParams);
+    /**
+     * Load and parse BufferRelayerAccount data based on the program IDL.
+     * @return BufferRelayerAccount data parsed in accordance with the
+     * Switchboard IDL.
+     */
+    loadData(): Promise<any>;
+    size(): number;
+    static create(program: anchor.Program, params: {
+        name: Buffer;
+        minUpdateDelaySeconds: number;
+        queueAccount: OracleQueueAccount;
+        authority: PublicKey;
+        jobAccount: JobAccount;
+    }): Promise<BufferRelayerAccount>;
+    openRound(): Promise<TransactionSignature>;
+    saveResult(params: {
+        oracleAuthority: Keypair;
+        result: Buffer;
+        success: boolean;
+    }): Promise<TransactionSignature>;
+}
 export declare function sendAll(provider: anchor.Provider, reqs: Array<any>, signers: Array<Keypair>, skipPreflight: boolean): Promise<Array<TransactionSignature>>;
 /**
  * Pack instructions into transactions as tightly as possible
- * @param instructions Instructions to pack down into transactions
+ * @param instructions Instructions or Grouping of Instructions to pack down into transactions.
+ * Arrays of instructions will be grouped into the same tx.
+ * NOTE: this will break if grouping is too large for a single tx
  * @param feePayer Optional feepayer
  * @param recentBlockhash Optional blockhash
  * @returns Transaction[]
  */
-export declare function packInstructions(instructions: TransactionInstruction[], feePayer?: PublicKey, recentBlockhash?: string): Transaction[];
+export declare function packInstructions(instructions: (TransactionInstruction | TransactionInstruction[])[], feePayer?: PublicKey, recentBlockhash?: string): Transaction[];
 /**
  * Repack Transactions and sign them
  * @param connection Web3.js Connection

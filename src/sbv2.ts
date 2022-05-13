@@ -126,6 +126,9 @@ export class SwitchboardDecimal {
    * @return a SwitchboardDecimal
    */
   public static fromBig(big: Big): SwitchboardDecimal {
+    // Round to fit in Switchboard Decimal
+    // TODO: smarter logic.
+    big = big.round(20);
     let mantissa: anchor.BN = new anchor.BN(big.c.join(""), 10);
     // Set the scale. Big.exponenet sets scale from the opposite side
     // SwitchboardDecimal does.
@@ -1054,6 +1057,27 @@ export class AggregatorAccount {
       })
       .signers([authority])
       .rpc();
+  }
+
+  async setVarianceThreshold(params: {
+    authority: Keypair;
+    threshold: Big;
+  }): Promise<TransactionSignature> {
+    const program = this.program;
+    const authority =
+      params.authority ?? this.keypair ?? programWallet(this.program);
+    return await program.rpc.aggregatorSetVarianceThreshold(
+      {
+        varianceThreshold: SwitchboardDecimal.fromBig(params.threshold),
+      },
+      {
+        accounts: {
+          aggregator: this.publicKey,
+          authority: authority.publicKey,
+        },
+        signers: [authority],
+      }
+    );
   }
 
   async setMinJobs(
@@ -2174,6 +2198,7 @@ export class OracleQueueAccount {
   ): Promise<TransactionSignature> {
     const authority =
       params.authority ?? this.keypair ?? programWallet(this.program);
+      
     return await this.program.methods
       .oracleQueueVrfConfig({
         unpermissionedVrfEnabled: params.unpermissionedVrf,
@@ -2489,7 +2514,7 @@ export class LeaseAccount {
     });
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
-    const switchTokenMint = await programStateAccount.getTokenMint();
+    const switchTokenMint = await queueAccount.loadMint();
 
     const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
       program,
@@ -2559,7 +2584,7 @@ export class LeaseAccount {
     const aggregator = lease.aggregator;
     const [programStateAccount, stateBump] =
       ProgramStateAccount.fromSeed(program);
-    const switchTokenMint = await programStateAccount.getTokenMint();
+    const switchTokenMint = await queueAccount.loadMint();
     const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(
       program,
       queueAccount,
@@ -3463,7 +3488,7 @@ export class VrfAccount {
       ProgramStateAccount.fromSeed(program);
     const keypair = params.keypair;
     const size = program.account.vrfAccountData.size;
-    const switchTokenMint = await programStateAccount.getTokenMint();
+    const switchTokenMint = await params.queue.loadMint();
     const escrow = await spl.Token.getAssociatedTokenAddress(
       switchTokenMint.associatedProgramId,
       switchTokenMint.programId,
@@ -3751,6 +3776,235 @@ export class VrfAccount {
   }
 }
 
+export class BufferRelayerAccount {
+  program: anchor.Program;
+  publicKey: PublicKey;
+  keypair?: Keypair;
+
+  /**
+   * CrankAccount constructor
+   * @param params initialization params.
+   */
+  public constructor(params: AccountParams) {
+    if (params.keypair === undefined && params.publicKey === undefined) {
+      throw new Error(
+        `${this.constructor.name}: User must provide either a publicKey or keypair for account use.`
+      );
+    }
+    if (params.keypair !== undefined && params.publicKey !== undefined) {
+      if (!params.publicKey.equals(params.keypair.publicKey)) {
+        throw new Error(
+          `${this.constructor.name}: provided pubkey and keypair mismatch.`
+        );
+      }
+    }
+    this.program = params.program;
+    this.keypair = params.keypair;
+    this.publicKey = params.publicKey ?? this.keypair.publicKey;
+  }
+
+  /**
+   * Load and parse BufferRelayerAccount data based on the program IDL.
+   * @return BufferRelayerAccount data parsed in accordance with the
+   * Switchboard IDL.
+   */
+  async loadData(): Promise<any> {
+    const data: any = await this.program.account.bufferRelayerAccountData.fetch(
+      this.publicKey
+    );
+    data.ebuf = undefined;
+    return data;
+  }
+
+  size(): number {
+    return 4092;
+  }
+
+  static async create(
+    program: anchor.Program,
+    params: {
+      name: Buffer;
+      minUpdateDelaySeconds: number;
+      queueAccount: OracleQueueAccount;
+      authority: PublicKey;
+      jobAccount: JobAccount;
+    }
+  ): Promise<BufferRelayerAccount> {
+    const [programStateAccount, stateBump] =
+      ProgramStateAccount.fromSeed(program);
+    const switchTokenMint = await params.queueAccount.loadMint();
+    const keypair = Keypair.generate();
+    const escrow = await spl.Token.getAssociatedTokenAddress(
+      spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+      spl.TOKEN_PROGRAM_ID,
+      switchTokenMint.publicKey,
+      keypair.publicKey
+    );
+    const size = 2048;
+    const payer = programWallet(program);
+    await program.rpc.bufferRelayerInit(
+      {
+        name: params.name.slice(0, 32),
+        minUpdateDelaySeconds: params.minUpdateDelaySeconds,
+        stateBump,
+      },
+      {
+        accounts: {
+          bufferRelayer: keypair.publicKey,
+          escrow,
+          authority: params.authority,
+          queue: params.queueAccount.publicKey,
+          job: params.jobAccount.publicKey,
+          programState: programStateAccount.publicKey,
+          mint: switchTokenMint.publicKey,
+          payer: payer.publicKey,
+          tokenProgram: spl.TOKEN_PROGRAM_ID,
+          associatedTokenProgram: spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+          rent: new PublicKey("SysvarRent111111111111111111111111111111111"),
+        },
+        instructions: [
+          anchor.web3.SystemProgram.createAccount({
+            fromPubkey: programWallet(program).publicKey,
+            newAccountPubkey: keypair.publicKey,
+            space: size,
+            lamports:
+              await program.provider.connection.getMinimumBalanceForRentExemption(
+                size
+              ),
+            programId: program.programId,
+          }),
+        ],
+        signers: [keypair],
+      }
+    );
+    return new BufferRelayerAccount({ program, keypair });
+  }
+
+  async openRound(): Promise<TransactionSignature> {
+    const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
+      this.program
+    );
+    const relayerData = await this.loadData();
+    const queue = relayerData.queuePubkey;
+    const queueAccount = new OracleQueueAccount({
+      program: this.program,
+      publicKey: queue,
+    });
+    const switchTokenMint = await queueAccount.loadMint();
+    await switchTokenMint.getOrCreateAssociatedAccountInfo(
+      programWallet(this.program).publicKey
+    );
+    const source = await spl.Token.getAssociatedTokenAddress(
+      spl.ASSOCIATED_TOKEN_PROGRAM_ID,
+      spl.TOKEN_PROGRAM_ID,
+      switchTokenMint.publicKey,
+      programWallet(this.program).publicKey,
+      true
+    );
+    const bufferRelayer = this.publicKey;
+    const escrow = relayerData.escrow;
+    const queueData = await queueAccount.loadData();
+    const queueAuthority = queueData.authority;
+    const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
+      this.program,
+      queueAuthority,
+      queueAccount.publicKey,
+      this.publicKey
+    );
+    const payer = programWallet(this.program);
+    const transferIx = spl.Token.createTransferInstruction(
+      spl.TOKEN_PROGRAM_ID,
+      source,
+      escrow,
+      programWallet(this.program).publicKey,
+      [],
+      queueData.reward.toNumber()
+    );
+    const openRoundIx = this.program.instruction.bufferRelayerOpenRound(
+      {
+        stateBump,
+        permissionBump,
+      },
+      {
+        accounts: {
+          bufferRelayer,
+          oracleQueue: queueAccount.publicKey,
+          dataBuffer: queueData.dataBuffer,
+          queueAuthority: queueData.authority,
+          permission: permissionAccount.publicKey,
+          escrow,
+          programState: programStateAccount.publicKey,
+          job: relayerData.jobPubkey,
+        },
+      }
+    );
+    const tx = new Transaction();
+    tx.add(transferIx);
+    tx.add(openRoundIx);
+    const connection = (this.program.provider as anchor.AnchorProvider)
+      .connection;
+    return await sendAndConfirmTransaction(connection, tx, [
+      programWallet(this.program),
+    ]);
+  }
+
+  async saveResult(params: {
+    oracleAuthority: Keypair;
+    result: Buffer;
+    success: boolean;
+  }): Promise<TransactionSignature> {
+    const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
+      this.program
+    );
+    const relayerData = await this.loadData();
+    const queue = new PublicKey(relayerData.queuePubkey);
+    const queueAccount = new OracleQueueAccount({
+      program: this.program,
+      publicKey: queue!,
+    });
+    const bufferRelayer = this.publicKey;
+    const escrow = relayerData.escrow;
+    const queueData = await queueAccount.loadData();
+    const queueAuthority = queueData.authority;
+    const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(
+      this.program,
+      queueAuthority,
+      queueAccount.publicKey,
+      this.publicKey
+    );
+    const oracleAccount = new OracleAccount({
+      program: this.program,
+      publicKey: relayerData.currentRound.oraclePubkey,
+    });
+    const oracleData = await oracleAccount.loadData();
+    console.log("!!!!");
+    return await this.program.rpc.bufferRelayerSaveResult(
+      {
+        stateBump,
+        permissionBump,
+        result: params.result,
+        success: params.success,
+      },
+      {
+        accounts: {
+          bufferRelayer,
+          oracleAuthority: params.oracleAuthority.publicKey,
+          oracle: relayerData.currentRound.oraclePubkey,
+          oracleQueue: queueAccount.publicKey,
+          dataBuffer: queueData.dataBuffer,
+          queueAuthority: queueData.authority,
+          permission: permissionAccount.publicKey,
+          escrow,
+          programState: programStateAccount.publicKey,
+          oracleWallet: oracleData.tokenAccount,
+          tokenProgram: spl.TOKEN_PROGRAM_ID,
+        },
+      }
+    );
+  }
+}
+
 export async function sendAll(
   provider: anchor.Provider,
   reqs: Array<any>,
@@ -3813,13 +4067,15 @@ export async function sendAll(
 
 /**
  * Pack instructions into transactions as tightly as possible
- * @param instructions Instructions to pack down into transactions
+ * @param instructions Instructions or Grouping of Instructions to pack down into transactions.
+ * Arrays of instructions will be grouped into the same tx.
+ * NOTE: this will break if grouping is too large for a single tx
  * @param feePayer Optional feepayer
  * @param recentBlockhash Optional blockhash
  * @returns Transaction[]
  */
 export function packInstructions(
-  instructions: TransactionInstruction[],
+  instructions: (TransactionInstruction | TransactionInstruction[])[],
   feePayer: PublicKey = PublicKey.default,
   recentBlockhash: string = PublicKey.default.toBase58()
 ): Transaction[] {
@@ -3843,26 +4099,32 @@ export function packInstructions(
     }
   };
 
-  for (let instruction of instructions) {
-    // add the new transaction
-    currentTransaction.add(instruction);
+  for (let ixGroup of instructions) {
+    let ixs = Array.isArray(ixGroup) ? ixGroup : [ixGroup];
+
+    for (let ix of ixs) {
+      // add the new transaction
+      currentTransaction.add(ix);
+    }
 
     let sigCount: number[] = [];
     encodeLength(sigCount, currentTransaction.signatures.length);
 
     if (
-      PACKET_DATA_SIZE <=
+      anchor.web3.PACKET_DATA_SIZE <=
       currentTransaction.serializeMessage().length +
         currentTransaction.signatures.length * 64 +
         sigCount.length
     ) {
       // If the aggregator transaction fits, it will serialize without error. We can then push it ahead no problem
-      const trimmedInstruction = currentTransaction.instructions.pop()!;
+      const trimmedInstructions = ixs
+        .map(() => currentTransaction.instructions.pop()!)
+        .reverse();
 
       // Every serialize adds the instruction signatures as dependencies
       currentTransaction.signatures = [];
 
-      const overflowInstructions = [trimmedInstruction];
+      const overflowInstructions = trimmedInstructions;
 
       // add the capped transaction to our transaction - only push it if it works
       packed.push(currentTransaction);
@@ -3871,12 +4133,25 @@ export function packInstructions(
       currentTransaction.recentBlockhash = recentBlockhash;
       currentTransaction.feePayer = feePayer;
       currentTransaction.instructions = overflowInstructions;
+
+      let newsc: number[] = [];
+      encodeLength(newsc, currentTransaction.signatures.length);
+      if (
+        anchor.web3.PACKET_DATA_SIZE <=
+        currentTransaction.serializeMessage().length +
+          currentTransaction.signatures.length * 64 +
+          newsc.length
+      ) {
+        throw new Error(
+          "Instruction packing error: a grouping of instructions must be able to fit into a single transaction"
+        );
+      }
     }
   }
 
   packed.push(currentTransaction);
 
-  return packed; // just return instructions
+  return packed;
 }
 
 /**
