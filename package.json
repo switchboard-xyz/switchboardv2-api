@@ -33,7 +33,7 @@
     "@solana/spl-governance": "^0.0.34",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.39.1",
-    "@switchboard-xyz/switchboard-api": "^0.2.199",
+    "@switchboard-xyz/switchboard-api": "^0.2.201",
     "assert": "^2.0.0",
     "big.js": "^6.1.1",
     "bs58": "^4.0.1",
