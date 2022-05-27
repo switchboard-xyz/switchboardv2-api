@@ -286,20 +286,21 @@ class ProgramStateAccount {
             const token = new spl.Token(program.provider.connection, mint, spl.TOKEN_PROGRAM_ID, payerKeypair);
             vault = await token.createAccount(payerKeypair.publicKey);
         }
-        await program.rpc.programInit({
+        await program.methods
+            .programInit({
             stateBump,
-        }, {
-            accounts: {
-                state: stateAccount.publicKey,
-                authority: payerKeypair.publicKey,
-                tokenMint: mint,
-                vault,
-                payer: payerKeypair.publicKey,
-                systemProgram: web3_js_1.SystemProgram.programId,
-                tokenProgram: spl.TOKEN_PROGRAM_ID,
-                daoMint: (_a = params.daoMint) !== null && _a !== void 0 ? _a : mint,
-            },
-        });
+        })
+            .accounts({
+            state: stateAccount.publicKey,
+            authority: payerKeypair.publicKey,
+            tokenMint: mint,
+            vault,
+            payer: payerKeypair.publicKey,
+            systemProgram: web3_js_1.SystemProgram.programId,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+            daoMint: (_a = params.daoMint) !== null && _a !== void 0 ? _a : mint,
+        })
+            .rpc();
         return psa;
     }
     /**
@@ -312,19 +313,20 @@ class ProgramStateAccount {
     async vaultTransfer(to, authority, params) {
         const [statePubkey, stateBump] = anchor.utils.publicKey.findProgramAddressSync([Buffer.from("STATE")], this.program.programId);
         const vault = (await this.loadData()).tokenVault;
-        return await this.program.rpc.vaultTransfer({
+        return await this.program.methods
+            .vaultTransfer({
             stateBump,
             amount: params.amount,
-        }, {
-            accounts: {
-                state: statePubkey,
-                to,
-                vault,
-                authority: authority.publicKey,
-                tokenProgram: spl.TOKEN_PROGRAM_ID,
-            },
-            signers: [authority],
-        });
+        })
+            .accounts({
+            state: statePubkey,
+            to,
+            vault,
+            authority: authority.publicKey,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+        })
+            .signers([authority])
+            .rpc();
     }
 }
 exports.ProgramStateAccount = ProgramStateAccount;
@@ -632,7 +634,8 @@ class AggregatorAccount {
         const size = program.account.aggregatorAccountData.size;
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const state = await stateAccount.loadData();
-        await program.rpc.aggregatorInit({
+        await program.methods
+            .aggregatorInit({
             name: ((_c = params.name) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 32),
             metadata: ((_d = params.metadata) !== null && _d !== void 0 ? _d : Buffer.from("")).slice(0, 128),
             batchSize: params.batchSize,
@@ -643,40 +646,41 @@ class AggregatorAccount {
             forceReportPeriod: (_f = params.forceReportPeriod) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             expiration: (_g = params.expiration) !== null && _g !== void 0 ? _g : new anchor.BN(0),
             stateBump,
-        }, {
-            accounts: {
-                aggregator: aggregatorAccount.publicKey,
-                authority,
-                queue: params.queueAccount.publicKey,
-                authorWallet: (_h = params.authorWallet) !== null && _h !== void 0 ? _h : state.tokenVault,
-                programState: stateAccount.publicKey,
-            },
-            signers: [aggregatorAccount],
-            instructions: [
-                anchor.web3.SystemProgram.createAccount({
-                    fromPubkey: programWallet(program).publicKey,
-                    newAccountPubkey: aggregatorAccount.publicKey,
-                    space: size,
-                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
-                    programId: program.programId,
-                }),
-            ],
-        });
+        })
+            .accounts({
+            aggregator: aggregatorAccount.publicKey,
+            authority,
+            queue: params.queueAccount.publicKey,
+            authorWallet: (_h = params.authorWallet) !== null && _h !== void 0 ? _h : state.tokenVault,
+            programState: stateAccount.publicKey,
+        })
+            .signers([aggregatorAccount])
+            .preInstructions([
+            anchor.web3.SystemProgram.createAccount({
+                fromPubkey: programWallet(program).publicKey,
+                newAccountPubkey: aggregatorAccount.publicKey,
+                space: size,
+                lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
+                programId: program.programId,
+            }),
+        ])
+            .rpc();
         return new AggregatorAccount({ program, keypair: aggregatorAccount });
     }
     async setBatchSize(params) {
         var _a, _b;
         const program = this.program;
         const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
-        return await program.rpc.aggregatorSetBatchSize({
+        return await program.methods
+            .aggregatorSetBatchSize({
             batchSize: params.batchSize,
-        }, {
-            accounts: {
-                aggregator: this.publicKey,
-                authority: authority.publicKey,
-            },
-            signers: [authority],
-        });
+        })
+            .accounts({
+            aggregator: this.publicKey,
+            authority: authority.publicKey,
+        })
+            .signers([authority])
+            .rpc();
     }
     async setVarianceThreshold(params) {
         var _a, _b;
@@ -696,29 +700,31 @@ class AggregatorAccount {
         var _a, _b;
         const program = this.program;
         const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
-        return await program.rpc.aggregatorSetMinJobs({
+        return await program.methods
+            .aggregatorSetMinJobs({
             minJobResults: params.minJobResults,
-        }, {
-            accounts: {
-                aggregator: this.publicKey,
-                authority: authority.publicKey,
-            },
-            signers: [authority],
-        });
+        })
+            .accounts({
+            aggregator: this.publicKey,
+            authority: authority.publicKey,
+        })
+            .signers([authority])
+            .rpc();
     }
     async setMinOracles(params) {
         var _a, _b;
         const program = this.program;
         const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
-        return await program.rpc.aggregatorSetMinOracles({
+        return await program.methods
+            .aggregatorSetMinOracles({
             minOracleResults: params.minOracleResults,
-        }, {
-            accounts: {
-                aggregator: this.publicKey,
-                authority: authority.publicKey,
-            },
-            signers: [authority],
-        });
+        })
+            .accounts({
+            aggregator: this.publicKey,
+            authority: authority.publicKey,
+        })
+            .signers([authority])
+            .rpc();
     }
     async setHistoryBuffer(params) {
         var _a, _b;
@@ -729,48 +735,51 @@ class AggregatorAccount {
         const INSERT_IDX_SIZE = 4;
         const DISCRIMINATOR_SIZE = 8;
         const size = params.size * HISTORY_ROW_SIZE + INSERT_IDX_SIZE + DISCRIMINATOR_SIZE;
-        return await program.rpc.aggregatorSetHistoryBuffer({}, {
-            accounts: {
-                aggregator: this.publicKey,
-                authority: authority.publicKey,
-                buffer: buffer.publicKey,
-            },
-            signers: [authority, buffer],
-            instructions: [
-                anchor.web3.SystemProgram.createAccount({
-                    fromPubkey: programWallet(program).publicKey,
-                    newAccountPubkey: buffer.publicKey,
-                    space: size,
-                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
-                    programId: program.programId,
-                }),
-            ],
-        });
+        return await program.methods
+            .aggregatorSetHistoryBuffer({})
+            .accounts({
+            aggregator: this.publicKey,
+            authority: authority.publicKey,
+            buffer: buffer.publicKey,
+        })
+            .signers([authority, buffer])
+            .preInstructions([
+            anchor.web3.SystemProgram.createAccount({
+                fromPubkey: programWallet(program).publicKey,
+                newAccountPubkey: buffer.publicKey,
+                space: size,
+                lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
+                programId: program.programId,
+            }),
+        ])
+            .rpc();
     }
     async setUpdateInterval(params) {
         var _a, _b;
         const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
-        return await this.program.rpc.aggregatorSetUpdateInterval({
+        return await this.program.methods
+            .aggregatorSetUpdateInterval({
             newInterval: params.newInterval,
-        }, {
-            accounts: {
-                aggregator: this.publicKey,
-                authority: authority.publicKey,
-            },
-            signers: [authority],
-        });
+        })
+            .accounts({
+            aggregator: this.publicKey,
+            authority: authority.publicKey,
+        })
+            .signers([authority])
+            .rpc();
     }
     async setQueue(params) {
         var _a, _b;
         const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
-        return await this.program.rpc.aggregatorSetQueue({}, {
-            accounts: {
-                aggregator: this.publicKey,
-                authority: authority.publicKey,
-                queue: params.queueAccount.publicKey,
-            },
-            signers: [authority],
-        });
+        return await this.program.methods
+            .aggregatorSetQueue({})
+            .accounts({
+            aggregator: this.publicKey,
+            authority: authority.publicKey,
+            queue: params.queueAccount.publicKey,
+        })
+            .signers([authority])
+            .rpc();
     }
     /**
      * RPC to add a new job to an aggregtor to be performed on feed updates.
@@ -780,16 +789,17 @@ class AggregatorAccount {
     async addJob(job, authority, weight = 1) {
         var _a;
         authority = (_a = authority !== null && authority !== void 0 ? authority : this.keypair) !== null && _a !== void 0 ? _a : programWallet(this.program);
-        return await this.program.rpc.aggregatorAddJob({
+        return await this.program.methods
+            .aggregatorAddJob({
             weight,
-        }, {
-            accounts: {
-                aggregator: this.publicKey,
-                authority: authority.publicKey,
-                job: job.publicKey,
-            },
-            signers: [authority],
-        });
+        })
+            .accounts({
+            aggregator: this.publicKey,
+            authority: authority.publicKey,
+            job: job.publicKey,
+        })
+            .signers([authority])
+            .rpc();
     }
     /**
      * Prevent new jobs from being added to the feed.
@@ -799,13 +809,14 @@ class AggregatorAccount {
     async lock(authority) {
         var _a;
         authority = (_a = authority !== null && authority !== void 0 ? authority : this.keypair) !== null && _a !== void 0 ? _a : programWallet(this.program);
-        return await this.program.rpc.aggregatorLock({}, {
-            accounts: {
-                aggregator: this.publicKey,
-                authority: authority.publicKey,
-            },
-            signers: [authority],
-        });
+        return await this.program.methods
+            .aggregatorLock({})
+            .accounts({
+            aggregator: this.publicKey,
+            authority: authority.publicKey,
+        })
+            .signers([authority])
+            .rpc();
     }
     /**
      * Change the aggregator authority.
@@ -817,14 +828,15 @@ class AggregatorAccount {
         var _a;
         currentAuthority =
             (_a = currentAuthority !== null && currentAuthority !== void 0 ? currentAuthority : this.keypair) !== null && _a !== void 0 ? _a : programWallet(this.program);
-        return await this.program.rpc.aggregatorSetAuthority({}, {
-            accounts: {
-                aggregator: this.publicKey,
-                newAuthority,
-                authority: currentAuthority.publicKey,
-            },
-            signers: [currentAuthority],
-        });
+        return await this.program.methods
+            .aggregatorSetAuthority({})
+            .accounts({
+            aggregator: this.publicKey,
+            newAuthority,
+            authority: currentAuthority.publicKey,
+        })
+            .signers([currentAuthority])
+            .rpc();
     }
     /**
      * RPC to remove a job from an aggregtor.
@@ -834,14 +846,15 @@ class AggregatorAccount {
     async removeJob(job, authority) {
         var _a;
         authority = (_a = authority !== null && authority !== void 0 ? authority : this.keypair) !== null && _a !== void 0 ? _a : programWallet(this.program);
-        return await this.program.rpc.aggregatorRemoveJob({}, {
-            accounts: {
-                aggregator: this.publicKey,
-                authority: authority.publicKey,
-                job: job.publicKey,
-            },
-            signers: [authority],
-        });
+        return await this.program.methods
+            .aggregatorRemoveJob({})
+            .accounts({
+            aggregator: this.publicKey,
+            authority: authority.publicKey,
+            job: job.publicKey,
+        })
+            .signers([authority])
+            .rpc();
     }
     /**
      * Opens a new round for the aggregator and will provide an incentivize reward
@@ -868,25 +881,26 @@ class AggregatorAccount {
         catch (_) {
             throw new Error("A requested permission pda account has not been initialized.");
         }
-        return await this.program.rpc.aggregatorOpenRound({
+        return await this.program.methods
+            .aggregatorOpenRound({
             stateBump,
             leaseBump,
             permissionBump,
-        }, {
-            accounts: {
-                aggregator: this.publicKey,
-                lease: leaseAccount.publicKey,
-                oracleQueue: params.oracleQueueAccount.publicKey,
-                queueAuthority,
-                permission: permissionAccount.publicKey,
-                escrow: escrowPubkey,
-                programState: stateAccount.publicKey,
-                payoutWallet: params.payoutWallet,
-                tokenProgram: spl.TOKEN_PROGRAM_ID,
-                dataBuffer: queue.dataBuffer,
-                mint: (await params.oracleQueueAccount.loadMint()).publicKey,
-            },
-        });
+        })
+            .accounts({
+            aggregator: this.publicKey,
+            lease: leaseAccount.publicKey,
+            oracleQueue: params.oracleQueueAccount.publicKey,
+            queueAuthority,
+            permission: permissionAccount.publicKey,
+            escrow: escrowPubkey,
+            programState: stateAccount.publicKey,
+            payoutWallet: params.payoutWallet,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+            dataBuffer: queue.dataBuffer,
+            mint: (await params.oracleQueueAccount.loadMint()).publicKey,
+        })
+            .rpc();
     }
     async getOracleIndex(oraclePubkey) {
         const aggregator = await this.loadData();
@@ -947,7 +961,8 @@ class AggregatorAccount {
         if (historyBuffer.equals(web3_js_1.PublicKey.default)) {
             historyBuffer = this.publicKey;
         }
-        return this.program.transaction.aggregatorSaveResult({
+        return await this.program.methods
+            .aggregatorSaveResult({
             oracleIdx: params.oracleIdx,
             error: params.error,
             value: SwitchboardDecimal.fromBig(params.value),
@@ -958,26 +973,26 @@ class AggregatorAccount {
             oraclePermissionBump,
             leaseBump,
             stateBump,
-        }, {
-            accounts: {
-                aggregator: this.publicKey,
-                oracle: oracleAccount.publicKey,
-                oracleAuthority: payerKeypair.publicKey,
-                oracleQueue: queueAccount.publicKey,
-                queueAuthority: params.queueAuthority,
-                feedPermission: feedPermissionAccount.publicKey,
-                oraclePermission: oraclePermissionAccount.publicKey,
-                lease: leaseAccount.publicKey,
-                escrow,
-                tokenProgram: spl.TOKEN_PROGRAM_ID,
-                programState: programStateAccount.publicKey,
-                historyBuffer,
-                mint: params.tokenMint,
-            },
-            remainingAccounts: remainingAccounts.map((pubkey) => {
-                return { isSigner: false, isWritable: true, pubkey };
-            }),
-        });
+        })
+            .accounts({
+            aggregator: this.publicKey,
+            oracle: oracleAccount.publicKey,
+            oracleAuthority: payerKeypair.publicKey,
+            oracleQueue: queueAccount.publicKey,
+            queueAuthority: params.queueAuthority,
+            feedPermission: feedPermissionAccount.publicKey,
+            oraclePermission: oraclePermissionAccount.publicKey,
+            lease: leaseAccount.publicKey,
+            escrow,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+            programState: programStateAccount.publicKey,
+            historyBuffer,
+            mint: params.tokenMint,
+        })
+            .remainingAccounts(remainingAccounts.map((pubkey) => {
+            return { isSigner: false, isWritable: true, pubkey };
+        }))
+            .transaction();
     }
 }
 exports.AggregatorAccount = AggregatorAccount;
@@ -1034,30 +1049,31 @@ class JobAccount {
         const size = 280 + params.data.length + ((_d = (_c = (_b = params.variables) === null || _b === void 0 ? void 0 : _b.join("")) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0);
         const [stateAccount, stateBump] = await ProgramStateAccount.getOrCreate(program, {});
         const state = await stateAccount.loadData();
-        await program.rpc.jobInit({
+        await program.methods
+            .jobInit({
             name: (_e = params.name) !== null && _e !== void 0 ? _e : Buffer.from(""),
             expiration: (_f = params.expiration) !== null && _f !== void 0 ? _f : new anchor.BN(0),
             data: params.data,
             variables: (_h = (_g = params.variables) === null || _g === void 0 ? void 0 : _g.map((item) => Buffer.from(""))) !== null && _h !== void 0 ? _h : new Array(),
             stateBump,
-        }, {
-            accounts: {
-                job: jobAccount.publicKey,
-                authorWallet: params.authority,
-                authority: params.authority,
-                programState: stateAccount.publicKey,
-            },
-            signers: [jobAccount],
-            instructions: [
-                anchor.web3.SystemProgram.createAccount({
-                    fromPubkey: programWallet(program).publicKey,
-                    newAccountPubkey: jobAccount.publicKey,
-                    space: size,
-                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
-                    programId: program.programId,
-                }),
-            ],
-        });
+        })
+            .accounts({
+            job: jobAccount.publicKey,
+            authorWallet: params.authority,
+            authority: params.authority,
+            programState: stateAccount.publicKey,
+        })
+            .signers([jobAccount])
+            .preInstructions([
+            anchor.web3.SystemProgram.createAccount({
+                fromPubkey: programWallet(program).publicKey,
+                newAccountPubkey: jobAccount.publicKey,
+                space: size,
+                lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
+                programId: program.programId,
+            }),
+        ])
+            .rpc();
         return new JobAccount({ program, keypair: jobAccount });
     }
     static decode(program, accountInfo) {
@@ -1143,17 +1159,18 @@ class PermissionAccount {
         const authorityInfo = await program.provider.connection.getAccountInfo(params.authority);
         const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(program, params.authority, params.granter, params.grantee);
         const payerKeypair = programWallet(program);
-        await program.rpc.permissionInit({}, {
-            signers: [payerKeypair],
-            accounts: {
-                permission: permissionAccount.publicKey,
-                authority: params.authority,
-                granter: params.granter,
-                grantee: params.grantee,
-                payer: programWallet(program).publicKey,
-                systemProgram: web3_js_1.SystemProgram.programId,
-            },
-        });
+        await program.methods
+            .permissionInit({})
+            .accounts({
+            permission: permissionAccount.publicKey,
+            authority: params.authority,
+            granter: params.granter,
+            grantee: params.grantee,
+            payer: programWallet(program).publicKey,
+            systemProgram: web3_js_1.SystemProgram.programId,
+        })
+            .signers([payerKeypair])
+            .rpc();
         return new PermissionAccount({
             program,
             publicKey: permissionAccount.publicKey,
@@ -1188,16 +1205,17 @@ class PermissionAccount {
         const authorityInfo = await this.program.provider.connection.getAccountInfo(permissionData.authority);
         const permission = new Map();
         permission.set(params.permission.toString(), null);
-        return await this.program.rpc.permissionSet({
+        return await this.program.methods
+            .permissionSet({
             permission: Object.fromEntries(permission),
             enable: params.enable,
-        }, {
-            accounts: {
-                permission: this.publicKey,
-                authority: params.authority.publicKey,
-            },
-            signers: [params.authority],
-        });
+        })
+            .accounts({
+            permission: this.publicKey,
+            authority: params.authority.publicKey,
+        })
+            .signers([params.authority])
+            .rpc();
     }
     /**
      * Sets the permission in the PermissionAccount
@@ -1220,16 +1238,17 @@ class PermissionAccount {
         permission.set(params.permission.toString(), null);
         console.log("authority:");
         console.log(authPk);
-        return await this.program.transaction.permissionSet({
+        return await this.program.methods
+            .permissionSet({
             permission: Object.fromEntries(permission),
             enable: params.enable,
-        }, {
-            accounts: {
-                permission: this.publicKey,
-                authority: authPk,
-            },
-            signers,
-        });
+        })
+            .accounts({
+            permission: this.publicKey,
+            authority: authPk,
+        })
+            .signers(signers)
+            .transaction();
     }
     async setVoterWeight(params) {
         const payerKeypair = programWallet(this.program);
@@ -1251,26 +1270,27 @@ class PermissionAccount {
             psData.daoMint.toBytes(),
             oracleData.oracleAuthority.toBytes(),
         ], params.govProgram);
-        return await this.program.transaction.permissionSetVoterWeight({
+        return await this.program.methods
+            .permissionSetVoterWeight({
             stateBump,
-        }, {
-            accounts: {
-                permission: this.publicKey,
-                permissionAuthority: permissionData.authority,
-                oracle: permissionData.grantee,
-                oracleAuthority: oracleData.oracleAuthority,
-                payer: payerKeypair.publicKey,
-                systemProgram: web3_js_1.SystemProgram.programId,
-                programState: programStateAccount.publicKey,
-                govProgram: exports.GOVERNANCE_PID,
-                daoMint: psData.daoMint,
-                spawnRecord: realmSpawnRecord,
-                voterWeight: voterWeightRecord,
-                tokenOwnerRecord: tokenOwnerRecord,
-                realm: governance.realm,
-            },
-            signers: [payerKeypair],
-        });
+        })
+            .accounts({
+            permission: this.publicKey,
+            permissionAuthority: permissionData.authority,
+            oracle: permissionData.grantee,
+            oracleAuthority: oracleData.oracleAuthority,
+            payer: payerKeypair.publicKey,
+            systemProgram: web3_js_1.SystemProgram.programId,
+            programState: programStateAccount.publicKey,
+            govProgram: exports.GOVERNANCE_PID,
+            daoMint: psData.daoMint,
+            spawnRecord: realmSpawnRecord,
+            voterWeight: voterWeightRecord,
+            tokenOwnerRecord: tokenOwnerRecord,
+            realm: governance.realm,
+        })
+            .signers([payerKeypair])
+            .transaction();
     }
 }
 exports.PermissionAccount = PermissionAccount;
@@ -1357,7 +1377,8 @@ class OracleQueueAccount {
         const size = program.account.oracleQueueAccountData.size;
         params.queueSize = (_a = params.queueSize) !== null && _a !== void 0 ? _a : 500;
         const queueSize = params.queueSize * 32 + 8;
-        await program.rpc.oracleQueueInit({
+        await program.methods
+            .oracleQueueInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
             reward: (_d = params.reward) !== null && _d !== void 0 ? _d : new anchor.BN(0),
@@ -1372,53 +1393,52 @@ class OracleQueueAccount {
             minimumDelaySeconds: (_m = params.minimumDelaySeconds) !== null && _m !== void 0 ? _m : 5,
             queueSize: params.queueSize,
             unpermissionedFeeds: (_o = params.unpermissionedFeeds) !== null && _o !== void 0 ? _o : false,
-        }, {
-            signers: [oracleQueueAccount, buffer],
-            accounts: {
-                oracleQueue: oracleQueueAccount.publicKey,
-                authority: params.authority,
-                buffer: buffer.publicKey,
-                systemProgram: web3_js_1.SystemProgram.programId,
-                payer: programWallet(program).publicKey,
-                mint,
-            },
-            instructions: [
-                anchor.web3.SystemProgram.createAccount({
-                    fromPubkey: programWallet(program).publicKey,
-                    newAccountPubkey: buffer.publicKey,
-                    space: queueSize,
-                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(queueSize),
-                    programId: program.programId,
-                }),
-            ],
-        });
+        })
+            .accounts({
+            oracleQueue: oracleQueueAccount.publicKey,
+            authority: params.authority,
+            buffer: buffer.publicKey,
+            systemProgram: web3_js_1.SystemProgram.programId,
+            payer: programWallet(program).publicKey,
+            mint,
+        })
+            .signers([oracleQueueAccount, buffer])
+            .preInstructions([
+            anchor.web3.SystemProgram.createAccount({
+                fromPubkey: programWallet(program).publicKey,
+                newAccountPubkey: buffer.publicKey,
+                space: queueSize,
+                lamports: await program.provider.connection.getMinimumBalanceForRentExemption(queueSize),
+                programId: program.programId,
+            }),
+        ])
+            .rpc();
         return new OracleQueueAccount({ program, keypair: oracleQueueAccount });
     }
     async setRewards(params) {
         var _a, _b;
         const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
-        return await this.program.rpc.oracleQueueSetRewards({
+        return await this.program.methods
+            .oracleQueueSetRewards({
             rewards: params.rewards,
-        }, {
-            signers: [authority],
-            accounts: {
-                queue: this.publicKey,
-                authority: authority.publicKey,
-            },
-        });
+        })
+            .accounts({ queue: this.publicKey, authority: authority.publicKey })
+            .signers([authority])
+            .rpc();
     }
     async setVrfSettings(params) {
         var _a, _b;
         const authority = (_b = (_a = params.authority) !== null && _a !== void 0 ? _a : this.keypair) !== null && _b !== void 0 ? _b : programWallet(this.program);
-        return await this.program.rpc.oracleQueueVrfConfig({
+        return await this.program.methods
+            .oracleQueueVrfConfig({
             unpermissionedVrfEnabled: params.unpermissionedVrf,
-        }, {
-            signers: [authority],
-            accounts: {
-                queue: this.publicKey,
-                authority: authority.publicKey,
-            },
-        });
+        })
+            .accounts({
+            queue: this.publicKey,
+            authority: authority.publicKey,
+        })
+            .signers([authority])
+            .rpc();
     }
 }
 exports.OracleQueueAccount = OracleQueueAccount;
@@ -1506,33 +1526,32 @@ class LeaseAccount {
             jobWallets.push(jobWallet);
             walletBumps.push(bump);
         }
-        await program.rpc.leaseInit({
+        await program.methods
+            .leaseInit({
             loadAmount: params.loadAmount,
             stateBump,
             leaseBump,
             withdrawAuthority: (_b = params.withdrawAuthority) !== null && _b !== void 0 ? _b : web3_js_1.PublicKey.default,
             walletBumps: Buffer.from(walletBumps),
-        }, {
-            accounts: {
-                programState: programStateAccount.publicKey,
-                lease: leaseAccount.publicKey,
-                queue: params.oracleQueueAccount.publicKey,
-                aggregator: params.aggregatorAccount.publicKey,
-                systemProgram: web3_js_1.SystemProgram.programId,
-                funder: params.funder,
-                payer: programWallet(program).publicKey,
-                tokenProgram: spl.TOKEN_PROGRAM_ID,
-                escrow,
-                owner: params.funderAuthority.publicKey,
-                mint: switchTokenMint.publicKey,
-            },
-            signers: [params.funderAuthority],
-            remainingAccounts: jobPubkeys
-                .concat(jobWallets)
-                .map((pubkey) => {
-                return { isSigner: false, isWritable: true, pubkey };
-            }),
-        });
+        })
+            .accounts({
+            programState: programStateAccount.publicKey,
+            lease: leaseAccount.publicKey,
+            queue: params.oracleQueueAccount.publicKey,
+            aggregator: params.aggregatorAccount.publicKey,
+            systemProgram: web3_js_1.SystemProgram.programId,
+            funder: params.funder,
+            payer: programWallet(program).publicKey,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+            escrow,
+            owner: params.funderAuthority.publicKey,
+            mint: switchTokenMint.publicKey,
+        })
+            .signers([params.funderAuthority])
+            .remainingAccounts(jobPubkeys.concat(jobWallets).map((pubkey) => {
+            return { isSigner: false, isWritable: true, pubkey };
+        }))
+            .rpc();
         return new LeaseAccount({ program, publicKey: leaseAccount.publicKey });
     }
     async getBalance() {
@@ -1620,30 +1639,29 @@ class LeaseAccount {
             jobWallets.push(jobWallet);
             walletBumps.push(bump);
         }
-        return await program.rpc.leaseExtend({
+        return await program.methods
+            .leaseExtend({
             loadAmount: params.loadAmount,
             stateBump,
             leaseBump,
             walletBumps: Buffer.from(walletBumps),
-        }, {
-            accounts: {
-                lease: leaseAccount.publicKey,
-                aggregator,
-                queue,
-                funder: params.funder,
-                owner: params.funderAuthority.publicKey,
-                tokenProgram: spl.TOKEN_PROGRAM_ID,
-                escrow,
-                programState: programStateAccount.publicKey,
-                mint: (await queueAccount.loadMint()).publicKey,
-            },
-            signers: [params.funderAuthority],
-            remainingAccounts: jobPubkeys
-                .concat(jobWallets)
-                .map((pubkey) => {
-                return { isSigner: false, isWritable: true, pubkey };
-            }),
-        });
+        })
+            .accounts({
+            lease: leaseAccount.publicKey,
+            aggregator,
+            queue,
+            funder: params.funder,
+            owner: params.funderAuthority.publicKey,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+            escrow,
+            programState: programStateAccount.publicKey,
+            mint: (await queueAccount.loadMint()).publicKey,
+        })
+            .signers([params.funderAuthority])
+            .remainingAccounts(jobPubkeys.concat(jobWallets).map((pubkey) => {
+            return { isSigner: false, isWritable: true, pubkey };
+        }))
+            .rpc();
     }
     /**
      * Withdraw funds from a LeaseAccount.
@@ -1660,24 +1678,25 @@ class LeaseAccount {
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(program);
         const switchTokenMint = await queueAccount.loadMint();
         const [leaseAccount, leaseBump] = LeaseAccount.fromSeed(program, queueAccount, new AggregatorAccount({ program, publicKey: aggregator }));
-        return await program.rpc.leaseWithdraw({
+        return await program.methods
+            .leaseWithdraw({
             amount: params.amount,
             stateBump,
             leaseBump,
-        }, {
-            accounts: {
-                lease: leaseAccount.publicKey,
-                escrow,
-                aggregator,
-                queue,
-                withdrawAuthority: params.withdrawAuthority.publicKey,
-                withdrawAccount: params.withdrawWallet,
-                tokenProgram: spl.TOKEN_PROGRAM_ID,
-                programState: programStateAccount.publicKey,
-                mint: (await queueAccount.loadMint()).publicKey,
-            },
-            signers: [params.withdrawAuthority],
-        });
+        })
+            .accounts({
+            lease: leaseAccount.publicKey,
+            escrow,
+            aggregator,
+            queue,
+            withdrawAuthority: params.withdrawAuthority.publicKey,
+            withdrawAccount: params.withdrawWallet,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+            programState: programStateAccount.publicKey,
+            mint: (await queueAccount.loadMint()).publicKey,
+        })
+            .signers([params.withdrawAuthority])
+            .rpc();
     }
 }
 exports.LeaseAccount = LeaseAccount;
@@ -1760,29 +1779,30 @@ class CrankAccount {
         const size = program.account.crankAccountData.size;
         params.maxRows = (_a = params.maxRows) !== null && _a !== void 0 ? _a : 500;
         const crankSize = params.maxRows * 40 + 8;
-        await program.rpc.crankInit({
+        await program.methods
+            .crankInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 64),
             crankSize: params.maxRows,
-        }, {
-            signers: [crankAccount, buffer],
-            accounts: {
-                crank: crankAccount.publicKey,
-                queue: params.queueAccount.publicKey,
-                buffer: buffer.publicKey,
-                systemProgram: web3_js_1.SystemProgram.programId,
-                payer: programWallet(program).publicKey,
-            },
-            instructions: [
-                anchor.web3.SystemProgram.createAccount({
-                    fromPubkey: programWallet(program).publicKey,
-                    newAccountPubkey: buffer.publicKey,
-                    space: crankSize,
-                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(crankSize),
-                    programId: program.programId,
-                }),
-            ],
-        });
+        })
+            .accounts({
+            crank: crankAccount.publicKey,
+            queue: params.queueAccount.publicKey,
+            buffer: buffer.publicKey,
+            systemProgram: web3_js_1.SystemProgram.programId,
+            payer: programWallet(program).publicKey,
+        })
+            .signers([crankAccount, buffer])
+            .preInstructions([
+            anchor.web3.SystemProgram.createAccount({
+                fromPubkey: programWallet(program).publicKey,
+                newAccountPubkey: buffer.publicKey,
+                space: crankSize,
+                lamports: await program.provider.connection.getMinimumBalanceForRentExemption(crankSize),
+                programId: program.programId,
+            }),
+        ])
+            .rpc();
         return new CrankAccount({ program, keypair: crankAccount });
     }
     /**
@@ -1815,22 +1835,23 @@ class CrankAccount {
             throw new Error("A requested permission pda account has not been initialized.");
         }
         const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
-        return await this.program.rpc.crankPush({
+        return await this.program.methods
+            .crankPush({
             stateBump,
             permissionBump,
-        }, {
-            accounts: {
-                crank: this.publicKey,
-                aggregator: aggregatorAccount.publicKey,
-                oracleQueue: queueAccount.publicKey,
-                queueAuthority,
-                permission: permissionAccount.publicKey,
-                lease: leaseAccount.publicKey,
-                escrow: lease.escrow,
-                programState: programStateAccount.publicKey,
-                dataBuffer: crank.dataBuffer,
-            },
-        });
+        })
+            .accounts({
+            crank: this.publicKey,
+            aggregator: aggregatorAccount.publicKey,
+            oracleQueue: queueAccount.publicKey,
+            queueAuthority,
+            permission: permissionAccount.publicKey,
+            lease: leaseAccount.publicKey,
+            escrow: lease.escrow,
+            programState: programStateAccount.publicKey,
+            dataBuffer: crank.dataBuffer,
+        })
+            .rpc();
     }
     /**
      * Pops an aggregator from the crank.
@@ -1883,29 +1904,30 @@ class CrankAccount {
             mint = spl.NATIVE_MINT;
         }
         // const promises: Array<Promise<TransactionSignature>> = [];
-        return this.program.transaction.crankPop({
+        return await this.program.methods
+            .crankPop({
             stateBump,
             leaseBumps: Buffer.from(leaseBumps),
             permissionBumps: Buffer.from(permissionBumps),
             nonce: (_e = params.nonce) !== null && _e !== void 0 ? _e : null,
             failOpenOnAccountMismatch,
-        }, {
-            accounts: {
-                crank: this.publicKey,
-                oracleQueue: params.queuePubkey,
-                queueAuthority: params.queueAuthority,
-                programState: programStateAccount.publicKey,
-                payoutWallet: params.payoutWallet,
-                tokenProgram: spl.TOKEN_PROGRAM_ID,
-                crankDataBuffer: crank.dataBuffer,
-                queueDataBuffer: queue.dataBuffer,
-                mint,
-            },
-            remainingAccounts: remainingAccounts.map((pubkey) => {
-                return { isSigner: false, isWritable: true, pubkey };
-            }),
-            signers: [payerKeypair],
-        });
+        })
+            .accounts({
+            crank: this.publicKey,
+            oracleQueue: params.queuePubkey,
+            queueAuthority: params.queueAuthority,
+            programState: programStateAccount.publicKey,
+            payoutWallet: params.payoutWallet,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+            crankDataBuffer: crank.dataBuffer,
+            queueDataBuffer: queue.dataBuffer,
+            mint,
+        })
+            .remainingAccounts(remainingAccounts.map((pubkey) => {
+            return { isSigner: false, isWritable: true, pubkey };
+        }))
+            .signers([payerKeypair])
+            .transaction();
     }
     /**
      * Pops an aggregator from the crank.
@@ -2019,22 +2041,23 @@ class OracleAccount {
         const wallet = await mint.createAccount(programWallet(program).publicKey);
         await mint.setAuthority(wallet, programStateAccount.publicKey, "AccountOwner", payerKeypair, []);
         const [oracleAccount, oracleBump] = OracleAccount.fromSeed(program, params.queueAccount, wallet);
-        await program.rpc.oracleInit({
+        await program.methods
+            .oracleInit({
             name: ((_b = params.name) !== null && _b !== void 0 ? _b : Buffer.from("")).slice(0, 32),
             metadata: ((_c = params.metadata) !== null && _c !== void 0 ? _c : Buffer.from("")).slice(0, 128),
             stateBump,
             oracleBump,
-        }, {
-            accounts: {
-                oracle: oracleAccount.publicKey,
-                oracleAuthority: authorityKeypair.publicKey,
-                queue: params.queueAccount.publicKey,
-                wallet,
-                programState: programStateAccount.publicKey,
-                systemProgram: web3_js_1.SystemProgram.programId,
-                payer: programWallet(program).publicKey,
-            },
-        });
+        })
+            .accounts({
+            oracle: oracleAccount.publicKey,
+            oracleAuthority: authorityKeypair.publicKey,
+            queue: params.queueAccount.publicKey,
+            wallet,
+            programState: programStateAccount.publicKey,
+            systemProgram: web3_js_1.SystemProgram.programId,
+            payer: programWallet(program).publicKey,
+        })
+            .rpc();
         return new OracleAccount({ program, publicKey: oracleAccount.publicKey });
     }
     static decode(program, accountInfo) {
@@ -2089,20 +2112,21 @@ class OracleAccount {
         assert(queueAccount.publicKey !== undefined);
         assert(permissionAccount.publicKey !== undefined);
         assert(queue.dataBuffer !== undefined);
-        return await this.program.rpc.oracleHeartbeat({
+        return await this.program.methods
+            .oracleHeartbeat({
             permissionBump,
-        }, {
-            accounts: {
-                oracle: this.publicKey,
-                oracleAuthority: payerKeypair.publicKey,
-                tokenAccount: oracle.tokenAccount,
-                gcOracle: lastPubkey,
-                oracleQueue: queueAccount.publicKey,
-                permission: permissionAccount.publicKey,
-                dataBuffer: queue.dataBuffer,
-            },
-            signers: [authority],
-        });
+        })
+            .accounts({
+            oracle: this.publicKey,
+            oracleAuthority: payerKeypair.publicKey,
+            tokenAccount: oracle.tokenAccount,
+            gcOracle: lastPubkey,
+            oracleQueue: queueAccount.publicKey,
+            permission: permissionAccount.publicKey,
+            dataBuffer: queue.dataBuffer,
+        })
+            .signers([authority])
+            .rpc();
     }
     /**
     /**
@@ -2128,20 +2152,21 @@ class OracleAccount {
             throw new Error("A requested permission pda account has not been initialized.");
         }
         const oracle = await this.loadData();
-        return this.program.transaction.oracleHeartbeat({
+        return this.program.methods
+            .oracleHeartbeat({
             permissionBump,
-        }, {
-            accounts: {
-                oracle: this.publicKey,
-                oracleAuthority: payerKeypair.publicKey,
-                tokenAccount: oracle.tokenAccount,
-                gcOracle: lastPubkey,
-                oracleQueue: queueAccount.publicKey,
-                permission: permissionAccount.publicKey,
-                dataBuffer: queue.dataBuffer,
-            },
-            signers: [this.keypair],
-        });
+        })
+            .accounts({
+            oracle: this.publicKey,
+            oracleAuthority: payerKeypair.publicKey,
+            tokenAccount: oracle.tokenAccount,
+            gcOracle: lastPubkey,
+            oracleQueue: queueAccount.publicKey,
+            permission: permissionAccount.publicKey,
+            dataBuffer: queue.dataBuffer,
+        })
+            .signers([this.keypair])
+            .transaction();
     }
     /**
      * Withdraw stake and/or rewards from an OracleAccount.
@@ -2157,25 +2182,26 @@ class OracleAccount {
         const queueAuthority = (await queueAccount.loadData()).authority;
         const [stateAccount, stateBump] = ProgramStateAccount.fromSeed(this.program);
         const [permissionAccount, permissionBump] = PermissionAccount.fromSeed(this.program, queueAuthority, queueAccount.publicKey, this.publicKey);
-        return await this.program.rpc.oracleWithdraw({
+        return await this.program.methods
+            .oracleWithdraw({
             permissionBump,
             stateBump,
             amount: params.amount,
-        }, {
-            accounts: {
-                oracle: this.publicKey,
-                oracleAuthority: params.oracleAuthority.publicKey,
-                tokenAccount: oracle.tokenAccount,
-                withdrawAccount: params.withdrawAccount,
-                oracleQueue: queueAccount.publicKey,
-                permission: permissionAccount.publicKey,
-                tokenProgram: spl.TOKEN_PROGRAM_ID,
-                programState: stateAccount.publicKey,
-                systemProgram: web3_js_1.SystemProgram.programId,
-                payer: programWallet(this.program).publicKey,
-            },
-            signers: [params.oracleAuthority],
-        });
+        })
+            .accounts({
+            oracle: this.publicKey,
+            oracleAuthority: params.oracleAuthority.publicKey,
+            tokenAccount: oracle.tokenAccount,
+            withdrawAccount: params.withdrawAccount,
+            oracleQueue: queueAccount.publicKey,
+            permission: permissionAccount.publicKey,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+            programState: stateAccount.publicKey,
+            systemProgram: web3_js_1.SystemProgram.programId,
+            payer: programWallet(this.program).publicKey,
+        })
+            .signers([params.oracleAuthority])
+            .rpc();
     }
     async getBalance() {
         const oracle = await this.loadData();
@@ -2247,29 +2273,30 @@ class VrfAccount {
             console.log(e);
         }
         await switchTokenMint.setAuthority(escrow, programStateAccount.publicKey, "AccountOwner", keypair, []);
-        await program.rpc.vrfInit({
+        await program.methods
+            .vrfInit({
             stateBump,
             callback: params.callback,
-        }, {
-            accounts: {
-                vrf: keypair.publicKey,
-                escrow,
-                authority: (_a = params.authority) !== null && _a !== void 0 ? _a : keypair.publicKey,
-                oracleQueue: params.queue.publicKey,
-                programState: programStateAccount.publicKey,
-                tokenProgram: spl.TOKEN_PROGRAM_ID,
-            },
-            instructions: [
-                anchor.web3.SystemProgram.createAccount({
-                    fromPubkey: programWallet(program).publicKey,
-                    newAccountPubkey: keypair.publicKey,
-                    space: size,
-                    lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
-                    programId: program.programId,
-                }),
-            ],
-            signers: [keypair],
-        });
+        })
+            .accounts({
+            vrf: keypair.publicKey,
+            escrow,
+            authority: (_a = params.authority) !== null && _a !== void 0 ? _a : keypair.publicKey,
+            oracleQueue: params.queue.publicKey,
+            programState: programStateAccount.publicKey,
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+        })
+            .preInstructions([
+            anchor.web3.SystemProgram.createAccount({
+                fromPubkey: programWallet(program).publicKey,
+                newAccountPubkey: keypair.publicKey,
+                space: size,
+                lamports: await program.provider.connection.getMinimumBalanceForRentExemption(size),
+                programId: program.programId,
+            }),
+        ])
+            .signers([keypair])
+            .rpc();
         return new VrfAccount({ program, keypair, publicKey: keypair.publicKey });
     }
     /**
@@ -2310,26 +2337,27 @@ class VrfAccount {
         }
         const tokenProgram = spl.TOKEN_PROGRAM_ID;
         const recentBlockhashes = web3_js_1.SYSVAR_RECENT_BLOCKHASHES_PUBKEY;
-        await this.program.rpc.vrfRequestRandomness({
+        await this.program.methods
+            .vrfRequestRandomness({
             stateBump,
             permissionBump,
-        }, {
-            accounts: {
-                authority: params.authority.publicKey,
-                vrf: this.publicKey,
-                oracleQueue: queueAccount.publicKey,
-                queueAuthority,
-                dataBuffer,
-                permission: permissionAccount.publicKey,
-                escrow,
-                payerWallet: payer,
-                payerAuthority: params.payerAuthority.publicKey,
-                recentBlockhashes,
-                programState: stateAccount.publicKey,
-                tokenProgram,
-            },
-            signers: [params.authority, params.payerAuthority],
-        });
+        })
+            .accounts({
+            authority: params.authority.publicKey,
+            vrf: this.publicKey,
+            oracleQueue: queueAccount.publicKey,
+            queueAuthority,
+            dataBuffer,
+            permission: permissionAccount.publicKey,
+            escrow,
+            payerWallet: payer,
+            payerAuthority: params.payerAuthority.publicKey,
+            recentBlockhashes,
+            programState: stateAccount.publicKey,
+            tokenProgram,
+        })
+            .signers([params.authority, params.payerAuthority])
+            .rpc();
     }
     async prove(params) {
         const vrf = await this.loadData();
@@ -2345,17 +2373,18 @@ class VrfAccount {
         if (idx === vrf.buildersLen) {
             throw new Error("OracleProofRequestNotFoundError");
         }
-        return await this.program.rpc.vrfProve({
+        return await this.program.methods
+            .vrfProve({
             proof: params.proof,
             idx,
-        }, {
-            accounts: {
-                vrf: this.publicKey,
-                oracle: producerKey,
-                randomnessProducer: params.oracleAuthority.publicKey,
-            },
-            signers: [params.oracleAuthority],
-        });
+        })
+            .accounts({
+            vrf: this.publicKey,
+            oracle: producerKey,
+            randomnessProducer: params.oracleAuthority.publicKey,
+        })
+            .signers([params.oracleAuthority])
+            .rpc();
     }
     async verify(oracle, tryCount = 278) {
         const skipPreflight = true;
@@ -2375,24 +2404,25 @@ class VrfAccount {
         let tx = new web3_js_1.Transaction();
         for (let i = 0; i < tryCount; ++i) {
             txs.push({
-                tx: this.program.transaction.vrfVerify({
+                tx: await this.program.methods
+                    .vrfVerify({
                     nonce: i,
                     stateBump,
                     idx,
-                }, {
-                    accounts: {
-                        vrf: this.publicKey,
-                        callbackPid: vrf.callback.programId,
-                        tokenProgram: spl.TOKEN_PROGRAM_ID,
-                        escrow: vrf.escrow,
-                        programState: programStateAccount.publicKey,
-                        oracle: oracle.publicKey,
-                        oracleAuthority,
-                        oracleWallet,
-                        instructionsSysvar: web3_js_1.SYSVAR_INSTRUCTIONS_PUBKEY,
-                    },
-                    remainingAccounts,
-                }),
+                })
+                    .accounts({
+                    vrf: this.publicKey,
+                    callbackPid: vrf.callback.programId,
+                    tokenProgram: spl.TOKEN_PROGRAM_ID,
+                    escrow: vrf.escrow,
+                    programState: programStateAccount.publicKey,
+                    oracle: oracle.publicKey,
+                    oracleAuthority,
+                    oracleWallet,
+                    instructionsSysvar: web3_js_1.SYSVAR_INSTRUCTIONS_PUBKEY,
+                })
+                    .remainingAccounts(remainingAccounts)
+                    .transaction(),
             });
             // try {
             // tx.add(newTx);
@@ -2428,26 +2458,27 @@ class VrfAccount {
         let tx = new web3_js_1.Transaction();
         for (let i = 0; i < tryCount; ++i) {
             txs.push({
-                tx: this.program.transaction.vrfProveAndVerify({
+                tx: await this.program.methods
+                    .vrfProveAndVerify({
                     nonce: i,
                     stateBump,
                     idx,
                     proof: params.proof,
-                }, {
-                    accounts: {
-                        vrf: this.publicKey,
-                        callbackPid: vrf.callback.programId,
-                        tokenProgram: spl.TOKEN_PROGRAM_ID,
-                        escrow: vrf.escrow,
-                        programState: programStateAccount.publicKey,
-                        oracle: oracle.publicKey,
-                        oracleAuthority,
-                        oracleWallet,
-                        instructionsSysvar: web3_js_1.SYSVAR_INSTRUCTIONS_PUBKEY,
-                    },
-                    remainingAccounts,
-                    signers: [params.oracleAuthority],
-                }),
+                })
+                    .accounts({
+                    vrf: this.publicKey,
+                    callbackPid: vrf.callback.programId,
+                    tokenProgram: spl.TOKEN_PROGRAM_ID,
+                    escrow: vrf.escrow,
+                    programState: programStateAccount.publicKey,
+                    oracle: oracle.publicKey,
+                    oracleAuthority,
+                    oracleWallet,
+                    instructionsSysvar: web3_js_1.SYSVAR_INSTRUCTIONS_PUBKEY,
+                })
+                    .remainingAccounts(remainingAccounts)
+                    .signers([params.oracleAuthority])
+                    .transaction(),
             });
             // try {
             // tx.add(newTx);
@@ -2622,7 +2653,7 @@ async function sendAll(provider, reqs, signers, skipPreflight) {
     try {
         const opts = provider.opts;
         // TODO: maybe finalized
-        const blockhash = await provider.connection.getRecentBlockhash("confirmed");
+        const blockhash = await provider.connection.getLatestBlockhash("confirmed");
         let txs = reqs.map((r) => {
             if (r === null || r === undefined)
                 return new web3_js_1.Transaction();
@@ -2736,7 +2767,7 @@ exports.packInstructions = packInstructions;
 async function packTransactions(connection, transactions, signers, feePayer) {
     const instructions = transactions.map((t) => t.instructions).flat();
     const txs = packInstructions(instructions, feePayer);
-    const { blockhash } = await connection.getRecentBlockhash("confirmed");
+    const { blockhash } = await connection.getLatestBlockhash("confirmed");
     txs.forEach((t) => {
         t.recentBlockhash = blockhash;
     });
