@@ -70,18 +70,22 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
   }
 
   private getAccountCloneString(): string {
-    const accounts: string[] = Object.keys(this).map((key) => {
-      // iterate over additionalClonedAccounts and collect pubkeys
-      if (key === "additionalClonedAccounts" && this[key]) {
-        const additionalPubkeys = Object.values(this.additionalClonedAccounts);
-        const cloneStrings = additionalPubkeys.map(
-          (pubkey) => `--clone ${pubkey.toBase58()}`
-        );
-        return cloneStrings.join(" ");
-      }
+    const accounts: string[] = Object.entries(this).map(
+      (key: any, val: any) => {
+        // iterate over additionalClonedAccounts and collect pubkeys
+        if (key === "additionalClonedAccounts" && val) {
+          const additionalPubkeys = Object.values(
+            this.additionalClonedAccounts
+          );
+          const cloneStrings = additionalPubkeys.map(
+            (pubkey) => `--clone ${pubkey.toBase58()}`
+          );
+          return cloneStrings.join(" ");
+        }
 
-      return `--clone ${(this[key] as PublicKey).toBase58()}`;
-    });
+        return `--clone ${(val as PublicKey).toBase58()}`;
+      }
+    );
 
     return accounts.join(" ");
   }
@@ -241,6 +245,7 @@ export class SwitchboardTestEnvironment implements ISwitchboardTestEnvironment {
         queueSize: 10, // Number of active oracles a queue can support
         unpermissionedFeeds: true, // Whether feeds need PERMIT_ORACLE_QUEUE_USAGE permissions
         unpermissionedVrf: true, // Whether VRF accounts need PERMIT_VRF_REQUESTS permissions
+        mint: programState.tokenMint,
       }
     );
     await queueAccount.setVrfSettings({

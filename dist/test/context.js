@@ -40,7 +40,7 @@ class SwitchboardTestContext {
     }
     // Switchboard currently uses wrapped SOL for mint
     static async createSwitchboardWallet(program, amount = 1000000) {
-        const payerKeypair = sbv2.getPayer(program);
+        const payerKeypair = sbv2.programWallet(program);
         return spl.Token.createWrappedNativeAccount(program.provider.connection, spl.TOKEN_PROGRAM_ID, payerKeypair.publicKey, payerKeypair, amount);
     }
     // public static async depositSwitchboardWallet(
@@ -102,7 +102,7 @@ class SwitchboardTestContext {
     /** Create a static data feed that resolves to an expected value */
     async createStaticFeed(value) {
         const queue = await this.queue.loadData();
-        const payerKeypair = sbv2.getPayer(this.program);
+        const payerKeypair = sbv2.programWallet(this.program);
         // create aggregator
         const aggregatorAccount = await sbv2.AggregatorAccount.create(this.program, {
             batchSize: 1,
@@ -171,9 +171,7 @@ class SwitchboardTestContext {
         const existingJobs = aggregator.jobPubkeysData
             // eslint-disable-next-line array-callback-return
             .filter((jobKey) => {
-            if (!jobKey.equals(utils_1.DEFAULT_PUBKEY)) {
-                return jobKey;
-            }
+            return !jobKey.equals(utils_1.DEFAULT_PUBKEY);
         })
             .map((jobKey) => new sbv2.JobAccount({
             program: this.program,

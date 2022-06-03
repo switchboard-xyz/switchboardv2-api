@@ -53,14 +53,14 @@ class SwitchboardTestEnvironment {
         this.additionalClonedAccounts = ctx.additionalClonedAccounts;
     }
     getAccountCloneString() {
-        const accounts = Object.keys(this).map((key) => {
+        const accounts = Object.entries(this).map((key, val) => {
             // iterate over additionalClonedAccounts and collect pubkeys
-            if (key === "additionalClonedAccounts" && this[key]) {
+            if (key === "additionalClonedAccounts" && val) {
                 const additionalPubkeys = Object.values(this.additionalClonedAccounts);
                 const cloneStrings = additionalPubkeys.map((pubkey) => `--clone ${pubkey.toBase58()}`);
                 return cloneStrings.join(" ");
             }
-            return `--clone ${this[key].toBase58()}`;
+            return `--clone ${val.toBase58()}`;
         });
         return accounts.join(" ");
     }
@@ -159,7 +159,8 @@ class SwitchboardTestEnvironment {
             reward: new anchor.BN(0),
             queueSize: 10,
             unpermissionedFeeds: true,
-            unpermissionedVrf: true, // Whether VRF accounts need PERMIT_VRF_REQUESTS permissions
+            unpermissionedVrf: true,
+            mint: programState.tokenMint,
         });
         await queueAccount.setVrfSettings({
             authority: payerKeypair,
