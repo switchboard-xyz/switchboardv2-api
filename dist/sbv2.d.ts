@@ -572,6 +572,7 @@ export interface PermissionSetParams {
 }
 export interface PermissionSetVoterWeightParams {
     govProgram: PublicKey;
+    pubkeySigner?: PublicKey;
 }
 /**
  * An enum representing all known permission types for Switchboard.
@@ -641,8 +642,7 @@ export declare class PermissionAccount {
      * @return TransactionSignature.
      */
     setTx(params: PermissionSetParams): Promise<Transaction>;
-    setVoterWeight(params: PermissionSetVoterWeightParams): Promise<TransactionSignature>;
-    setVoterWeightTx(params: PermissionSetVoterWeightParams): Promise<Transaction>;
+    setVoterWeightTx(params: PermissionSetVoterWeightParams, addinProgram: anchor.Program, someGovernance: PublicKey): Promise<Transaction>;
 }
 /**
  * Parameters for initializing OracleQueueAccount
