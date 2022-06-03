@@ -1889,9 +1889,7 @@ export class PermissionAccount {
 
     let payerKeypair;
     if (params.pubkeySigner == undefined) {
-      payerKeypair = Keypair.fromSecretKey(
-        (this.program.provider.wallet as any).payer.secretKey
-      );
+      payerKeypair = programWallet(this.program);
     }
 
     const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
@@ -1940,7 +1938,7 @@ export class PermissionAccount {
         permission: this.publicKey,
         permissionAuthority: permissionData.authority,
         oracle: permissionData.grantee,
-        oracleAuthority: oracleData.oracleAuthority,
+        oracleAuthority: oracleData.oracleAuthority as PublicKey,
         payer: params.pubkeySigner,
         systemProgram: SystemProgram.programId,
         sbState: programStateAccount.publicKey,
@@ -1961,7 +1959,7 @@ export class PermissionAccount {
         permission: this.publicKey,
         permissionAuthority: permissionData.authority,
         oracle: permissionData.grantee,
-        oracleAuthority: oracleData.oracleAuthority,
+        oracleAuthority: oracleData.oracleAuthority as PublicKey,
         payer: payerKeypair.publicKey,
         systemProgram: SystemProgram.programId,
         sbState: programStateAccount.publicKey,
