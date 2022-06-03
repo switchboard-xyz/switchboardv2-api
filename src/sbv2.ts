@@ -1559,6 +1559,7 @@ export interface PermissionSetParams {
 
 export interface PermissionSetVoterWeightParams {
   govProgram: PublicKey;
+  pubkeySigner?: PublicKey;
 }
 
 /**
@@ -1775,7 +1776,7 @@ export class PermissionAccount {
     );
   }
 
-  async setVoterWeight(
+  /*async setVoterWeight(
     params: PermissionSetVoterWeightParams
   ): Promise<TransactionSignature> {
     const payerKeypair = Keypair.fromSecretKey(
@@ -1787,40 +1788,52 @@ export class PermissionAccount {
       tx,
       [payerKeypair]
     );
-  }
+  }*/
 
   async setVoterWeightTx(
-    params: PermissionSetVoterWeightParams
+    params: PermissionSetVoterWeightParams,
+    addinProgram: anchor.Program,
+    someGovernance: PublicKey,
   ): Promise<Transaction> {
     const permissionData = await this.loadData();
     const oracleData = await this.program.account.oracleAccountData.fetch(
       permissionData.grantee
     );
 
-    const payerKeypair = Keypair.fromSecretKey(
-      (this.program.provider.wallet as any).payer.secretKey
-    );
+    let payerKeypair;
+    if (params.pubkeySigner == undefined) {
+      payerKeypair = Keypair.fromSecretKey(
+        (this.program.provider.wallet as any).payer.secretKey
+      );
+    }
 
     const [programStateAccount, stateBump] = ProgramStateAccount.fromSeed(
       this.program
     );
     let psData = await programStateAccount.loadData();
 
+    let [addinState, _] = await PublicKey.findProgramAddress(
+      [
+        Buffer.from('state'),
+      ],
+      addinProgram.programId,
+    );
+
     const governance = (
       await getGovernance(
         this.program.provider.connection,
-        permissionData.authority
+        someGovernance
       )
     ).account;
 
     const [realmSpawnRecord] = anchor.utils.publicKey.findProgramAddressSync(
       [Buffer.from("RealmSpawnRecord"), governance.realm.toBytes()],
-      this.program.programId
+      addinProgram.programId
     );
 
     const [voterWeightRecord] = anchor.utils.publicKey.findProgramAddressSync(
       [Buffer.from("VoterWeightRecord"), permissionData.grantee.toBytes()],
-      this.program.programId
+      addinProgram.programId
     );
 
     const [tokenOwnerRecord] = anchor.utils.publicKey.findProgramAddressSync(
@@ -1833,29 +1846,49 @@ export class PermissionAccount {
       params.govProgram
     );
 
-    return await this.program.transaction.permissionSetVoterWeight(
-      {
-        stateBump,
-      },
-      {
-        accounts: {
-          permission: this.publicKey,
-          permissionAuthority: permissionData.authority,
-          oracle: permissionData.grantee,
-          oracleAuthority: oracleData.oracleAuthority,
-          payer: payerKeypair.publicKey,
-          systemProgram: SystemProgram.programId,
-          programState: programStateAccount.publicKey,
-          govProgram: GOVERNANCE_PID,
-          daoMint: psData.daoMint,
-          spawnRecord: realmSpawnRecord,
-          voterWeight: voterWeightRecord,
-          tokenOwnerRecord: tokenOwnerRecord,
-          realm: governance.realm,
-        },
-        signers: [payerKeypair],
-      }
-    );
+    if (params.pubkeySigner != undefined) {
+      return await addinProgram.methods
+      .permissionSetVoterWeight()
+      .accounts({
+        permission: this.publicKey,
+        permissionAuthority: permissionData.authority,
+        oracle: permissionData.grantee,
+        oracleAuthority: oracleData.oracleAuthority,
+        payer: params.pubkeySigner,
+        systemProgram: SystemProgram.programId,
+        sbState: programStateAccount.publicKey,
+        programState: addinState,
+        govProgram: GOVERNANCE_PID,
+        daoMint: psData.daoMint,
+        spawnRecord: realmSpawnRecord,
+        voterWeight: voterWeightRecord,
+        tokenOwnerRecord: tokenOwnerRecord,
+        realm: governance.realm,
+      })
+      .transaction();
+    }
+    else {
+      return await addinProgram.methods
+      .permissionSetVoterWeight()
+      .accounts({
+        permission: this.publicKey,
+        permissionAuthority: permissionData.authority,
+        oracle: permissionData.grantee,
+        oracleAuthority: oracleData.oracleAuthority,
+        payer: payerKeypair.publicKey,
+        systemProgram: SystemProgram.programId,
+        sbState: programStateAccount.publicKey,
+        programState: addinState,
+        govProgram: GOVERNANCE_PID,
+        daoMint: psData.daoMint,
+        spawnRecord: realmSpawnRecord,
+        voterWeight: voterWeightRecord,
+        tokenOwnerRecord: tokenOwnerRecord,
+        realm: governance.realm,
+      })
+      .signers([payerKeypair])
+      .transaction();
+    }
   }
 }
 
